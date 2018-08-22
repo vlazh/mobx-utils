@@ -4,8 +4,8 @@ export interface ErrorProvider {
   error: Option<string>;
 }
 
-// export type ValidationErrors<Entity extends keyof any> = Record<Entity, ErrorProvider>;
-export type ValidationErrors<Entity> = { [P in keyof Entity]: ErrorProvider };
+export type ValidationErrors<Entity> = Record<keyof Entity, ErrorProvider>;
+// export type ValidationErrors<Entity> = Record<keyof Required<Entity>, ErrorProvider>;
 
 export default interface ValidableModel<Entity = { [key: string]: any }> {
   errors: ValidationErrors<Entity>;
