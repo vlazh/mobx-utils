@@ -1,3 +1,4 @@
+import { KeysOfType } from 'typelevel-ts';
 import { isArrayLike } from 'mobx';
 import ValidableStoreModel from './ValidableStoreModel';
 
@@ -9,21 +10,20 @@ export interface JSONArray extends ReadonlyArray<JSONPrimitives | JSONObject | J
 
 export type JSONTypes = JSONPrimitives | JSONObject | JSONArray;
 
-type OnlyEntity<Entity> = Pick<
-  Entity,
-  Exclude<keyof Entity, keyof ValidableStoreModel<any> | keyof SerializableModel<any>>
+// type ExcludeFunctions<T> = Pick<T, { [K in keyof T]: T[K] extends Function ? never : K }[keyof T]>;
+export type ExcludeFunctions<T extends object> = Pick<T, Exclude<keyof T, KeysOfType<T, Function>>>;
+
+type OnlyEntity<Entity extends object> = ExcludeFunctions<
+  Pick<Entity, Exclude<keyof Entity, keyof ValidableStoreModel<any> | keyof SerializableModel<any>>>
 >;
 
-// export type JSONModel<Entity> = Partial<Record<keyof OnlyEntity<Entity>, JSONTypes>>;
-
-export type JSONModel<Entity> = {
-  [P in keyof OnlyEntity<Entity>]?: OnlyEntity<Entity>[P] extends SerializableModel<any>
-    ? JSONModel<OnlyEntity<Entity>[P]>
-    // : Entity[P]
+export type JSONModel<Entity extends object> = {
+  [P in keyof OnlyEntity<Entity>]: OnlyEntity<Entity>[P] extends SerializableModel<any>
+    ? JSONModel<OnlyEntity<Entity>[P]> // : Entity[P]
     : JSONTypes
 };
 
-export default interface SerializableModel<Entity> {
+export default interface SerializableModel<Entity extends object> {
   toJSON(): JSONModel<Entity>;
 }
 
