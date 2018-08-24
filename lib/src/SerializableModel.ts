@@ -18,9 +18,11 @@ type OnlyEntity<Entity extends object> = ExcludeFunctions<
 >;
 
 export type JSONModel<Entity extends object> = {
-  [P in keyof OnlyEntity<Entity>]: OnlyEntity<Entity>[P] extends SerializableModel<any>
-    ? JSONModel<OnlyEntity<Entity>[P]> // : Entity[P]
-    : JSONTypes
+  [P in keyof OnlyEntity<Entity>]: OnlyEntity<Entity>[P] extends JSONTypes
+    ? OnlyEntity<Entity>[P] // keep original property type
+    : OnlyEntity<Entity>[P] extends SerializableModel<any>
+      ? JSONModel<OnlyEntity<Entity>[P]>
+      : string // JSONTypes
 };
 
 export default interface SerializableModel<Entity extends object> {
