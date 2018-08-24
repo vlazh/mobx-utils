@@ -1,4 +1,3 @@
-export * from './types';
 export { default as Notification } from './Notification';
 export * from './Notification';
 export { default as ValidableModel } from './ValidableModel';

@@ -45,5 +45,8 @@
     "typescript": "^3.0.1",
     "typescript-eslint-parser": "^18.0.0",
     "valtors": "^1.4.1"
+  },
+  "dependencies": {
+    "typelevel-ts": "^0.3.1"
   }
 }

@@ -1,5 +1,5 @@
+import { Omit } from 'typelevel-ts';
 import { observable, computed } from 'mobx';
-import { Omit } from './types';
 import Notification, { NotificationID, NotificationType } from './Notification';
 import UIBaseStore from './UIBaseStore';
 
