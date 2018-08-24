@@ -7,12 +7,17 @@ import BaseStore from './BaseStore';
 
 export interface ResponseLike {
   data?: any;
+  status?: number;
   statusText?: string;
 }
 
 export interface ResponseErrorLike {
   config: any;
   response: any;
+}
+
+export interface AsyncAction<T> {
+  (): Promise<T>;
 }
 
 export function isResponseError(error: ResponseErrorLike | Throwable): error is ResponseErrorLike {
@@ -28,13 +33,13 @@ export default class RequestableStore<RS, UIS extends LocalUIStore<RS>> extends 
   }
 
   @action
-  protected async doRequest<R>(doWork: () => Promise<R>): Promise<Try<R>> {
+  protected async doRequest<R>(doWork: AsyncAction<R>): Promise<Try<R>> {
     this.uiStore.cleanNotifications(NotificationType.error);
     this.uiStore.loading = true;
 
     try {
       const result = await doWork();
-      return Try.success(this.onRequestSuccess(result));
+      return Try.of(() => this.onRequestSuccess(result));
     } catch (ex) {
       this.onRequestError(ex);
       return Try.failure(ex);
@@ -42,12 +47,12 @@ export default class RequestableStore<RS, UIS extends LocalUIStore<RS>> extends 
   }
 
   @action
-  request<R>(doWork: () => Promise<R>): Promise<Try<R>> {
+  request<R>(doWork: AsyncAction<R>): Promise<Try<R>> {
     return this.doRequest(doWork);
   }
 
   @action
-  submit<E, R>(model: ValidableModel<E>, doWork: () => Promise<R>): Promise<Try<R>> {
+  submit<E, R>(model: ValidableModel<E>, doWork: AsyncAction<R>): Promise<Try<R>> {
     if (!model.validate()) {
       return Promise.resolve(Try.failure(new Error('`model` is in invalid state.')));
     }
@@ -55,7 +60,7 @@ export default class RequestableStore<RS, UIS extends LocalUIStore<RS>> extends 
   }
 
   @action
-  protected onRequestSuccess<R>(result: R) {
+  protected onRequestSuccess<R>(result: R): R {
     this.uiStore.loading = false;
     this.uiStore.cleanNotifications(NotificationType.error);
     return result;
