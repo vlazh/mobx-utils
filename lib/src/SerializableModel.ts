@@ -4,7 +4,7 @@ import ValidableStoreModel from './ValidableStoreModel';
 
 export type JSONPrimitives = string | number | boolean | null | undefined;
 
-export interface JSONObject extends Record<PropertyKey, JSONPrimitives | JSONObject | JSONArray> {}
+export interface JSONObject extends Record<string, JSONPrimitives | JSONObject | JSONArray> {}
 
 export interface JSONArray extends ReadonlyArray<JSONPrimitives | JSONObject | JSONArray> {}
 
@@ -20,9 +20,9 @@ type OnlyEntity<Entity extends object> = ExcludeFunctions<
 export type JSONModel<Entity extends object> = {
   [P in keyof OnlyEntity<Entity>]: OnlyEntity<Entity>[P] extends JSONTypes
     ? OnlyEntity<Entity>[P] // keep original property type
-    : OnlyEntity<Entity>[P] extends SerializableModel<any>
+    : OnlyEntity<Entity>[P] extends SerializableModel<any> | object
       ? JSONModel<OnlyEntity<Entity>[P]>
-      : string // JSONTypes
+      : string
 };
 
 export default interface SerializableModel<Entity extends object> {
