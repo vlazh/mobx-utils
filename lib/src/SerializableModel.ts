@@ -5,11 +5,11 @@ import ValidableStoreModel from './ValidableStoreModel';
 
 export type JSONPrimitives = string | number | boolean | null | undefined;
 
-export interface JSONObject extends Record<string, JSONPrimitives | JSONObject | JSONArray> {}
-
-export interface JSONArray extends ReadonlyArray<JSONPrimitives | JSONObject | JSONArray> {}
-
 export type JSONTypes = JSONPrimitives | JSONObject | JSONArray;
+
+export interface JSONObject extends Record<string, JSONTypes> {}
+
+export interface JSONArray extends ReadonlyArray<JSONTypes> {}
 
 // type ExcludeFunctions<T> = Pick<T, { [K in keyof T]: T[K] extends Function ? never : K }[keyof T]>;
 export type ExcludeFunctions<T extends object> = Pick<T, Exclude<keyof T, KeysOfType<T, Function>>>;
@@ -52,22 +52,18 @@ export declare type JSONModelProp<P extends any> = P extends JSONTypes
     : P extends Option<infer T>
       ? T extends JSONTypes
         ? (T | undefined)
-        : T extends object ? OptionalJSONModel<T> : (string | undefined)
-        // : P extends Array<infer T>
-        //   ? T extends JSONTypes
-        //     ? Array<T>
-        //     : T extends object | undefined ? Array<JSONModel<T>> : Array<string>
+        : T extends object ? OptionalJSONModel<T> : (string | undefined) // : P extends Array<infer T> //   ? T extends JSONTypes //     ? Array<T> //     : T extends object | undefined ? Array<JSONModel<T>> : Array<string>
       : P extends object ? JSONModel<P> : string;
+
+export type JSONObjectModel<T extends object | undefined> = {
+  [P in keyof OnlyEntity<T>]: JSONModelProp<T[P]>
+};
 
 export declare type JSONModel<Entity extends object | undefined> = Entity extends Option<infer T>
   ? T extends JSONTypes
     ? T | undefined
-    : T extends object
-      ? ({ [P in keyof OnlyEntity<T>]: JSONModelProp<T[P]> } | undefined)
-      : string | undefined
-  : Entity extends JSONTypes
-    ? Entity
-    : { [P in keyof OnlyEntity<Entity>]: JSONModelProp<Entity[P]> };
+    : T extends object ? (JSONObjectModel<T> | undefined) : (string | undefined)
+  : Entity extends JSONTypes ? Entity : JSONObjectModel<Entity>;
 
 /* export type JSONModelProp<P extends any> = ExtractOptionType<P> extends JSONTypes
   ? ExtractOptionType<P>
@@ -164,3 +160,5 @@ export default interface SerializableModel<Entity extends object> {
 // type B = JSONModel<number[]>;
 // type B = JSONModel<{ a: 1; b: { q: string; w: string[] }[] }>;
 // const b: B = {};
+// type J = JSONObject;
+// const j: J = { a: 0, 1: 7, z: new Date() };
