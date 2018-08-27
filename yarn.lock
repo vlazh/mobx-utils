@@ -91,9 +91,9 @@
     "@types/prop-types" "*"
     csstype "^2.2.0"
 
-"@vzh/configs@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@vzh/configs/-/configs-2.0.0.tgz#7266cdc7eb1802a22997ccb11dce4ab1f148ef7a"
+"@vzh/configs@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@vzh/configs/-/configs-2.0.1.tgz#6d77330361e0eb2200d2fc4238e5b071bfbfb979"
 
 acorn-jsx@^4.1.1:
   version "4.1.1"
@@ -2020,9 +2020,9 @@ mobx-react@^5.2.5:
     hoist-non-react-statics "^2.5.0"
     react-lifecycles-compat "^3.0.2"
 
-mobx@^5.0.4:
-  version "5.0.4"
-  resolved "https://registry.yarnpkg.com/mobx/-/mobx-5.0.4.tgz#3f0faa74d4214b012d957f6a559e2e3e1aae421e"
+mobx@^5.0.5:
+  version "5.0.5"
+  resolved "https://registry.yarnpkg.com/mobx/-/mobx-5.0.5.tgz#e69abe62fd54e7d3b19d339c97ea27f8c6d5e76e"
 
 ms@2.0.0:
   version "2.0.0"
