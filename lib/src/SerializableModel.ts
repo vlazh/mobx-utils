@@ -45,7 +45,31 @@ export type OnlyEntity<Entity extends object | undefined> = ExcludeFunctions<
 
 export type ExtractOptionType<A> = A extends Option<infer B> ? B : A;
 
-export type JSONModelProp<P extends any> = ExtractOptionType<P> extends JSONTypes
+export declare type JSONModelProp<P extends any> = P extends JSONTypes
+  ? P
+  : undefined extends P
+    ? P extends object | undefined ? OptionalJSONModel<P> : string
+    : P extends Option<infer T>
+      ? T extends JSONTypes
+        ? (T | undefined)
+        : T extends object ? OptionalJSONModel<T> : (string | undefined)
+        // : P extends Array<infer T>
+        //   ? T extends JSONTypes
+        //     ? Array<T>
+        //     : T extends object | undefined ? Array<JSONModel<T>> : Array<string>
+      : P extends object ? JSONModel<P> : string;
+
+export declare type JSONModel<Entity extends object | undefined> = Entity extends Option<infer T>
+  ? T extends JSONTypes
+    ? T | undefined
+    : T extends object
+      ? ({ [P in keyof OnlyEntity<T>]: JSONModelProp<T[P]> } | undefined)
+      : string | undefined
+  : Entity extends JSONTypes
+    ? Entity
+    : { [P in keyof OnlyEntity<Entity>]: JSONModelProp<Entity[P]> };
+
+/* export type JSONModelProp<P extends any> = ExtractOptionType<P> extends JSONTypes
   ? ExtractOptionType<P>
   : undefined extends ExtractOptionType<P>
     ? ExtractOptionType<P> extends object | undefined
@@ -57,16 +81,20 @@ export type JSONModelProp<P extends any> = ExtractOptionType<P> extends JSONType
 
 export declare type JSONModel<Entity extends object | undefined> = Entity extends Option<infer T>
   ? T extends JSONTypes
-    ? T
+    ? T | undefined
     : T extends object
-      ? { [P in keyof OnlyEntity<ExtractOptionType<T>>]: JSONModelProp<ExtractOptionType<T>[P]> }
-      : string
+      ? (
+          | {
+              [P in keyof OnlyEntity<ExtractOptionType<T>>]: JSONModelProp<ExtractOptionType<T>[P]>
+            }
+          | undefined)
+      : string | undefined
   : {
       [P in keyof OnlyEntity<ExtractOptionType<Entity>>]: JSONModelProp<
         ExtractOptionType<Entity>[P]
       >
     };
-
+ */
 /* export type JSONModel<Entity extends object | undefined> = {
   // [P in keyof OnlyEntity<Entity>]: Entity[P] extends JSONTypes
   //   ? Entity[P]
@@ -133,4 +161,6 @@ export default interface SerializableModel<Entity extends object> {
 // const a = serialize(Option.of(1));
 // a;
 // type B = JSONModel<Option<number>>;
+// type B = JSONModel<number[]>;
+// type B = JSONModel<{ a: 1; b: { q: string; w: string[] }[] }>;
 // const b: B = {};
