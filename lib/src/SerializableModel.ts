@@ -149,6 +149,7 @@ export function serialize<Entity>(
 }
 
 export default interface SerializableModel<Entity extends object> {
+  jsonModel?: Entity; // Just for correct infering: https://github.com/Microsoft/TypeScript/issues/26688
   toJSON(): JSONModel<Entity>;
 }
 
