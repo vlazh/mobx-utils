@@ -52,7 +52,7 @@ export default class RequestableStore<RS, UIS extends LocalUIStore<RS>> extends 
   }
 
   @action
-  submit<E, R>(model: ValidableModel<E>, doWork: AsyncAction<R>): Promise<Try<R>> {
+  submit<E extends object, R>(model: ValidableModel<E>, doWork: AsyncAction<R>): Promise<Try<R>> {
     if (!model.validate()) {
       return Promise.resolve(Try.failure(new Error('`model` is in invalid state.')));
     }

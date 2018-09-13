@@ -4,7 +4,7 @@ import { validate } from 'valtors';
 import ValidableModel, { ValidationErrors } from './ValidableModel';
 import StoreModel from './StoreModel';
 
-export default class ValidableStoreModel<Entity> extends StoreModel<Entity>
+export default class ValidableStoreModel<Entity extends object> extends StoreModel<Entity>
   implements ValidableModel<Entity> {
   // Пустое значение (undefined) при инициализации, поэтому mobx не следит за присвоенными значениями в конструкторе.
   // validationErrors: E;

@@ -13,7 +13,7 @@ export interface InputEventLike<V = any> {
   target: InputElementLike<V>;
 }
 
-export default class StoreModel<Entity> {
+export default class StoreModel<Entity extends object> {
   constructor() {
     this.changeField = this.changeField.bind(this);
   }
