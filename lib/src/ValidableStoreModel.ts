@@ -16,8 +16,8 @@ export default class ValidableStoreModel<Entity extends object> extends StoreMod
     this.errors = observable.object(errors);
   }
 
-  protected onModelChanged(name: keyof Entity) {
-    super.onModelChanged(name);
+  protected onModelChanged(name: keyof Entity, prevValue: any) {
+    super.onModelChanged(name, prevValue);
     this.validate(name);
   }
 

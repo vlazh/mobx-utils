@@ -1,8 +1,6 @@
 import { action } from 'mobx';
 
 export interface InputElementLike<V = any> {
-  // getAttribute?: (name: string) => string | null;
-  // id?: string;
   type?: string;
   name?: string;
   value: V;
@@ -18,7 +16,8 @@ export default class StoreModel<Entity extends object> {
     this.changeField = this.changeField.bind(this);
   }
 
-  protected onModelChanged(_: keyof Entity) {}
+  // @ts-ignore
+  protected onModelChanged(name: keyof Entity, prevValue: any) {}
 
   protected getFieldName(input: InputElementLike): string {
     if (input.name && input.name in this) {
@@ -34,7 +33,9 @@ export default class StoreModel<Entity extends object> {
 
     const { target: el } = event;
     const name = this.getFieldName(el);
-    this[name] = el.type === 'number' ? +el.value : el.value;
-    this.onModelChanged(name as keyof Entity);
+    const prevValue = this[name];
+    const nextValue = el.type === 'number' ? +el.value : el.value;
+    this[name] = nextValue; // change field immediately for performance purpose
+    this.onModelChanged(name as keyof Entity, prevValue);
   }
 }
