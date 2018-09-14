@@ -2,8 +2,8 @@ import { action } from 'mobx';
 import { Throwable, Try } from 'funfix-core';
 import { NotificationType } from './Notification';
 import ValidableModel from './ValidableModel';
-import LocalUIStore from './LocalUIStore';
 import BaseStore from './BaseStore';
+import UIStore from './UIStore';
 
 export interface ResponseLike {
   data?: any;
@@ -24,7 +24,7 @@ export function isResponseError(error: ResponseErrorLike | Throwable): error is 
   return (error as ResponseErrorLike).config !== undefined;
 }
 
-export default class RequestableStore<RS, UIS extends LocalUIStore<RS>> extends BaseStore<RS> {
+export default class RequestableStore<RS, UIS extends UIStore<RS>> extends BaseStore<RS> {
   constructor(rootStore: RS, public uiStore: UIS) {
     super(rootStore);
     this.request = this.request.bind(this);

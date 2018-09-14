@@ -1,12 +1,11 @@
 import { Omit } from 'typelevel-ts';
-import { observable, computed } from 'mobx';
+import { observable, computed, action } from 'mobx';
 import Notification, { NotificationID, NotificationType } from './Notification';
-import UIBaseStore from './UIBaseStore';
+import LoadableStore from './LoadableStore';
 
-export default class LocalUIStore<RS> extends UIBaseStore<RS, ReadonlyArray<Notification>> {
-  // @observable notifications: Notification[] = [];
+export default class UIStore<RS> extends LoadableStore<RS> {
   @observable
-  private notificationList: Notification[] = [];
+  private notificationList: ReadonlyArray<Notification> = [];
 
   constructor(rootStore: RS) {
     super(rootStore);
@@ -16,7 +15,7 @@ export default class LocalUIStore<RS> extends UIBaseStore<RS, ReadonlyArray<Noti
     this.cleanNotifications = this.cleanNotifications.bind(this);
   }
 
-  // @computed
+  @computed
   get notifications(): ReadonlyArray<Notification> {
     return this.notificationList;
   }
@@ -26,19 +25,23 @@ export default class LocalUIStore<RS> extends UIBaseStore<RS, ReadonlyArray<Noti
     return this.notificationList.some(n => n.type === NotificationType.error);
   }
 
+  @action
   addNotification(notification: Omit<Notification, 'id'>) {
     const newId = this.notificationList.length + 1;
-    this.notificationList.push({ id: newId, ...notification });
+    // this.notificationList.push({ id: newId, ...notification });
+    this.notificationList = this.notificationList.concat({ id: newId, ...notification });
 
     if (notification.timeout) {
       setTimeout(() => this.closeNotification(newId), notification.timeout);
     }
   }
 
+  @action
   closeNotification(id: NotificationID) {
     this.notificationList = this.notificationList.filter(_ => _.id !== id);
   }
 
+  @action
   cleanNotifications(type?: NotificationType) {
     this.notificationList = type ? this.notificationList.filter(_ => _.type !== type) : [];
   }
