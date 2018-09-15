@@ -3,7 +3,7 @@ import BaseStore from './BaseStore';
 
 export default abstract class LoadableStore<RS> extends BaseStore<RS> {
   @observable
-  pendingRequestCount = 0; // For multiple requests
+  protected pendingRequestCount: number = 0; // For multiple requests
 
   /** true - while has at least 1 running request. */
   @computed

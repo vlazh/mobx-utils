@@ -17,7 +17,7 @@ export interface ResponseErrorLike {
 }
 
 export interface AsyncAction<T> {
-  (): Promise<T>;
+  (...params: any[]): Promise<T>;
 }
 
 export function isResponseError(error: ResponseErrorLike | Throwable): error is ResponseErrorLike {
@@ -32,15 +32,19 @@ export default class RequestableStore<RS, UIS extends UIStore<RS>> extends BaseS
     this.onRequestError = this.onRequestError.bind(this);
   }
 
-  @action
+  // Used Try for always return successed promise but keep error if has.
+  // If just use promise with error and not use catch in client code then warning in console.
   protected async doRequest<R>(doWork: AsyncAction<R>): Promise<Try<R>> {
     this.uiStore.cleanNotifications(NotificationType.error);
     this.uiStore.loading = true;
 
     try {
       const result = await doWork();
-      return Try.of(() => this.onRequestSuccess(result));
+      this.uiStore.loading = false;
+      this.onRequestSuccess(result);
+      return Try.success(result);
     } catch (ex) {
+      this.uiStore.loading = false;
       this.onRequestError(ex);
       return Try.failure(ex);
     }
@@ -60,12 +64,11 @@ export default class RequestableStore<RS, UIS extends UIStore<RS>> extends BaseS
   }
 
   @action
-  protected onRequestSuccess<R>(result: R): R {
-    this.uiStore.loading = false;
-    this.uiStore.cleanNotifications(NotificationType.error);
-    return result;
-  }
+  // @ts-ignore
+  // eslint-disable-next-line
+  protected onRequestSuccess<R>(result: R) {}
 
+  // eslint-disable-next-line
   protected getResponseErrorMessage(response: ResponseLike): string {
     return response.data || response.statusText;
   }
@@ -78,10 +81,8 @@ export default class RequestableStore<RS, UIS extends UIStore<RS>> extends BaseS
 
   @action
   protected onRequestError(error: ResponseErrorLike | Throwable) {
-    this.uiStore.loading = false;
     console.error(error);
 
-    this.uiStore.cleanNotifications(NotificationType.error);
     this.uiStore.addNotification({
       type: NotificationType.error,
       text: this.getErrorMessage(error),
