@@ -1,3 +1,6 @@
 {
-  "extends": ["./node_modules/@vzh/configs/eslint/ts.common.eslintrc.json"]
+  "extends": ["./node_modules/@vzh/configs/eslint/ts.common.eslintrc.json"],
+  "rules": {
+    "class-methods-use-this": "off"
+  }
 }

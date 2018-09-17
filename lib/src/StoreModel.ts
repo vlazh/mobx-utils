@@ -1,9 +1,12 @@
 import { action } from 'mobx';
 
-export interface InputElementLike<V = any> {
-  type?: string;
-  name?: string;
+export interface NameValue<V> {
+  name: string;
   value: V;
+}
+
+export interface InputElementLike<V = any> extends NameValue<V> {
+  type?: string;
 }
 
 export interface InputEventLike<V = any> {
@@ -11,7 +14,19 @@ export interface InputEventLike<V = any> {
   target: InputElementLike<V>;
 }
 
-export default class StoreModel<Entity extends object> {
+export interface ChangeFieldHandler {
+  (event: InputEventLike | NameValue<any>): void;
+}
+
+export interface StoreModelLike {
+  changeField: ChangeFieldHandler;
+}
+
+export function isInputEventLike(event: InputEventLike | NameValue<any>): event is InputEventLike {
+  return (event as InputEventLike).target !== undefined;
+}
+
+export default class StoreModel<Entity extends object> implements StoreModelLike {
   constructor() {
     this.changeField = this.changeField.bind(this);
   }
@@ -19,7 +34,7 @@ export default class StoreModel<Entity extends object> {
   // @ts-ignore
   protected onModelChanged(name: keyof Entity, prevValue: any) {}
 
-  protected getFieldName(input: InputElementLike): string {
+  protected getFieldName(input: NameValue<any>): string {
     if (input.name && input.name in this) {
       return input.name;
     }
@@ -27,15 +42,24 @@ export default class StoreModel<Entity extends object> {
     throw new Error(`Not found property '${input.name}' in model.`);
   }
 
-  @action
-  changeField(event: InputEventLike) {
-    event.preventDefault && event.preventDefault();
+  protected getFieldValue(input: InputElementLike): any {
+    return input.type === 'number' ? +input.value : input.value;
+  }
 
-    const { target: el } = event;
-    const name = this.getFieldName(el);
+  @action
+  changeField(event: InputEventLike | NameValue<any>) {
     const prevValue = this[name];
-    const nextValue = el.type === 'number' ? +el.value : el.value;
-    this[name] = nextValue; // change field immediately for performance purpose
+
+    // change store's field immediately for performance purpose
+    if (isInputEventLike(event)) {
+      event.preventDefault && event.preventDefault();
+      const name = this.getFieldName(event.target);
+      this[name] = this.getFieldValue(event.target);
+    } else {
+      const name = this.getFieldName(event);
+      this[name] = this.getFieldValue(event);
+    }
+
     this.onModelChanged(name as keyof Entity, prevValue);
   }
 }
