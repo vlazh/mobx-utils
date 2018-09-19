@@ -3,7 +3,7 @@ import { observable, computed, action } from 'mobx';
 import Notification, { NotificationID, NotificationType } from './Notification';
 import LoadableStore from './LoadableStore';
 
-export default class UIStore<RS> extends LoadableStore<RS> {
+export default class UIStore<RS extends object> extends LoadableStore<RS> {
   @observable
   private notificationList: ReadonlyArray<Notification> = [];
 

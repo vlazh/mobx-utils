@@ -3,6 +3,7 @@ export * from './Notification';
 export { default as ValidableModel } from './ValidableModel';
 export * from './ValidableModel';
 export { default as typedInject } from './typedInject';
+export { default as DisposableStore } from './DisposableStore';
 export { default as BaseStore } from './BaseStore';
 export { default as LoadableStore } from './LoadableStore';
 export { default as UIStore } from './UIStore';

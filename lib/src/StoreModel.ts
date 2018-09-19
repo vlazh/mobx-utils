@@ -32,6 +32,7 @@ export default class StoreModel<Entity extends object> implements StoreModelLike
   }
 
   // @ts-ignore
+  // eslint-disable-next-line no-empty-function
   protected onModelChanged(name: keyof Entity, prevValue: any) {}
 
   protected getFieldName(input: NameValue<any>): string {

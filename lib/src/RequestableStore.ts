@@ -24,7 +24,9 @@ export function isResponseError(error: ResponseErrorLike | Throwable): error is 
   return (error as ResponseErrorLike).config !== undefined;
 }
 
-export default class RequestableStore<RS, UIS extends UIStore<RS>> extends BaseStore<RS> {
+export default class RequestableStore<RS extends object, UIS extends UIStore<RS>> extends BaseStore<
+  RS
+> {
   constructor(rootStore: RS, public uiStore: UIS) {
     super(rootStore);
     this.request = this.request.bind(this);
