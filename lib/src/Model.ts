@@ -29,6 +29,9 @@ export default class Model<Entity extends object> implements ModelLike {
 
   constructor(target?: object) {
     this.target = target || this;
+    // to avoid circular dependencies on self
+    const desc = Object.getOwnPropertyDescriptor(this, 'target');
+    Object.defineProperty(this, 'target', { ...desc, enumerable: false });
   }
 
   // @ts-ignore
