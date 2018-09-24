@@ -12,8 +12,8 @@ export interface InputEventLike<V = any> {
   target: InputElementLike<V>;
 }
 
-export interface ChangeFieldHandler {
-  (event: InputEventLike | NameValue): void;
+export interface ChangeFieldHandler<V = any> {
+  (event: InputEventLike<V> | NameValue<V>): void;
 }
 
 export interface ModelLike {
