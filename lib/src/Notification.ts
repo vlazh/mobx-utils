@@ -1,10 +1,10 @@
 export type NotificationID = string | number;
 
 export enum NotificationType {
-  error = 'error',
-  warn = 'warn',
   info = 'info',
   success = 'success',
+  error = 'error',
+  warning = 'warning',
 }
 
 export default interface Notification {
