@@ -1,13 +1,10 @@
 import { action } from 'mobx';
 import { ViewModel as ViewModelOriginal, IViewModel } from 'mobx-utils';
-import { Omit } from 'typelevel-ts';
 import Model, { ModelLike, NameValue, InputEventLike } from './Model';
 
-export interface ViewModelLike<T extends ModelLike> extends ModelLike, IViewModel<T> {}
-
-export class ViewModel<T extends ModelLike> extends ViewModelOriginal<T>
-  implements ViewModelLike<T> {
-  protected storeModel = new Model<T>(this);
+export class ViewModel<E extends object, T extends ModelLike<E>> extends ViewModelOriginal<T>
+  implements ModelLike<E> {
+  protected storeModel = new Model<E>(this as any);
 
   constructor(model: T) {
     super(model);
@@ -15,13 +12,17 @@ export class ViewModel<T extends ModelLike> extends ViewModelOriginal<T>
   }
 
   @action.bound
-  changeField(event: NameValue | InputEventLike): void {
+  changeField<K extends keyof E>(event: NameValue<E, K> | InputEventLike): void {
     this.storeModel.changeField(event);
   }
 }
 
-export default function createViewModel<T extends ModelLike>(
+export type ViewModelLike<T> = T extends ModelLike<infer E>
+  ? (E & ModelLike<E> & IViewModel<T>)
+  : never;
+
+export default function createViewModel<E extends object, T extends Model<E>>(
   model: T
-): Omit<T, keyof ModelLike> & ViewModelLike<T> {
-  return new ViewModel(model) as any;
+): ViewModelLike<T> {
+  return new ViewModel<E, T>(model) as ViewModelLike<T>;
 }

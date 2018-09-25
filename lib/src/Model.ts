@@ -1,34 +1,37 @@
-export interface NameValue<V = any> {
-  name: string;
-  value: V;
+export interface NameValue<Entity extends object, K extends keyof Entity> {
+  name: undefined extends K ? string : K;
+  value: undefined extends K ? any : Entity[K];
 }
 
-export interface InputElementLike<V = any> extends NameValue<V> {
+export interface InputElementLike extends NameValue<any, any> {
   type?: string;
 }
 
-export interface InputEventLike<V = any> {
-  preventDefault?: () => void;
-  target: InputElementLike<V>;
+export interface InputEventLike {
+  preventDefault: () => void;
+  target: InputElementLike;
 }
 
-export interface ChangeFieldHandler<V = any> {
-  (event: InputEventLike<V> | NameValue<V>): void;
+export interface ChangeFieldHandler<Entity extends object> {
+  <K extends keyof Entity>(event: InputEventLike | NameValue<Entity, K>): void;
 }
 
-export interface ModelLike {
-  changeField: ChangeFieldHandler;
+export interface ModelLike<Entity extends object> {
+  changeField: ChangeFieldHandler<Entity>;
 }
 
-export function isInputEventLike(event: InputEventLike | NameValue): event is InputEventLike {
+export function isInputEventLike<Entity extends object, K extends keyof Entity>(
+  event: InputEventLike | NameValue<Entity, K>
+): event is InputEventLike {
   return (event as InputEventLike).target !== undefined;
 }
 
-export default class Model<Entity extends object> implements ModelLike {
-  protected readonly target: object;
+export default class Model<Entity extends object> implements ModelLike<Entity> {
+  /** Target object which will be changed by `changeField`. */
+  protected readonly target: Entity;
 
-  constructor(target?: object) {
-    this.target = target || this;
+  constructor(target?: Entity) {
+    this.target = target || (this as any);
     // to avoid circular dependencies on self
     const desc = Object.getOwnPropertyDescriptor(this, 'target');
     Object.defineProperty(this, 'target', { ...desc, enumerable: false });
@@ -36,33 +39,35 @@ export default class Model<Entity extends object> implements ModelLike {
 
   // @ts-ignore
   // eslint-disable-next-line no-empty-function
-  protected onModelChanged(name: keyof Entity, prevValue: any) {}
+  protected onModelChanged<K extends keyof Entity>(name: keyof Entity, prevValue: Entity[K]) {}
 
-  protected getFieldName(input: NameValue): string {
+  protected getFieldName<K extends keyof Entity>(input: NameValue<any, any>): K {
     if (input.name && input.name in this.target) {
-      return input.name;
+      return input.name as K;
     }
 
     throw new Error(`Not found property '${input.name}' in model.`);
   }
 
-  protected getFieldValue(input: InputElementLike): any {
-    return input.type === 'number' ? +input.value : input.value;
+  protected getFieldValue<K extends keyof Entity>(input: InputElementLike): Entity[K] {
+    return input.type === 'number' ? (+input.value as any) : input.value;
   }
 
-  changeField(event: InputEventLike | NameValue) {
-    const prevValue = this.target[name];
+  changeField<K extends keyof Entity>(event: InputEventLike | NameValue<Entity, K>) {
+    let prevValue: Entity[K];
 
     // change store's field immediately for performance purpose
     if (isInputEventLike(event)) {
       event.preventDefault && event.preventDefault();
       const name = this.getFieldName(event.target);
+      prevValue = this.target[name] as Entity[K];
       this.target[name] = this.getFieldValue(event.target);
     } else {
       const name = this.getFieldName(event);
-      this.target[name] = this.getFieldValue(event);
+      prevValue = this.target[name] as Entity[K];
+      this.target[name] = event.value;
     }
 
-    this.onModelChanged(name as keyof Entity, prevValue);
+    this.onModelChanged(name, prevValue);
   }
 }
