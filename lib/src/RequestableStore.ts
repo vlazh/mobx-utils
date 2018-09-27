@@ -1,4 +1,3 @@
-import { action } from 'mobx';
 import { Throwable, Try } from 'funfix-core';
 import { NotificationType } from './Notification';
 import ValidableModel from './ValidableModel';
@@ -41,6 +40,7 @@ export default class RequestableStore<RS extends object, UIS extends UIStore<RS>
     this.uiStore.loading = true;
 
     try {
+      // const result = await runInAction(doWork);
       const result = await doWork();
       this.uiStore.loading = false;
       this.onRequestSuccess(result);
@@ -52,12 +52,10 @@ export default class RequestableStore<RS extends object, UIS extends UIStore<RS>
     }
   }
 
-  @action
   request<R>(doWork: AsyncAction<R>): Promise<Try<R>> {
     return this.doRequest(doWork);
   }
 
-  @action
   submit<E extends object, R>(model: ValidableModel<E>, doWork: AsyncAction<R>): Promise<Try<R>> {
     if (!model.validate()) {
       return Promise.resolve(Try.failure(new Error('`model` is in invalid state.')));
@@ -65,7 +63,6 @@ export default class RequestableStore<RS extends object, UIS extends UIStore<RS>
     return this.doRequest(doWork);
   }
 
-  @action
   // @ts-ignore
   // eslint-disable-next-line
   protected onRequestSuccess<R>(result: R) {}
@@ -81,7 +78,6 @@ export default class RequestableStore<RS extends object, UIS extends UIStore<RS>
       : error.toString();
   }
 
-  @action
   protected onRequestError(error: ResponseErrorLike | Throwable) {
     console.error(error);
 

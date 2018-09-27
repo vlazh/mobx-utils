@@ -1,5 +1,5 @@
+// import { isArrayLike } from 'mobx';
 import { KeysOfType, Omit } from 'typelevel-ts';
-import { isArrayLike } from 'mobx';
 import { Option } from 'funfix-core';
 import ValidableStoreModel from './ValidableStoreModel';
 
@@ -140,7 +140,8 @@ export function serialize<Entity>(
   if (v == null) {
     return v;
   }
-  if (Array.isArray(v) || isArrayLike(v)) {
+  // if (Array.isArray(v) || isArrayLike(v)) {
+  if (Array.isArray(v)) {
     return v.map(serialize) as any;
   }
   if (typeof v === 'object') {
@@ -152,7 +153,7 @@ export function serialize<Entity>(
     }, {}) as any;
   }
   if (typeof v === 'boolean' || typeof v === 'number' || typeof v === 'string') {
-    return v;
+    return v as any;
   }
   return String(v) as any;
 }
