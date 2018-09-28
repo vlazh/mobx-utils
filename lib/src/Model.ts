@@ -1,6 +1,10 @@
-export interface NameValue<Entity extends object, K extends keyof Entity> {
+/**
+ * NameValue<Type> = { value: Type, name: string }
+ * NameValue<Type, keyof Type> = { value: Type, name: keyof Type }
+ */
+export interface NameValue<EntityOrValue, K extends keyof EntityOrValue = any> {
   name: undefined extends K ? string : K;
-  value: undefined extends K ? any : Entity[K];
+  value: undefined extends K ? EntityOrValue : EntityOrValue[K]; // : EntityOrValue extends object ? (K extends keyof EntityOrValue ? EntityOrValue[K] : any) : any;
 }
 
 export interface InputElementLike extends NameValue<any, any> {
@@ -65,7 +69,7 @@ export default class Model<Entity extends object> implements ModelLike<Entity> {
     } else {
       const name = this.getFieldName(event);
       prevValue = this.target[name] as Entity[K];
-      this.target[name] = event.value;
+      (this.target[name] as NameValue<Entity, K>['value']) = event.value;
     }
 
     this.onModelChanged(name, prevValue);
