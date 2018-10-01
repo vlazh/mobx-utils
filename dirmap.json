@@ -1,9 +1,0 @@
-{
-  "client": {
-    "root": "lib",
-
-    "output": {
-      "root": ""
-    }
-  }
-}
