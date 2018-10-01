@@ -8,7 +8,7 @@ export class ViewModel<E extends object, T extends ModelLike<E>> extends ViewMod
 
   constructor(model: T) {
     super(model);
-    delete this.changeField; // remove copied method from `model`
+    delete this.changeField; // Remove copied method from `model` in order for override it.
   }
 
   @action.bound

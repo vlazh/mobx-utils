@@ -40,7 +40,6 @@ export default class RequestableStore<RS extends object, UIS extends UIStore<RS>
     this.uiStore.loading = true;
 
     try {
-      // const result = await runInAction(doWork);
       const result = await doWork();
       this.uiStore.loading = false;
       this.onRequestSuccess(result);
@@ -67,7 +66,6 @@ export default class RequestableStore<RS extends object, UIS extends UIStore<RS>
   // eslint-disable-next-line
   protected onRequestSuccess<R>(result: R) {}
 
-  // eslint-disable-next-line
   protected getResponseErrorMessage(response: ResponseLike): string {
     return response.data || response.statusText;
   }

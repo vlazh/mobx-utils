@@ -28,7 +28,6 @@ export default class UIStore<RS extends object> extends LoadableStore<RS> {
   @action
   addNotification(notification: Omit<Notification, 'id'>) {
     const newId = this.notificationList.length + 1;
-    // this.notificationList.push({ id: newId, ...notification });
     this.notificationList = this.notificationList.concat({ id: newId, ...notification });
 
     if (notification.timeout) {

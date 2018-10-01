@@ -6,9 +6,6 @@ import StoreModel from './StoreModel';
 
 export default class ValidableStoreModel<Entity extends object> extends StoreModel<Entity>
   implements ValidableModel<Entity> {
-  // Пустое значение (undefined) при инициализации, поэтому mobx не следит за присвоенными значениями в конструкторе.
-  // validationErrors: E;
-
   constructor(public readonly errors: ValidationErrors<Entity>) {
     super();
     // Так как пустое значение при инициализации, клонируем объект и следим за ним.
