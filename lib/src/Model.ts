@@ -16,12 +16,12 @@ export interface InputEventLike {
   target: InputElementLike;
 }
 
-export interface ChangeFieldHandler<Entity extends object> {
+export interface FieldChangeHandler<Entity extends object> {
   <K extends keyof Entity>(event: InputEventLike | NameValue<Entity, K>): void;
 }
 
 export interface ModelLike<Entity extends object> {
-  changeField: ChangeFieldHandler<Entity>;
+  changeField: FieldChangeHandler<Entity>;
 }
 
 export function isInputEventLike<Entity extends object, K extends keyof Entity>(
