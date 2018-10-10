@@ -30,6 +30,8 @@ export function isInputEventLike<Entity extends object, K extends keyof Entity>(
   return (event as InputEventLike).target !== undefined;
 }
 
+/* eslint-disable no-empty-function */
+
 export default class Model<Entity extends object> implements ModelLike<Entity> {
   /** Target object which will be changed by `changeField`. */
   protected readonly target: Entity;
@@ -41,35 +43,43 @@ export default class Model<Entity extends object> implements ModelLike<Entity> {
     Object.defineProperty(this, 'target', { ...desc, enumerable: false });
   }
 
-  // @ts-ignore
-  // eslint-disable-next-line no-empty-function
-  protected onModelChanged<K extends keyof Entity>(name: keyof Entity, prevValue: Entity[K]) {}
+  protected onModelChanged<K extends keyof Entity>(
+    // @ts-ignore
+    name: NameValue<Entity, K>['name'],
+    // @ts-ignore
+    prevValue: NameValue<Entity, K>['value']
+  ) {}
 
-  protected getFieldName<K extends keyof Entity>(input: NameValue<any, any>): K {
+  protected getFieldName<K extends keyof Entity>(
+    input: NameValue<any, any>
+  ): NameValue<Entity, K>['name'] {
     if (input.name && input.name in this.target) {
-      return input.name as K;
+      return input.name as NameValue<Entity, K>['name'];
     }
 
     throw new Error(`Not found property '${input.name}' in model.`);
   }
 
-  protected getFieldValue<K extends keyof Entity>(input: InputElementLike): Entity[K] {
+  protected getFieldValue<K extends keyof Entity>(
+    input: InputElementLike
+  ): NameValue<Entity, K>['value'] {
     return input.type === 'number' ? (+input.value as any) : input.value;
   }
 
   changeField<K extends keyof Entity>(event: InputEventLike | NameValue<Entity, K>) {
-    let prevValue: Entity[K];
+    let prevValue: NameValue<Entity, K>['value'];
+    let name: NameValue<Entity, K>['name'];
 
     // change store's field immediately for performance purpose
     if (isInputEventLike(event)) {
       event.preventDefault && event.preventDefault();
-      const name = this.getFieldName(event.target);
-      prevValue = this.target[name] as Entity[K];
-      this.target[name] = this.getFieldValue(event.target);
+      name = this.getFieldName(event.target);
+      prevValue = this.target[name as PropertyKey];
+      this.target[name as PropertyKey] = this.getFieldValue(event.target);
     } else {
-      const name = this.getFieldName(event);
-      prevValue = this.target[name] as Entity[K];
-      (this.target[name] as NameValue<Entity, K>['value']) = event.value;
+      name = this.getFieldName(event);
+      prevValue = this.target[name as PropertyKey];
+      this.target[name as PropertyKey] = event.value;
     }
 
     this.onModelChanged(name, prevValue);
