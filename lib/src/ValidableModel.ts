@@ -1,5 +1,4 @@
 import { Option } from 'funfix-core';
-import { NameValue } from './Model';
 
 export interface ErrorProvider {
   error: Option<string>;
@@ -7,8 +6,8 @@ export interface ErrorProvider {
 
 export type ValidationErrors<Entity extends object> = Record<keyof Entity, ErrorProvider>;
 
-export default interface ValidableModel<Entity extends object = Record<string, any>> {
+export default interface ValidableModel<Entity extends object> {
   errors: ValidationErrors<Entity>;
-  validate: <K extends keyof Entity>(name?: NameValue<Entity, K>['name']) => boolean;
+  validate: (name?: keyof Entity) => boolean;
   readonly isValid: boolean;
 }

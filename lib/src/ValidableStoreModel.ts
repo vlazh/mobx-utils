@@ -3,7 +3,6 @@ import { Option } from 'funfix-core';
 import { validate } from 'valtors';
 import ValidableModel, { ValidationErrors } from './ValidableModel';
 import StoreModel from './StoreModel';
-import { NameValue } from './Model';
 
 export default class ValidableStoreModel<Entity extends object> extends StoreModel<Entity>
   implements ValidableModel<Entity> {
@@ -14,10 +13,7 @@ export default class ValidableStoreModel<Entity extends object> extends StoreMod
     this.errors = observable.object(errors);
   }
 
-  protected onModelChanged<K extends keyof Entity>(
-    name: NameValue<Entity, K>['name'],
-    prevValue: NameValue<Entity, K>['value']
-  ) {
+  protected onModelChanged<K extends keyof Entity>(name: K, prevValue: Entity[K]) {
     super.onModelChanged(name, prevValue);
     this.validate(name);
   }
@@ -28,7 +24,7 @@ export default class ValidableStoreModel<Entity extends object> extends StoreMod
   }
 
   @action
-  validate<K extends keyof Entity>(name?: NameValue<Entity, K>['name']): boolean {
+  validate(name?: keyof Entity): boolean {
     const result = validate(this, name);
 
     const safeResult = Object.keys(result).reduce((acc, key) => {
@@ -38,6 +34,6 @@ export default class ValidableStoreModel<Entity extends object> extends StoreMod
 
     Object.assign(this.errors, safeResult);
 
-    return name ? this.errors[name as PropertyKey].error.isEmpty() : this.isValid;
+    return name ? this.errors[name].error.isEmpty() : this.isValid;
   }
 }
