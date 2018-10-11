@@ -35,12 +35,12 @@ export default class RequestableStore<RS extends object, UIS extends UIStore<RS>
 
   // Used Try for always return successed promise but keep error if has.
   // If just use promise with error and not use catch in client code then warning in console.
-  protected async doRequest<R>(doWork: AsyncAction<R>): Promise<Try<R>> {
+  protected async doRequest<R>(doWork: AsyncAction<R>, ...doWorkParams: any[]): Promise<Try<R>> {
     this.uiStore.cleanNotifications(NotificationType.error);
     this.uiStore.loading = true;
 
     try {
-      const result = await doWork();
+      const result = await doWork(...doWorkParams);
       this.uiStore.loading = false;
       this.onRequestSuccess(result);
       return Try.success(result);
@@ -51,19 +51,22 @@ export default class RequestableStore<RS extends object, UIS extends UIStore<RS>
     }
   }
 
-  request<R>(doWork: AsyncAction<R>): Promise<Try<R>> {
-    return this.doRequest(doWork);
+  request<R>(doWork: AsyncAction<R>, ...doWorkParams: any[]): Promise<Try<R>> {
+    return this.doRequest(doWork, ...doWorkParams);
   }
 
-  submit<E extends object, R>(model: ValidableModel<E>, doWork: AsyncAction<R>): Promise<Try<R>> {
+  submit<Entity extends object, R>(
+    model: ValidableModel<Entity>,
+    doWork: AsyncAction<R>,
+    ...doWorkParams: any[]
+  ): Promise<Try<R>> {
     if (!model.validate()) {
       return Promise.resolve(Try.failure(new Error('`model` is in invalid state.')));
     }
-    return this.doRequest(doWork);
+    return this.doRequest(doWork, ...doWorkParams);
   }
 
   // @ts-ignore
-  // eslint-disable-next-line
   protected onRequestSuccess<R>(result: R) {}
 
   protected getResponseErrorMessage(response: ResponseLike): string {
