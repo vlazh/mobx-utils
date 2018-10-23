@@ -23,6 +23,23 @@ export function isResponseError(error: ResponseErrorLike | Throwable): error is 
   return (error as ResponseErrorLike).config !== undefined;
 }
 
+export function withRequest<T>(
+  target: RequestableStore<any, any>,
+  _propertyKey: string | symbol,
+  descriptor: TypedPropertyDescriptor<AsyncAction<T>>
+): TypedPropertyDescriptor<AsyncAction<T>> {
+  const { value, get, set, ...rest } = descriptor;
+  const fn = value!;
+
+  return {
+    ...rest,
+    async value(this: typeof target, ...params: any[]) {
+      const t = await this.request(() => fn.call(this, ...params) as ReturnType<AsyncAction<T>>);
+      return t.get();
+    },
+  };
+}
+
 export default class RequestableStore<RS extends object, UIS extends UIStore<RS>> extends BaseStore<
   RS
 > {
