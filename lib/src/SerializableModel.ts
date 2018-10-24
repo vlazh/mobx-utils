@@ -144,17 +144,23 @@ export function serialize<Entity>(
   if (Array.isArray(v)) {
     return v.map(serialize) as any;
   }
+
+  if (typeof v === 'object' && v instanceof Option) {
+    return v.map(serialize).orUndefined();
+  }
+
   if (typeof v === 'object') {
-    return Object.entries(v).reduce((acc, _) => {
-      const value = _[1];
+    return Object.entries(v).reduce((acc, [key, value]) => {
       // Skip functions and symbols
       if (typeof value === 'function' || typeof value === 'symbol') return acc;
-      return { ...acc, [_[0]]: serialize(value) };
+      return { ...acc, [key]: serialize(value) };
     }, {}) as any;
   }
+
   if (typeof v === 'boolean' || typeof v === 'number' || typeof v === 'string') {
     return v as any;
   }
+
   return String(v) as any;
 }
 
