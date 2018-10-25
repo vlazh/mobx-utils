@@ -18,6 +18,7 @@ export default abstract class DisposableStore {
   dispose(callback?: (name: string, value: any) => void) {
     Object.entries(this).forEach(([name, value]) => {
       if (callback) callback(name, value);
+      else if (value instanceof DisposableStore) value.dispose();
       else disposeMobxReactions(value);
     });
   }
