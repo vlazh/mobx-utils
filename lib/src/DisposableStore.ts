@@ -1,10 +1,10 @@
 import { Reaction, IReactionDisposer, $mobx } from 'mobx';
 
-function isReaction(value: any): value is Reaction {
+export function isReaction(value: any): value is Reaction {
   return value && typeof value === 'object' && value.isMobXReaction === true;
 }
 
-function isReactionDisposer(value: any): value is IReactionDisposer {
+export function isReactionDisposer(value: any): value is IReactionDisposer {
   return value && typeof value === 'function' && isReaction((value as IReactionDisposer)[$mobx]);
 }
 
