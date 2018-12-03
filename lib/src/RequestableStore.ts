@@ -1,8 +1,8 @@
 import { Throwable, Try } from 'funfix-core';
 import { NotificationType } from './Notification';
-import ValidableModel from './ValidableModel';
 import BaseStore from './BaseStore';
 import UIStore from './UIStore';
+import Validable from './Validable';
 
 export interface ResponseLike {
   data?: any;
@@ -28,7 +28,7 @@ export default class RequestableStore<RS extends object, UIS extends UIStore<RS>
 > {
   constructor(rootStore: RS, public uiStore: UIS) {
     super(rootStore);
-    this.request = this.request.bind(this);
+    this.request = this.request.bind(this) as any;
     this.onRequestSuccess = this.onRequestSuccess.bind(this);
     this.onRequestError = this.onRequestError.bind(this);
   }
@@ -51,15 +51,11 @@ export default class RequestableStore<RS extends object, UIS extends UIStore<RS>
     }
   }
 
-  submit<Entity extends object, R>(
-    model: ValidableModel<Entity>,
-    doWork: AsyncAction<R>,
-    ...doWorkParams: any[]
-  ): Promise<Try<R>> {
-    if (!model.validate()) {
+  submit<R>(validable: Validable, doWork: AsyncAction<R>, ...doWorkParams: any[]): Promise<Try<R>> {
+    if (!validable.validate()) {
       return Promise.resolve(Try.failure(new Error('`model` is in invalid state.')));
     }
-    return this.request(doWork, ...doWorkParams);
+    return this.request<R>(doWork, ...doWorkParams);
   }
 
   // @ts-ignore
