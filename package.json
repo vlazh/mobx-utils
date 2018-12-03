@@ -24,33 +24,33 @@
     "major-publish": "npm version major && npm publish --access public && git push --follow-tags"
   },
   "devDependencies": {
-    "@types/react": "^16.4.18",
-    "@vzh/configs": "^2.16.1",
+    "@types/react": "^16.7.11",
+    "@vzh/configs": "^2.19.0",
     "awesome-typescript-loader": "^5.2.1",
     "babel-core": "^6.26.3",
     "babel-eslint": "^10.0.1",
     "babel-preset-env": "^1.7.0",
     "babel-preset-stage-2": "^6.24.1",
     "copyfiles": "^2.1.0",
-    "eslint": "^5.8.0",
+    "eslint": "^5.9.0",
     "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-config-prettier": "^3.1.0",
+    "eslint-config-prettier": "^3.3.0",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-prettier": "^3.0.0",
-    "eslint-plugin-typescript": "^0.13.0",
+    "eslint-plugin-typescript": "^0.14.0",
     "funfix-core": "^7.0.1",
     "mobx": "^5.6.0",
-    "mobx-react": "^5.3.6",
-    "mobx-utils": "^5.0.4",
-    "prettier": "^1.15.1",
-    "react": "^16.6.1",
+    "mobx-react": "^5.4.2",
+    "mobx-utils": "^5.1.0",
+    "prettier": "^1.15.3",
+    "react": "^16.6.3",
     "rimraf": "^2.6.1",
-    "typescript": "^3.1.6",
-    "typescript-eslint-parser": "^20.1.1",
+    "typescript": "^3.2.1",
+    "typescript-eslint-parser": "^21.0.1",
     "valtors": "^1.5.0",
     "webpack-merge": "^4.1.4"
   },
   "dependencies": {
-    "typelevel-ts": "^0.3.2"
+    "typelevel-ts": "^0.3.4"
   }
 }
