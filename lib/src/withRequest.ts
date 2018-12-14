@@ -1,27 +1,26 @@
 import RequestableStore, { AsyncAction } from './RequestableStore';
 
-function withRequest<T>(
+function withRequest(
   target: RequestableStore<any, any>,
   _propertyKey: string | symbol,
-  descriptor: TypedPropertyDescriptor<AsyncAction<T>>
-): TypedPropertyDescriptor<AsyncAction<T>> {
+  descriptor: TypedPropertyDescriptor<AsyncAction<void>>
+): TypedPropertyDescriptor<AsyncAction<void>> {
   const { value, get, set, ...rest } = descriptor;
   const fn = value!;
 
   return {
     ...rest,
     async value(this: typeof target, ...params: any[]) {
-      const t = await this.request(() => fn.call(this, ...params) as ReturnType<AsyncAction<T>>);
-      return t.get();
+      await this.request(() => fn.call(this, ...params));
     },
   };
 }
 
-withRequest.bound = function bound<T>(
+withRequest.bound = function bound(
   target: RequestableStore<any, any>,
   propertyKey: string | symbol,
-  descriptor: TypedPropertyDescriptor<AsyncAction<T>>
-): TypedPropertyDescriptor<AsyncAction<T>> {
+  descriptor: TypedPropertyDescriptor<AsyncAction<void>>
+): TypedPropertyDescriptor<AsyncAction<void>> {
   return {
     configurable: true,
     enumerable: false,
@@ -34,8 +33,7 @@ withRequest.bound = function bound<T>(
       Object.defineProperty(this, propertyKey, {
         ...rest,
         async value(...params: any[]) {
-          const t = await self.request(() => fn.call(self, ...params));
-          return t.get();
+          await self.request(() => fn.call(self, ...params));
         },
       });
 
