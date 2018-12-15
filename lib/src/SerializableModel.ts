@@ -72,9 +72,6 @@ export declare type JSONModel<Entity extends object> = Entity extends Option<inf
     : (string | undefined)
   : Entity extends JSONTypes
   ? Entity
-  : JSONObjectModel<Entity>;
-/*   : Entity extends JSONTypes
-  ? Entity
   : Entity extends ReadonlyArray<infer T>
   ? T extends JSONTypes
     ? Entity
@@ -82,7 +79,9 @@ export declare type JSONModel<Entity extends object> = Entity extends Option<inf
     ? Array<JSONObjectModel<T>>
     : Array<string>
   : JSONObjectModel<Entity>;
- */
+/* : Entity extends JSONTypes
+  ? Entity
+  : JSONObjectModel<Entity>; */
 
 /* export type JSONModelProp<P extends any> = ExtractOptionType<P> extends JSONTypes
   ? ExtractOptionType<P>
