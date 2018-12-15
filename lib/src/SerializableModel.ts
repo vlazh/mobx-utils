@@ -1,4 +1,3 @@
-// import { isArrayLike } from 'mobx';
 import { KeysOfType, Omit } from 'typelevel-ts';
 import { Option } from 'funfix-core';
 import ValidableStoreModel from './ValidableStoreModel';
@@ -48,31 +47,42 @@ export type ExtractOptionType<A> = A extends Option<infer B> ? B : A;
 export declare type JSONModelProp<P extends any> = P extends JSONTypes
   ? P
   : undefined extends P
-    ? P extends object | undefined
-      ? (JSONModel<Extract<P, undefined>> | undefined)
-      : (string | undefined)
-    : P extends SerializableModel<infer T>
-      ? JSONModel<T>
-      : P extends Option<infer T>
-        ? T extends JSONTypes
-          ? (T | undefined)
-          : T extends object ? (JSONModel<T> | undefined) : (string | undefined)
-        : P extends object ? JSONModel<P> : string;
+  ? P extends object | undefined
+    ? (JSONModel<Extract<P, undefined>> | undefined)
+    : (string | undefined)
+  : P extends SerializableModel<infer T>
+  ? JSONModel<T>
+  : P extends Option<infer T>
+  ? T extends JSONTypes
+    ? (T | undefined)
+    : T extends object
+    ? (JSONModel<T> | undefined)
+    : (string | undefined)
+  : P extends object
+  ? JSONModel<P>
+  : string;
 
 export type JSONObjectModel<T extends object> = { [P in keyof OnlyEntity<T>]: JSONModelProp<T[P]> };
 
 export declare type JSONModel<Entity extends object> = Entity extends Option<infer T>
   ? T extends JSONTypes
     ? T | undefined
-    : T extends object ? (JSONObjectModel<T> | undefined) : (string | undefined)
+    : T extends object
+    ? (JSONObjectModel<T> | undefined)
+    : (string | undefined)
   : Entity extends JSONTypes
+  ? Entity
+  : JSONObjectModel<Entity>;
+/*   : Entity extends JSONTypes
+  ? Entity
+  : Entity extends ReadonlyArray<infer T>
+  ? T extends JSONTypes
     ? Entity
-    : Entity extends ReadonlyArray<infer T>
-      ? T extends JSONTypes
-        ? Entity
-        : T extends object ? ReadonlyArray<JSONObjectModel<T>> : ReadonlyArray<string>
-      : JSONObjectModel<Entity>;
-// : Entity extends JSONTypes ? Entity : JSONObjectModel<Entity>;
+    : T extends object
+    ? Array<JSONObjectModel<T>>
+    : Array<string>
+  : JSONObjectModel<Entity>;
+ */
 
 /* export type JSONModelProp<P extends any> = ExtractOptionType<P> extends JSONTypes
   ? ExtractOptionType<P>
@@ -133,14 +143,15 @@ export function serialize<Entity>(
 ): Entity extends JSONTypes
   ? Entity
   : undefined extends Entity
-    ? Entity extends object | undefined
-      ? (JSONModel<Extract<Entity & object, undefined>> | undefined)
-      : (string | undefined)
-    : Entity extends object ? JSONModel<Entity> : string {
+  ? Entity extends object | undefined
+    ? (JSONModel<Extract<Entity & object, undefined>> | undefined)
+    : (string | undefined)
+  : Entity extends object
+  ? JSONModel<Entity>
+  : string {
   if (v == null) {
     return v;
   }
-  // if (Array.isArray(v) || isArrayLike(v)) {
   if (Array.isArray(v)) {
     return v.map(serialize) as any;
   }
