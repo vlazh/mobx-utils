@@ -35,7 +35,7 @@ export default class RequestableStore<RS extends object, UIS extends UIStore<RS>
 
   // Used Try for always return successed promise but keep error if has.
   // If just use promise with error and not use catch in client code then warning in console.
-  async request<R>(doWork: AsyncAction<R>, ...doWorkParams: any[]): Promise<Try<R>> {
+  protected async request<R>(doWork: AsyncAction<R>, ...doWorkParams: any[]): Promise<Try<R>> {
     this.uiStore.cleanNotifications(NotificationType.error);
     this.uiStore.loading = true;
 
@@ -51,7 +51,11 @@ export default class RequestableStore<RS extends object, UIS extends UIStore<RS>
     }
   }
 
-  submit<R>(validable: Validable, doWork: AsyncAction<R>, ...doWorkParams: any[]): Promise<Try<R>> {
+  protected submit<R>(
+    validable: Validable,
+    doWork: AsyncAction<R>,
+    ...doWorkParams: any[]
+  ): Promise<Try<R>> {
     if (!validable.validate()) {
       return Promise.resolve(Try.failure(new Error('`model` is in invalid state.')));
     }

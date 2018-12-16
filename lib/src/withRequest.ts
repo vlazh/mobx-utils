@@ -11,7 +11,7 @@ function withRequest(
   return {
     ...rest,
     async value(this: typeof target, ...params: any[]) {
-      await this.request(() => fn.call(this, ...params));
+      await this['request'](() => fn.call(this, ...params)); // eslint-disable-line dot-notation
     },
   };
 }
@@ -33,7 +33,7 @@ withRequest.bound = function bound(
       Object.defineProperty(this, propertyKey, {
         ...rest,
         async value(...params: any[]) {
-          await self.request(() => fn.call(self, ...params));
+          await self['request'](() => fn.call(self, ...params)); // eslint-disable-line dot-notation
         },
       });
 
