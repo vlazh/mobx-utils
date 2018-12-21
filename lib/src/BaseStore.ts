@@ -1,4 +1,4 @@
-import DisposableStore, { disposeMobxReactions } from './DisposableStore';
+import DisposableStore from './DisposableStore';
 
 export default abstract class BaseStore<RS extends object> extends DisposableStore {
   constructor(protected readonly rootStore: RS) {
@@ -6,12 +6,6 @@ export default abstract class BaseStore<RS extends object> extends DisposableSto
   }
 
   dispose() {
-    super.dispose((name, value) => {
-      if (name !== 'rootStore' && value instanceof DisposableStore) {
-        value.dispose();
-      } else {
-        disposeMobxReactions(value);
-      }
-    });
+    super.dispose(name => name === 'rootStore');
   }
 }

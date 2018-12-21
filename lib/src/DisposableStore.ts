@@ -15,10 +15,11 @@ export function disposeMobxReactions(value: any) {
 }
 
 export default abstract class DisposableStore {
-  dispose(callback?: (name: string, value: any) => void) {
+  /** If callback returns true then do nothing */
+  dispose(callback?: (name: string, value: any) => boolean) {
     Object.entries(this).forEach(([name, value]) => {
-      if (callback) callback(name, value);
-      else if (value instanceof DisposableStore) value.dispose();
+      if (callback && callback(name, value)) return;
+      if (value instanceof DisposableStore) value.dispose();
       else disposeMobxReactions(value);
     });
   }
