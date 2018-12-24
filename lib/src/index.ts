@@ -4,8 +4,6 @@ export { default as ValidableModel } from './ValidableModel';
 export * from './ValidableModel';
 export { default as typedInject } from './typedInject';
 export { default as DisposableStore } from './DisposableStore';
-export { default as Initializable } from './Initializable';
-export * from './Initializable';
 export { default as BaseRootStore } from './BaseRootStore';
 export { default as BaseStore } from './BaseStore';
 export { default as LoadableStore } from './LoadableStore';

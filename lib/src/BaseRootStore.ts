@@ -1,5 +1,4 @@
 import DisposableStore from './DisposableStore';
-import { isInitializable } from './Initializable';
 import BaseStore from './BaseStore';
 
 export default abstract class BaseRootStore extends DisposableStore {
@@ -7,9 +6,10 @@ export default abstract class BaseRootStore extends DisposableStore {
     Object.values(store).forEach(value => {
       if (value instanceof BaseStore) this.initStore(value);
     });
-    if (isInitializable(store)) {
+    // eslint-disable-next-line dot-notation
+    if (store !== this && store instanceof BaseStore && typeof store['initialize'] === 'function') {
       try {
-        store.init();
+        store['initialize'](); // eslint-disable-line dot-notation
       } catch (ex) {
         console.error(ex);
       }
