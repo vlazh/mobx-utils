@@ -1,4 +1,4 @@
-import { KeysOfType, Omit } from 'typelevel-ts';
+import { Omit, ExcludeKeysOfType } from '@vzh/ts-types';
 import { Option } from 'funfix-core';
 import ValidableStoreModel from './ValidableStoreModel';
 
@@ -10,8 +10,7 @@ export interface JSONObject extends Record<string, JSONTypes> {}
 
 export interface JSONArray extends ReadonlyArray<JSONTypes> {}
 
-// type ExcludeFunctions<T> = Pick<T, { [K in keyof T]: T[K] extends Function ? never : K }[keyof T]>;
-export type ExcludeFunctions<T extends object> = Pick<T, Exclude<keyof T, KeysOfType<T, Function>>>;
+export type ExcludeFunctions<T extends object> = ExcludeKeysOfType<T, Function>;
 
 // type OnlyEntity<Entity extends object> = ExcludeFunctions<
 // Pick<Entity, Exclude<keyof Entity, keyof ValidableStoreModel<any> | keyof SerializableModel<any>>>
@@ -38,7 +37,7 @@ export type ExcludeFunctions<T extends object> = Pick<T, Exclude<keyof T, KeysOf
 export type OnlyEntity<Entity extends object | undefined> = ExcludeFunctions<
   Omit<
     Pick<Entity, Exclude<keyof Entity, undefined>>, // exclude undefined keys for Omit
-    keyof ValidableStoreModel<any> | keyof SerializableModel<any>
+    keyof ValidableStoreModel<any> & keyof SerializableModel<any>
   >
 >;
 

@@ -1,4 +1,4 @@
-import { Omit } from 'typelevel-ts';
+import { Omit } from '@vzh/ts-types';
 import { observable, computed, action } from 'mobx';
 import Notification, { NotificationID, NotificationType } from './Notification';
 import LoadableStore from './LoadableStore';

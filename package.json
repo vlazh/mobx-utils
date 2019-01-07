@@ -25,14 +25,14 @@
   },
   "devDependencies": {
     "@types/react": "^16.7.18",
-    "@vzh/configs": "^2.21.0",
+    "@vzh/configs": "^2.21.1",
     "awesome-typescript-loader": "^5.2.1",
     "babel-core": "^6.26.3",
     "babel-eslint": "^10.0.1",
     "babel-preset-env": "^1.7.0",
     "babel-preset-stage-2": "^6.24.1",
     "copyfiles": "^2.1.0",
-    "eslint": "^5.11.1",
+    "eslint": "^5.12.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-config-prettier": "^3.3.0",
     "eslint-plugin-import": "^2.14.0",
@@ -48,9 +48,10 @@
     "typescript": "^3.2.2",
     "typescript-eslint-parser": "^21.0.2",
     "valtors": "^1.5.0",
-    "webpack-merge": "^4.1.5"
+    "webpack-merge": "^4.2.1",
+    "@vzh/ts-types": "^0.2.2"
   },
-  "dependencies": {
-    "typelevel-ts": "^0.3.5"
+  "peerDependencies": {
+    "@vzh/ts-types": "*"
   }
 }
