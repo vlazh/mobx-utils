@@ -1,4 +1,4 @@
-import { Omit, ExcludeKeysOfType } from '@vzh/ts-types';
+import { Omit, ExcludeKeysOfType, Copy } from '@vzh/ts-types';
 import { Option } from 'funfix-core';
 import ValidableStoreModel from './ValidableStoreModel';
 
@@ -10,172 +10,100 @@ export interface JSONObject extends Record<string, JSONTypes> {}
 
 export interface JSONArray extends ReadonlyArray<JSONTypes> {}
 
-export type ExcludeFunctions<T extends object> = ExcludeKeysOfType<T, Function>;
+type ExcludeFunctions<T extends object> = ExcludeKeysOfType<T, Function>;
 
-// type OnlyEntity<Entity extends object> = ExcludeFunctions<
-// Pick<Entity, Exclude<keyof Entity, keyof ValidableStoreModel<any> | keyof SerializableModel<any>>>
-// >;
-
-// export type JSONModel<Entity extends object> = {
-//   [P in keyof OnlyEntity<Entity>]: OnlyEntity<Entity>[P] extends JSONTypes
-//     ? OnlyEntity<Entity>[P] // keep original property type
-//     : OnlyEntity<Entity>[P] extends SerializableModel<any> | object
-//       ? JSONModel<OnlyEntity<Entity>[P]>
-//       : string
-// };
-
-// type OnlyEntity<Entity extends object> = ExcludeFunctions<
-//   Omit<Entity, keyof ValidableStoreModel<any> | keyof SerializableModel<any>>
-// >;
-
-// export type JSONModel<Entity extends object> = {
-//   [P in keyof OnlyEntity<Entity>]: Entity[P] extends JSONTypes
-//     ? Entity[P]
-//     : Entity[P] extends SerializableModel<any> | object ? JSONModel<Entity[P]> : string
-// };
-
-export type OnlyEntity<Entity extends object | undefined> = ExcludeFunctions<
+type OnlyValues<Entity extends object | undefined> = ExcludeFunctions<
   Omit<
-    Pick<Entity, Exclude<keyof Entity, undefined>>, // exclude undefined keys for Omit
+    Pick<Entity, Exclude<keyof Entity, undefined>>, // remove undefined keys for Omit
     keyof ValidableStoreModel<any> & keyof SerializableModel<any>
   >
 >;
 
-export type ExtractOptionType<A> = A extends Option<infer B> ? B : A;
+// Like Moment object
+interface ValueContainer<T> {
+  valueOf: () => T;
+}
 
-export declare type JSONModelProp<P extends any> = P extends JSONTypes
-  ? P
-  : undefined extends P
-  ? P extends object | undefined
-    ? (JSONModel<Extract<P, undefined>> | undefined)
-    : (string | undefined)
-  : P extends SerializableModel<infer T>
-  ? JSONModel<T>
-  : P extends Option<infer T>
-  ? T extends JSONTypes
-    ? (T | undefined)
-    : T extends object
-    ? (JSONModel<T> | undefined)
-    : (string | undefined)
-  : P extends object
-  ? JSONModel<P>
-  : string;
+type UnknownType = string;
+type JSONArrayValue<A> = Array<A extends object ? JSONObjectValue<A> : UnknownType>;
 
-export type JSONObjectModel<T extends object> = { [P in keyof OnlyEntity<T>]: JSONModelProp<T[P]> };
+type JSONObjectValue<A extends object> = keyof OnlyValues<A> extends never
+  ? (A extends ValueContainer<infer R> ? R : {})
+  : { [P in keyof OnlyValues<A>]: JSONValue<A[P]> };
 
-export declare type JSONModel<Entity extends object> = Entity extends Option<infer T>
-  ? T extends JSONTypes
-    ? T | undefined
-    : T extends object
-    ? (JSONObjectModel<T> | undefined)
-    : (string | undefined)
-  : Entity extends JSONTypes
-  ? Entity
-  : Entity extends ReadonlyArray<infer T>
-  ? T extends JSONTypes
-    ? Entity
-    : T extends object
-    ? Array<JSONObjectModel<T>>
-    : Array<string>
-  : JSONObjectModel<Entity>;
-/* : Entity extends JSONTypes
-  ? Entity
-  : JSONObjectModel<Entity>; */
+type ArrayOrObject<A> = A extends ReadonlyArray<infer T>
+  ? JSONArrayValue<T>
+  : (A extends object ? JSONObjectValue<A> : UnknownType);
 
-/* export type JSONModelProp<P extends any> = ExtractOptionType<P> extends JSONTypes
-  ? ExtractOptionType<P>
-  : undefined extends ExtractOptionType<P>
-    ? ExtractOptionType<P> extends object | undefined
-      ? OptionalJSONModel<ExtractOptionType<P>>
-      : string
-    : ExtractOptionType<P> extends Option<infer T> // extract generic type of Option
-      ? T extends JSONTypes ? (T | undefined) : T extends object ? OptionalJSONModel<T> : string
-      : ExtractOptionType<P> extends object ? JSONModel<ExtractOptionType<P>> : string;
+type JSONDefinedValue<A> = A extends JSONTypes
+  ? A
+  : (keyof SerializableModel<any> extends Extract<keyof A, keyof SerializableModel<infer T>> // Check all keys from SerializableModel
+      ? JSONObjectValue<T>
+      : (undefined extends A
+          ? ArrayOrObject<Exclude<A, undefined>> | undefined
+          : ArrayOrObject<A>));
 
-export declare type JSONModel<Entity extends object | undefined> = Entity extends Option<infer T>
-  ? T extends JSONTypes
-    ? T | undefined
-    : T extends object
-      ? (
-          | {
-              [P in keyof OnlyEntity<ExtractOptionType<T>>]: JSONModelProp<ExtractOptionType<T>[P]>
-            }
-          | undefined)
-      : string | undefined
-  : {
-      [P in keyof OnlyEntity<ExtractOptionType<Entity>>]: JSONModelProp<
-        ExtractOptionType<Entity>[P]
-      >
-    };
- */
-/* export type JSONModel<Entity extends object | undefined> = {
-  // [P in keyof OnlyEntity<Entity>]: Entity[P] extends JSONTypes
-  //   ? Entity[P]
-  //   : undefined extends Entity[P]
-  //     ? Entity[P] extends SerializableModel<any> | object | undefined
-  //       ? (JSONModel<Exclude<Entity[P], undefined>>)
-  //       : string
-  //     : Entity[P] extends SerializableModel<any> | object ? JSONModel<Entity[P]> : string
-  [P in keyof OnlyEntity<Entity>]: Entity[P] extends JSONTypes
-    ? Entity[P]
-    : undefined extends Entity[P]
-      ? Entity[P] extends object | undefined ? OptionalJSONModel<Entity[P]> : string
-      : Entity[P] extends Option<infer T> // extract generic type of Option
-        ? T extends JSONTypes ? (T | undefined) : T extends object ? OptionalJSONModel<T> : string
-        : Entity[P] extends object ? JSONModel<Entity[P]> : string
-};
- */
-// export type OptionalJSONModel<Entity extends object | undefined> = undefined extends Entity
-//   ? (JSONModel<Exclude<Entity, undefined>> | undefined)
-//   : JSONModel<Entity>;
-// export type OptionalJSONModel<Entity extends object | undefined> =
-//   | JSONModel<Exclude<Entity, undefined>>
-//   | undefined;
+export type JSONValue<A> = A extends Option<infer T>
+  ? JSONDefinedValue<T> | undefined
+  : JSONDefinedValue<A>;
 
-// export declare function serialize<Entity extends object | undefined>(
-//   v: Entity
-// ): Entity extends undefined ? undefined : JSONModel<Entity>;
+// type A = { a?: Function; b: {}; valueOf: (a?: string) => object; toJSON(): any; jsonModel0: any };
+// type B = undefined extends A['a'] ? string : number;
+// type B = A['b'] extends JSONTypes ? string : number;
+// type B = A['b'] extends object | undefined ? string : number;
+// type B = Exclude<A['a'], undefined>;
+// type B = keyof SerializableModel<any>;
+// type B = keyof SerializableModel<any> extends Extract<keyof A, keyof SerializableModel<any>>
+//   ? string
+//   : number;
+// const b: B = {};
 
-export function serialize<Entity>(
-  v: Entity
-): Entity extends JSONTypes
-  ? Entity
-  : undefined extends Entity
-  ? Entity extends object | undefined
-    ? (JSONModel<Extract<Entity & object, undefined>> | undefined)
-    : (string | undefined)
-  : Entity extends object
-  ? JSONModel<Entity>
-  : string {
+export type JSONModel<Entity extends object> = Copy<JSONValue<Entity>>;
+
+export default interface SerializableModel<Entity extends object> {
+  /**
+   * Just for correct infering: https://github.com/Microsoft/TypeScript/issues/26688
+   * It's requiring to define in implementation for correct typing with `JSONModel`.
+   * Might be just equal `this` or `undefined`.
+   */
+  jsonModel?: Entity;
+  toJSON(): JSONModel<Entity>;
+}
+
+export function serialize<Entity>(v: Entity): JSONValue<Entity> {
   if (v == null) {
     return v;
   }
   if (Array.isArray(v)) {
-    return v.map(serialize) as any;
+    return v.map(serialize) as JSONValue<Entity>;
   }
 
-  if (typeof v === 'object' && v instanceof Option) {
+  if (v instanceof Option) {
     return v.map(serialize).orUndefined();
   }
 
   if (typeof v === 'object') {
-    return Object.entries(v).reduce((acc, [key, value]) => {
+    const obj = Object.entries(v).reduce((acc, [key, value]) => {
       // Skip functions and symbols
       if (typeof value === 'function' || typeof value === 'symbol') return acc;
       return { ...acc, [key]: serialize(value) };
-    }, {}) as any;
+    }, {}) as JSONValue<Entity>;
+
+    if (
+      !Object.getOwnPropertyNames(obj).length &&
+      typeof (v as ValueContainer<any>).valueOf === 'function'
+    ) {
+      return (v as ValueContainer<any>).valueOf() as JSONValue<Entity>;
+    }
+
+    return obj;
   }
 
   if (typeof v === 'boolean' || typeof v === 'number' || typeof v === 'string') {
-    return v as any;
+    return v as JSONValue<Entity>;
   }
 
-  return String(v) as any;
-}
-
-export default interface SerializableModel<Entity extends object> {
-  jsonModel?: Entity; // Just for correct infering: https://github.com/Microsoft/TypeScript/issues/26688
-  toJSON(): JSONModel<Entity>;
+  return String(v) as JSONValue<Entity>;
 }
 
 // const a = serialize({ a: 1 });
