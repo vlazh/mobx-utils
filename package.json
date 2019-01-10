@@ -15,8 +15,9 @@
   "scripts": {
     "clean": "rimraf dist/*",
     "build": "npm run clean && tsc --project ./tsconfig.json",
-    "build-to-tabix": "npm run clean && tsc --project ./tsconfig.json --outDir '../tabixio/tabix/node_modules/@vzh/mobx-stores/dist/' && copyfiles package.json '../tabixio/tabix/node_modules/@vzh/mobx-stores/'",
     "build-to-tutoron": "npm run clean && tsc --project ./tsconfig.json --outDir '../tutoron/node_modules/@vzh/mobx-stores/dist/' && copyfiles package.json '../tutoron/node_modules/@vzh/mobx-stores/'",
+    "build-to-pwa": "npm run clean && tsc --project ./tsconfig.json --outDir '../pwa/node_modules/@vzh/mobx-stores/dist/' && copyfiles package.json '../pwa/node_modules/@vzh/mobx-stores/'",
+    "build-to-tabix": "npm run clean && tsc --project ./tsconfig.json --outDir '../tabixio/tabix/node_modules/@vzh/mobx-stores/dist/' && copyfiles package.json '../tabixio/tabix/node_modules/@vzh/mobx-stores/'",
     "build-to-react-components": "npm run clean && tsc --project ./tsconfig.json --outDir '../@vzh-react-components/node_modules/@vzh/mobx-stores/dist/' && copyfiles package.json '../@vzh-react-components/node_modules/@vzh/mobx-stores/'",
     "prepublishOnly": "npm run clean && npm run build",
     "patch-publish": "npm version patch && npm publish --access public && git push --follow-tags",
@@ -25,12 +26,9 @@
   },
   "devDependencies": {
     "@types/react": "^16.7.18",
-    "@vzh/configs": "^2.21.1",
-    "awesome-typescript-loader": "^5.2.1",
-    "babel-core": "^6.26.3",
+    "@vzh/configs": "^3.5.1",
+    "@vzh/ts-types": "^0.2.2",
     "babel-eslint": "^10.0.1",
-    "babel-preset-env": "^1.7.0",
-    "babel-preset-stage-2": "^6.24.1",
     "copyfiles": "^2.1.0",
     "eslint": "^5.12.0",
     "eslint-config-airbnb-base": "^13.1.0",
@@ -48,8 +46,7 @@
     "typescript": "^3.2.2",
     "typescript-eslint-parser": "^21.0.2",
     "valtors": "^1.5.0",
-    "webpack-merge": "^4.2.1",
-    "@vzh/ts-types": "^0.2.2"
+    "webpack-merge": "^4.2.1"
   },
   "peerDependencies": {
     "@vzh/ts-types": "*"
