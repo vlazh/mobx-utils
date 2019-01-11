@@ -66,7 +66,7 @@ export default interface SerializableModel<Entity extends object> {
    * It's requiring to define in implementation for correct typing with `JSONModel`.
    * Might be just equal `this` or `undefined`.
    */
-  jsonModel?: Entity;
+  readonly jsonModel?: Entity;
   toJSON(): JSONModel<Entity>;
 }
 
