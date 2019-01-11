@@ -18,6 +18,7 @@ export default abstract class DisposableStore {
   /** If callback returns true then do nothing */
   dispose(callback?: (name: string, value: any) => boolean) {
     Object.entries(this).forEach(([name, value]) => {
+      if (value === this) return; // Skip self referencies. For example, `jsonModel` in `SerializableModel`.
       if (callback && callback(name, value)) return;
       if (value instanceof DisposableStore) value.dispose();
       else disposeMobxReactions(value);

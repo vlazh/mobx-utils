@@ -1,15 +1,17 @@
 import DisposableStore from './DisposableStore';
 import BaseStore from './BaseStore';
 
+/* eslint-disable dot-notation */
+
 export default abstract class BaseRootStore extends DisposableStore {
   private initStore(store: BaseStore<any> | BaseRootStore) {
     Object.values(store).forEach(value => {
+      if (value === store) return; // Skip self referencies. For example, `jsonModel` in `SerializableModel`.
       if (value instanceof BaseStore) this.initStore(value);
     });
-    // eslint-disable-next-line dot-notation
     if (store !== this && store instanceof BaseStore && typeof store['initialize'] === 'function') {
       try {
-        store['initialize'](); // eslint-disable-line dot-notation
+        store['initialize']();
       } catch (ex) {
         console.error(ex);
       }
