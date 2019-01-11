@@ -26,7 +26,7 @@
   },
   "devDependencies": {
     "@types/react": "^16.7.18",
-    "@vzh/configs": "^3.5.1",
+    "@vzh/configs": "^3.6.0",
     "@vzh/ts-types": "^0.2.2",
     "babel-eslint": "^10.0.1",
     "copyfiles": "^2.1.0",

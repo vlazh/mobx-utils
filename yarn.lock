@@ -103,10 +103,10 @@
     "@types/prop-types" "*"
     csstype "^2.2.0"
 
-"@vzh/configs@^3.5.1":
-  version "3.5.1"
-  resolved "https://registry.yarnpkg.com/@vzh/configs/-/configs-3.5.1.tgz#45c34a6ef24b2b6768f9344a3258ba727d7b75b8"
-  integrity sha512-nhRLCmWTsL/XG6mXTJvzXg7pGSgPRPRNrydlOZpkZv2AkOOzQ+Os6gqk3Ar4slGqgR/q5+eFnWUqPQEpNI7n7Q==
+"@vzh/configs@^3.6.0":
+  version "3.6.0"
+  resolved "https://registry.yarnpkg.com/@vzh/configs/-/configs-3.6.0.tgz#e33d1dc39e938b66f7c2c4fb50e49add65573f98"
+  integrity sha512-oX3Q7ifS8SRD2u6rwlnYdY0FeBAhmWQvas84IFEjw5tbg5zXgI8fe+BNcaa8Yreio3aAfQjvfp0dWp7jbruuxA==
 
 "@vzh/ts-types@^0.2.2":
   version "0.2.2"
