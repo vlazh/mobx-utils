@@ -60,14 +60,17 @@ export type JSONValue<A> = A extends Option<infer T>
 
 export type JSONModel<Entity extends object> = Copy<JSONValue<Entity>>;
 
-export default interface SerializableModel<Entity extends object> {
+export interface Serializable<A extends object> {
+  toJSON(): JSONModel<A>;
+}
+
+export default interface SerializableModel<Entity extends object> extends Serializable<Entity> {
   /**
    * Just for correct infering: https://github.com/Microsoft/TypeScript/issues/26688
-   * It's requiring to define in implementation for correct typing with `JSONModel`.
-   * Might be just equal `this` or `undefined`.
+   * It's required to define in implementation for correct typing with `JSONModel`.
+   * Might be just equal `this`.
    */
-  readonly jsonModel?: Entity;
-  toJSON(): JSONModel<Entity>;
+  readonly jsonModel: Entity;
 }
 
 export function serialize<Entity>(v: Entity): JSONValue<Entity> {
