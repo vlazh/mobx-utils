@@ -1,6 +1,6 @@
 {
   "name": "@vzh/mobx-stores",
-  "version": "0.34.3",
+  "version": "0.35.0",
   "description": "MobX store base implementations",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
