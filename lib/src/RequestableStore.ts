@@ -1,4 +1,4 @@
-import { Throwable, Try } from 'funfix-core';
+import { Throwable, Try } from '@vzh/ts-types/fp';
 import { NotificationType } from './Notification';
 import BaseStore from './BaseStore';
 import UIStore from './UIStore';

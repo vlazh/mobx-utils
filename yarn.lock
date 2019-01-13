@@ -103,15 +103,15 @@
     "@types/prop-types" "*"
     csstype "^2.2.0"
 
-"@vzh/configs@^3.6.0":
-  version "3.6.0"
-  resolved "https://registry.yarnpkg.com/@vzh/configs/-/configs-3.6.0.tgz#e33d1dc39e938b66f7c2c4fb50e49add65573f98"
-  integrity sha512-oX3Q7ifS8SRD2u6rwlnYdY0FeBAhmWQvas84IFEjw5tbg5zXgI8fe+BNcaa8Yreio3aAfQjvfp0dWp7jbruuxA==
+"@vzh/configs@^3.9.0":
+  version "3.9.0"
+  resolved "https://registry.yarnpkg.com/@vzh/configs/-/configs-3.9.0.tgz#0991a2a29091d52b13c94f9cf851dc46a0f30c72"
+  integrity sha512-EXNxnwcJbg+jHgMpmhpHmh7OT54qX+SopPg8858AHWkrS8nA0DkyyyXnCMwTLGT5CNhRT2u3zjxKqqjvJ7pieg==
 
-"@vzh/ts-types@^0.2.2":
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/@vzh/ts-types/-/ts-types-0.2.2.tgz#893112062ce9db2022bc2eab124ca47bf866da0c"
-  integrity sha512-mASmsGW7sgQXslCVz/96XGsrC2eDWJs+ZnrsnapAmrjAFBDZ7/PSShZ1KTujoi3Exh0riqnlp9wAvTe78vXjNQ==
+"@vzh/ts-types@^0.4.0":
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/@vzh/ts-types/-/ts-types-0.4.0.tgz#65fd8d664beca22157e5ac4c94bd558504002cc2"
+  integrity sha512-xha2W7qY0DN/HkuIvbjCtJJeuxecvXWZ62jFTx505O+RlM/dfTYMaySWAYu1kLnc2l+aM34QRGtiRjOf4+B2Wg==
 
 acorn-jsx@^5.0.0:
   version "5.0.0"
@@ -435,10 +435,10 @@ eslint-config-airbnb-base@^13.1.0:
     object.assign "^4.1.0"
     object.entries "^1.0.4"
 
-eslint-config-prettier@^3.3.0:
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-3.3.0.tgz#41afc8d3b852e757f06274ed6c44ca16f939a57d"
-  integrity sha512-Bc3bh5bAcKNvs3HOpSi6EfGA2IIp7EzWcg2tS4vP7stnXu/J1opihHDM7jI9JCIckyIDTgZLSWn7J3HY0j2JfA==
+eslint-config-prettier@^3.4.0:
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-3.4.0.tgz#97dd5bf33d4d85862fdadf2ea89b4d6cebf3ba4f"
+  integrity sha512-VDBMmnwA1SH4tGoyTVStbjI18xAFtozvrodjEuoqtP/P/XLJs5Ga8sFf7GSSPxAkgh65CGYT/zOXzsf2IA0aqw==
   dependencies:
     get-stdin "^6.0.0"
 
@@ -696,18 +696,6 @@ functional-red-black-tree@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/functional-red-black-tree/-/functional-red-black-tree-1.0.1.tgz#1b0ab3bd553b2a0d6399d29c0e3ea0b252078327"
   integrity sha1-GwqzvVU7Kg1jmdKcDj6gslIHgyc=
-
-funfix-core@^7.0.1:
-  version "7.0.1"
-  resolved "https://registry.yarnpkg.com/funfix-core/-/funfix-core-7.0.1.tgz#894a9f39ef582c5d6dcc9ef384381d12819e8094"
-  integrity sha1-iUqfOe9YLF1tzJ7zhDgdEoGegJQ=
-  dependencies:
-    funland "^0.1.4"
-
-funland@^0.1.4:
-  version "0.1.4"
-  resolved "https://registry.yarnpkg.com/funland/-/funland-0.1.4.tgz#b2b6df1ce691a0c811304c03310341aa3175ad05"
-  integrity sha512-K97O105t3hQrlj1qgeJAa+VFOHeREfKPaWy7Z5S6UdR87JuvizeIVEMj/AmtcUFOBTgzjD6mmhjKM4w2677q7A==
 
 get-caller-file@^1.0.1:
   version "1.0.3"

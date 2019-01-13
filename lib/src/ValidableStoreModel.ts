@@ -1,5 +1,5 @@
 import { action, observable, computed } from 'mobx';
-import { Option } from 'funfix-core';
+import { Option } from '@vzh/ts-types/fp';
 import { validate } from 'valtors';
 import ValidableModel, { ValidationErrors } from './ValidableModel';
 import StoreModel from './StoreModel';

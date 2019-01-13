@@ -1,5 +1,5 @@
 import { Omit, ExcludeKeysOfType, Copy } from '@vzh/ts-types';
-import { Option } from 'funfix-core';
+import { Option } from '@vzh/ts-types/fp';
 import ValidableStoreModel from './ValidableStoreModel';
 
 export type JSONPrimitives = string | number | boolean | null | undefined;

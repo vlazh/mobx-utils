@@ -1,4 +1,4 @@
-import { Option } from 'funfix-core';
+import { Option } from '@vzh/ts-types/fp';
 import Validable from './Validable';
 
 export interface ErrorProvider {
