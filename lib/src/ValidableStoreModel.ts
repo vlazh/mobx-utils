@@ -1,19 +1,26 @@
 import { action, observable, computed } from 'mobx';
 import { Option } from '@vzh/ts-types/fp';
+import { Diff } from '@vzh/ts-types';
 import { validate } from 'valtors';
 import ValidableModel, { ValidationErrors } from './ValidableModel';
 import StoreModel from './StoreModel';
 
-export default class ValidableStoreModel<Entity extends object> extends StoreModel<Entity>
-  implements ValidableModel<Entity> {
-  constructor(public readonly errors: ValidationErrors<Entity>) {
+type OnlyEntity<A extends object> = Diff<A, ValidableModel<A> & StoreModel<A>>;
+
+export default class ValidableStoreModel<Entity extends object>
+  extends StoreModel<OnlyEntity<Entity>>
+  implements ValidableModel<OnlyEntity<Entity>> {
+  constructor(public readonly errors: ValidationErrors<OnlyEntity<Entity>>) {
     super();
     // Так как пустое значение при инициализации, клонируем объект и следим за ним.
     // Наследники должны принимать объект в конструкторе, чтобы не сбить слежение mobx.
     this.errors = observable.object(errors);
   }
 
-  protected onModelChanged<K extends keyof Entity>(name: K, prevValue: Entity[K]) {
+  protected onModelChanged<K extends keyof OnlyEntity<Entity>>(
+    name: K,
+    prevValue: OnlyEntity<Entity>[K]
+  ) {
     super.onModelChanged(name, prevValue);
     this.validate(name);
   }
@@ -24,7 +31,7 @@ export default class ValidableStoreModel<Entity extends object> extends StoreMod
   }
 
   @action
-  validate(name?: keyof Entity): boolean {
+  validate(name?: keyof OnlyEntity<Entity>): boolean {
     const result = validate(this, name);
 
     const safeResult = Object.keys(result).reduce((acc, key) => {
