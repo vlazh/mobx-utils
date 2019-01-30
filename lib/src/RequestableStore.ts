@@ -12,7 +12,7 @@ export interface ResponseLike {
 
 export interface ResponseErrorLike {
   config: any;
-  response: any;
+  response: ResponseLike;
 }
 
 export interface AsyncAction<T> {
