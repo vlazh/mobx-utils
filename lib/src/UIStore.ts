@@ -7,7 +7,7 @@ export default class UIStore<RS extends object> extends LoadableStore<RS> {
   @observable
   private notificationList: ReadonlyArray<Notification> = [];
 
-  constructor(rootStore: RS) {
+  constructor(rootStore: RS, private defaultNotificationTimeout?: number) {
     super(rootStore);
 
     this.addNotification = this.addNotification.bind(this);
@@ -21,27 +21,31 @@ export default class UIStore<RS extends object> extends LoadableStore<RS> {
   }
 
   @computed
-  get hasError() {
+  get hasError(): boolean {
     return this.notificationList.some(n => n.type === NotificationType.error);
   }
 
   @action
-  addNotification(notification: Omit<Notification, 'id'>) {
+  addNotification(notification: Omit<Notification, 'id'>): Notification['id'] {
     const newId = this.notificationList.length + 1;
-    this.notificationList = this.notificationList.concat({ id: newId, ...notification });
+    this.notificationList = this.notificationList.concat({ ...notification, id: newId });
 
-    if (notification.timeout) {
-      setTimeout(() => this.closeNotification(newId), notification.timeout);
+    const timeout =
+      notification.timeout == null ? this.defaultNotificationTimeout : notification.timeout;
+    if (timeout) {
+      setTimeout(() => this.closeNotification(newId), timeout);
     }
+
+    return newId;
   }
 
   @action
-  closeNotification(id: NotificationID) {
+  closeNotification(id: NotificationID): void {
     this.notificationList = this.notificationList.filter(_ => _.id !== id);
   }
 
   @action
-  cleanNotifications(type?: NotificationType) {
+  cleanNotifications(type?: NotificationType): void {
     this.notificationList = type ? this.notificationList.filter(_ => _.type !== type) : [];
   }
 }

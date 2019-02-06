@@ -63,7 +63,7 @@ export default class RequestableStore<RS extends object, UIS extends UIStore<RS>
   }
 
   // @ts-ignore
-  protected onRequestSuccess<R>(result: R) {}
+  protected onRequestSuccess<R>(result: R): void {}
 
   protected getResponseErrorMessage(response: ResponseLike): string {
     return response.data || response.statusText;
@@ -75,7 +75,7 @@ export default class RequestableStore<RS extends object, UIS extends UIStore<RS>
       : error.toString();
   }
 
-  protected onRequestError(error: ResponseErrorLike | Throwable) {
+  protected onRequestError(error: ResponseErrorLike | Throwable): void {
     console.error(error);
 
     this.uiStore.addNotification({
