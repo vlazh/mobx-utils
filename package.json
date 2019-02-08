@@ -15,8 +15,8 @@
   "scripts": {
     "clean": "rimraf dist/*",
     "build": "npm run clean && tsc --project ./tsconfig.json",
-    "build-to-tutoron": "npm run clean && tsc --project ./tsconfig.json --outDir '~/dev/sources/tutoron/node_modules/@vzh/mobx-stores/dist/' && copyfiles package.json '~/dev/sources/tutoron/node_modules/@vzh/mobx-stores/'",
-    "build-to-pwa": "npm run clean && tsc --project ./tsconfig.json --outDir '~/dev/sources/pwa/node_modules/@vzh/mobx-stores/dist/' && copyfiles package.json '~/dev/sources/pwa/node_modules/@vzh/mobx-stores/'",
+    "build-to-tutoron": "npm run clean && tsc --project ./tsconfig.json --outDir '/home/vladimir/dev/sources/tutoron/node_modules/@vzh/mobx-stores/dist/' && copyfiles package.json '/home/vladimir/dev/sources/tutoron/node_modules/@vzh/mobx-stores/'",
+    "build-to-pwa": "npm run clean && tsc --project ./tsconfig.json --outDir '/home/vladimir/dev/sources/pwa/node_modules/@vzh/mobx-stores/dist/' && copyfiles package.json '/home/vladimir/dev/sources/pwa/node_modules/@vzh/mobx-stores/'",
     "build-to-react-components": "npm run clean && tsc --project ./tsconfig.json --outDir '../react-components/node_modules/@vzh/mobx-stores/dist/' && copyfiles package.json '../react-components/node_modules/@vzh/mobx-stores/'",
     "prepublishOnly": "npm run clean && npm run build",
     "patch-publish": "npm version patch && npm publish --access public && git push --follow-tags",
