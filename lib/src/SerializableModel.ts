@@ -12,11 +12,8 @@ export interface JSONArray extends ReadonlyArray<JSONTypes> {}
 
 type ExcludeFunctions<T extends object> = ExcludeKeysOfType<T, Function>;
 
-type OnlyValues<Entity extends object | undefined> = ExcludeFunctions<
-  Omit<
-    Pick<Entity, Exclude<keyof Entity, undefined>>, // remove undefined keys for Omit
-    keyof ValidableStoreModel<any> & keyof SerializableModel<any>
-  >
+type OnlyValues<Entity extends object> = ExcludeFunctions<
+  Omit<Entity, keyof ValidableStoreModel<any> & keyof SerializableModel<any>>
 >;
 
 // Like Moment object
@@ -37,7 +34,7 @@ type ArrayOrObject<A> = A extends ReadonlyArray<infer T>
 
 type JSONDefinedValue<A> = A extends JSONTypes
   ? A
-  : (keyof SerializableModel<any> extends Extract<keyof A, keyof SerializableModel<infer T>> // Check all keys from SerializableModel
+  : /* Object type. Also undefined? */ (A extends SerializableModel<infer T>
       ? JSONObjectValue<T>
       : (undefined extends A
           ? ArrayOrObject<Exclude<A, undefined>> | undefined
