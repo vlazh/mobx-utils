@@ -8,19 +8,19 @@ export function isReactionDisposer(value: any): value is IReactionDisposer {
   return value && typeof value === 'function' && isReaction((value as IReactionDisposer)[$mobx]);
 }
 
-export function disposeMobxReactions(value: any) {
+export function disposeMobxReactions(value: any): void {
   if (isReactionDisposer(value)) {
     value();
   }
 }
 
-export default abstract class DisposableStore {
+export default abstract class ReactionDisposer {
   /** If callback returns true then do nothing */
-  dispose(callback?: (name: string, value: any) => boolean) {
+  dispose(callback?: (name: string, value: any) => boolean): void {
     Object.entries(this).forEach(([name, value]) => {
       if (value === this) return; // Skip self referencies. For example, `jsonModel` in `SerializableModel`.
       if (callback && callback(name, value)) return;
-      if (value instanceof DisposableStore) value.dispose();
+      if (value instanceof ReactionDisposer) value.dispose();
       else disposeMobxReactions(value);
     });
   }

@@ -1,14 +1,14 @@
-import DisposableStore from './DisposableStore';
+import ReactionDisposer from './ReactionDisposer';
 
-export default abstract class BaseStore<RS extends object> extends DisposableStore {
+export default abstract class BaseStore<RS extends object> extends ReactionDisposer {
   constructor(protected readonly rootStore: RS) {
     super();
   }
 
   /** Call by rootStore after all children stores are created. */
-  protected initialize() {}
+  protected initialize(): void {}
 
-  dispose() {
+  dispose(): void {
     super.dispose(name => name === 'rootStore');
   }
 }

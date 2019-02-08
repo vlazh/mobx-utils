@@ -1,9 +1,9 @@
-import DisposableStore from './DisposableStore';
+import ReactionDisposer from './ReactionDisposer';
 import BaseStore from './BaseStore';
 
 /* eslint-disable dot-notation */
 
-export default abstract class BaseRootStore extends DisposableStore {
+export default abstract class BaseRootStore extends ReactionDisposer {
   private initStore(store: BaseStore<any> | BaseRootStore) {
     Object.values(store).forEach(value => {
       if (value === store) return; // Skip self referencies. For example, `jsonModel` in `SerializableModel`.
