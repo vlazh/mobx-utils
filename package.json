@@ -28,7 +28,7 @@
     "@typescript-eslint/eslint-plugin": "^1.2.0",
     "@typescript-eslint/parser": "^1.2.0",
     "@vzh/configs": "^3.15.2",
-    "@vzh/ts-types": "^0.4.3",
+    "@vzh/ts-types": "^0.4.4",
     "babel-eslint": "^10.0.1",
     "copyfiles": "^2.1.0",
     "eslint": "^5.14.0",
