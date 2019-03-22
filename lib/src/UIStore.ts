@@ -7,8 +7,15 @@ export default class UIStore<RS extends object> extends LoadableStore<RS> {
   @observable
   private notificationList: ReadonlyArray<Notification> = [];
 
-  constructor(rootStore: RS, private defaultNotificationTimeout?: number) {
+  private readonly defaultNotificationTimeout: number;
+
+  // To avoid mistakes at react rerenders by id use unique id's on all lifecircle.
+  private lastNotificationId: number = 0;
+
+  constructor(rootStore: RS, defaultNotificationTimeout: number = 0) {
     super(rootStore);
+
+    this.defaultNotificationTimeout = defaultNotificationTimeout;
 
     this.addNotification = this.addNotification.bind(this);
     this.closeNotification = this.closeNotification.bind(this);
@@ -27,7 +34,11 @@ export default class UIStore<RS extends object> extends LoadableStore<RS> {
 
   @action
   addNotification(notification: Omit<Notification, 'id'>): Notification['id'] {
-    const newId = this.notificationList.length + 1;
+    if (this.lastNotificationId === Number.MAX_SAFE_INTEGER) {
+      this.lastNotificationId = 0;
+    }
+    this.lastNotificationId += 1;
+    const newId = this.lastNotificationId;
     this.notificationList = this.notificationList.concat({ ...notification, id: newId });
 
     const timeout =
