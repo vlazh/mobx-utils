@@ -26,7 +26,13 @@ type JSONArrayValue<A> = Array<A extends object ? JSONObjectValue<A> : UnknownTy
 
 type JSONObjectValue<A extends object> = keyof OnlyProps<A> extends never
   ? (A extends ValueContainer<infer R> ? R : {})
-  : { [P in keyof OnlyProps<A>]: JSONValue<A[P]> };
+  : {
+      [P in keyof OnlyProps<A>]: JSONValue<A[P]>
+      /* Quick fix for 3.4.1: reimplement JSONValue */
+      // [P in keyof OnlyProps<A>]: A[P] extends Option<infer T> | undefined
+      //   ? JSONSomeValue<T> | undefined
+      //   : JSONSomeValue<A[P]>
+    };
 
 type ArrayOrObject<A> = A extends ReadonlyArray<infer T>
   ? JSONArrayValue<T>
@@ -40,7 +46,7 @@ type JSONSomeValue<A> = A extends JSONTypes
           ? ArrayOrObject<Exclude<A, undefined>> | undefined
           : ArrayOrObject<A>));
 
-export type JSONValue<A> = A extends Option<infer T>
+export type JSONValue<A> = A extends Option<infer T> | undefined
   ? JSONSomeValue<T> | undefined
   : JSONSomeValue<A>;
 
