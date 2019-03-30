@@ -10,29 +10,29 @@ export interface JSONObject extends Record<string, JSONTypes> {}
 
 export interface JSONArray extends ReadonlyArray<JSONTypes> {}
 
-type ExcludeFunctions<T extends object> = ExcludeKeysOfType<T, Function>;
+type ExcludeFunctions<A extends object> = ExcludeKeysOfType<A, Function>;
 
-type OnlyValues<Entity extends object> = ExcludeFunctions<
-  Omit<Entity, keyof ValidableStoreModel<any> & keyof SerializableModel<any>>
+type OnlyProps<A extends object> = ExcludeFunctions<
+  Omit<A, keyof ValidableStoreModel<any> & keyof SerializableModel<any>>
 >;
 
 // Like Moment object
-interface ValueContainer<T> {
-  valueOf: () => T;
+interface ValueContainer<A> {
+  valueOf: () => A;
 }
 
 type UnknownType = string;
 type JSONArrayValue<A> = Array<A extends object ? JSONObjectValue<A> : UnknownType>;
 
-type JSONObjectValue<A extends object> = keyof OnlyValues<A> extends never
+type JSONObjectValue<A extends object> = keyof OnlyProps<A> extends never
   ? (A extends ValueContainer<infer R> ? R : {})
-  : { [P in keyof OnlyValues<A>]: JSONValue<A[P]> };
+  : { [P in keyof OnlyProps<A>]: JSONValue<A[P]> };
 
 type ArrayOrObject<A> = A extends ReadonlyArray<infer T>
   ? JSONArrayValue<T>
   : (A extends object ? JSONObjectValue<A> : UnknownType);
 
-type JSONDefinedValue<A> = A extends JSONTypes
+type JSONSomeValue<A> = A extends JSONTypes
   ? A
   : /* Object type. Also undefined? */ (A extends SerializableModel<infer T>
       ? JSONObjectValue<T>
@@ -41,8 +41,8 @@ type JSONDefinedValue<A> = A extends JSONTypes
           : ArrayOrObject<A>));
 
 export type JSONValue<A> = A extends Option<infer T>
-  ? JSONDefinedValue<T> | undefined
-  : JSONDefinedValue<A>;
+  ? JSONSomeValue<T> | undefined
+  : JSONSomeValue<A>;
 
 // type A = { a?: Function; b: {}; valueOf: (a?: string) => object; toJSON(): any; jsonModel0: any };
 // type B = undefined extends A['a'] ? string : number;
@@ -113,6 +113,8 @@ export function serialize<Entity>(v: Entity): JSONValue<Entity> {
 // const a = serialize(Option.of(1));
 // a;
 // type B = JSONModel<Option<number>>;
+// type B = JSONModel<{ o: Option<number> }>;
+// type B = JSONModel<{ o?: ValidableStoreModel<{}> }>;
 // type B = JSONModel<number[]>;
 // type B = JSONModel<{ a: 1; b: { q: string; w: string[] }[] }>;
 // const b: B = {};
