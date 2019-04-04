@@ -45,7 +45,7 @@ export default class Model<Entity extends object> implements ModelLike<Entity> {
   }
 
   // @ts-ignore
-  protected onModelChanged<K extends keyof Entity>(name: K, prevValue: Entity[K]) {}
+  protected onModelChanged<K extends keyof Entity>(name: K, prevValue: Entity[K]): void {}
 
   protected getFieldName<K extends keyof Entity>(input: NameValue<any, any>): K {
     if (input.name && input.name in this.target) {
@@ -59,7 +59,7 @@ export default class Model<Entity extends object> implements ModelLike<Entity> {
     return input.type === 'number' ? (+input.value as any) : input.value;
   }
 
-  changeField<K extends keyof Entity>(event: InputEventLike | NameValue<Entity, K>) {
+  changeField<K extends keyof Entity>(event: InputEventLike | NameValue<Entity, K>): void {
     let prevValue: Entity[K];
     let name: K;
 

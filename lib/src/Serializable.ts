@@ -13,7 +13,7 @@ export interface JSONArray extends ReadonlyArray<JSONTypes> {}
 type ExcludeFunctions<A extends object> = ExcludeKeysOfType<A, Function>;
 
 type OnlyProps<A extends object> = ExcludeFunctions<
-  Omit<A, keyof ValidableStoreModel<any> & keyof SerializableModel<any>>
+  Omit<A, keyof ValidableStoreModel<any> & keyof Serializable<any>>
 >;
 
 // Like Moment object
@@ -28,8 +28,8 @@ type JSONObjectValue<A extends object> = keyof OnlyProps<A> extends never
   ? (A extends ValueContainer<infer R> ? R : {})
   : {
       [P in keyof OnlyProps<A>]: JSONValue<A[P]>
-      /* Quick fix for 3.4.1: reimplement JSONValue */
-      // [P in keyof OnlyProps<A>]: A[P] extends Option<infer T> | undefined
+      /* Quick fix for 3.4.1: implementation of JSONValue */
+      // [P in keyof OnlyProps<A>]: A[P] extends Option<infer T>
       //   ? JSONSomeValue<T> | undefined
       //   : JSONSomeValue<A[P]>
     };
@@ -40,13 +40,13 @@ type ArrayOrObject<A> = A extends ReadonlyArray<infer T>
 
 type JSONSomeValue<A> = A extends JSONTypes
   ? A
-  : /* Object type. Also undefined? */ (A extends SerializableModel<infer T>
+  : /* Object type. Also undefined? */ (A extends Serializable<infer T>
       ? JSONObjectValue<T>
       : (undefined extends A
           ? ArrayOrObject<Exclude<A, undefined>> | undefined
           : ArrayOrObject<A>));
 
-export type JSONValue<A> = A extends Option<infer T> | undefined
+export type JSONValue<A> = A extends Option<infer T>
   ? JSONSomeValue<T> | undefined
   : JSONSomeValue<A>;
 
@@ -63,17 +63,8 @@ export type JSONValue<A> = A extends Option<infer T> | undefined
 
 export type JSONModel<Entity extends object> = Copy<JSONValue<Entity>>;
 
-export interface Serializable<A extends object> {
-  toJSON(): JSONModel<A>;
-}
-
-export default interface SerializableModel<Entity extends object> extends Serializable<Entity> {
-  /**
-   * Just for correct infering: https://github.com/Microsoft/TypeScript/issues/26688
-   * It's required to define in implementation for correct typing with `JSONModel`.
-   * Might be just equal `this`.
-   */
-  readonly jsonModel: Entity;
+export default interface Serializable<Entity extends object> {
+  toJSON(): JSONModel<Entity>;
 }
 
 export function serialize<Entity>(v: Entity): JSONValue<Entity> {
