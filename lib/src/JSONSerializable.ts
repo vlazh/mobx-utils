@@ -74,40 +74,49 @@ export default interface JSONSerializable<Entity extends object> {
   toJSON(): JSONModel<Entity>;
 }
 
-export function serialize<Entity>(v: Entity): JSONValue<Entity> {
+export type CustomSerializerResult = { use: true; value: any } | { use: false };
+
+export function serialize<V>(
+  v: V,
+  customSerializer?: (value: any) => CustomSerializerResult
+): JSONValue<V> {
+  const customResult = customSerializer && customSerializer(v);
+  if (customResult && customResult.use) return customResult.value;
+
   if (v == null) {
     return v;
   }
+
   if (Array.isArray(v)) {
-    return v.map(serialize) as JSONValue<Entity>;
+    return v.map(item => serialize(item, customSerializer)) as JSONValue<V>;
   }
 
   if (v instanceof Option) {
-    return v.map(serialize).orUndefined();
+    return v.map(value => serialize(value, customSerializer)).orUndefined();
   }
 
   if (typeof v === 'object') {
     const obj = Object.entries(v).reduce((acc, [key, value]) => {
       // Skip functions and symbols
       if (typeof value === 'function' || typeof value === 'symbol') return acc;
-      return { ...acc, [key]: serialize(value) };
-    }, {}) as JSONValue<Entity>;
+      return { ...acc, [key]: serialize(value, customSerializer) };
+    }, {}) as JSONValue<V>;
 
     if (
       !Object.getOwnPropertyNames(obj).length &&
       typeof (v as ValueContainer<any>).valueOf === 'function'
     ) {
-      return (v as ValueContainer<any>).valueOf() as JSONValue<Entity>;
+      return (v as ValueContainer<any>).valueOf() as JSONValue<V>;
     }
 
     return obj;
   }
 
   if (typeof v === 'boolean' || typeof v === 'number' || typeof v === 'string') {
-    return v as JSONValue<Entity>;
+    return v as JSONValue<V>;
   }
 
-  return String(v) as JSONValue<Entity>;
+  return String(v) as JSONValue<V>;
 }
 
 // const a = serialize({ a: 1 });
