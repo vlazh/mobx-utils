@@ -24,10 +24,10 @@
     "major-publish": "npm version major && npm publish --access public && git push --follow-tags"
   },
   "devDependencies": {
-    "@types/react": "^16.8.10",
-    "@typescript-eslint/eslint-plugin": "^1.5.0",
-    "@typescript-eslint/parser": "^1.5.0",
-    "@vzh/configs": "^3.18.0",
+    "@types/react": "^16.8.12",
+    "@typescript-eslint/eslint-plugin": "^1.6.0",
+    "@typescript-eslint/parser": "^1.6.0",
+    "@vzh/configs": "^3.19.0",
     "@vzh/ts-types": "^0.5.1",
     "babel-eslint": "^10.0.1",
     "copyfiles": "^2.1.0",
@@ -36,7 +36,7 @@
     "eslint-config-prettier": "^4.1.0",
     "eslint-plugin-import": "^2.16.0",
     "eslint-plugin-prettier": "^3.0.1",
-    "mobx": "^5.9.0",
+    "mobx": "^5.9.4",
     "mobx-react": "^5.4.3",
     "mobx-utils": "^5.2.0",
     "prettier": "^1.16.4",
