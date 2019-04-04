@@ -13,7 +13,7 @@ export interface JSONArray extends ReadonlyArray<JSONTypes> {}
 type ExcludeFunctions<A extends object> = ExcludeKeysOfType<A, Function>;
 
 type OnlyProps<A extends object> = ExcludeFunctions<
-  Omit<A, keyof ValidableStoreModel<any> & keyof Serializable<any>>
+  Omit<A, keyof ValidableStoreModel<any> & keyof JSONSerializable<any>>
 >;
 
 // Like Moment object
@@ -40,7 +40,7 @@ type ArrayOrObject<A> = A extends ReadonlyArray<infer T>
 
 type JSONSomeValue<A> = A extends JSONTypes
   ? A
-  : /* Object type. Also undefined? */ (A extends Serializable<infer T>
+  : /* Object type. Also undefined? */ (A extends JSONSerializable<infer T>
       ? JSONObjectValue<T>
       : (undefined extends A
           ? ArrayOrObject<Exclude<A, undefined>> | undefined
@@ -63,7 +63,14 @@ export type JSONValue<A> = A extends Option<infer T>
 
 export type JSONModel<Entity extends object> = Copy<JSONValue<Entity>>;
 
-export default interface Serializable<Entity extends object> {
+export default interface JSONSerializable<Entity extends object> {
+  /**
+   * Just for correct infering: https://github.com/Microsoft/TypeScript/issues/26688
+   * It's required to define in implementation for correct typing with `JSONModel`.
+   * It might be just equals `this`.
+   */
+  // Temporary remove for TS 3.4.
+  // readonly _serializable: Entity;
   toJSON(): JSONModel<Entity>;
 }
 
