@@ -96,9 +96,11 @@ export function serialize<V>(
   }
 
   if (typeof v === 'object') {
+    const validable = v instanceof ValidableStoreModel ? new ValidableStoreModel({}) : undefined;
     const obj = Object.entries(v).reduce((acc, [key, value]) => {
       // Skip functions and symbols
       if (typeof value === 'function' || typeof value === 'symbol') return acc;
+      if (validable && key in validable) return acc;
       return { ...acc, [key]: serialize(value, customSerializer) };
     }, {}) as JSONValue<V>;
 
