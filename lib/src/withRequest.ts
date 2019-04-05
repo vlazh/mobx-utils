@@ -1,8 +1,10 @@
 /* eslint-disable dot-notation */
 import RequestableStore, { AsyncAction } from './RequestableStore';
+import Validable from './Validable';
 
-function withRequest(
-  target: RequestableStore<any, any>,
+function withRequestFactory<S extends RequestableStore<any, any>>(
+  request: (self: typeof target, originalFn: Function) => AsyncAction<void>,
+  target: S,
   propertyKey: string | symbol,
   descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
 ): any {
@@ -17,10 +19,7 @@ function withRequest(
         return fn;
       },
       set(this: typeof target, nextFn: Function) {
-        const self = this;
-        fn = async (...params: any[]) => {
-          await self['request'](() => nextFn.call(self, ...params));
-        };
+        fn = request(this, nextFn);
       },
     });
 
@@ -37,6 +36,21 @@ function withRequest(
       await this['request'](() => fn.call(this, ...params));
     },
   };
+}
+
+function withRequest(
+  target: RequestableStore<any, any>,
+  propertyKey: string | symbol,
+  descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
+): any {
+  return withRequestFactory(
+    (self, originalFn) => async (...params: any[]) => {
+      await self['request'](() => originalFn.call(self, ...params));
+    },
+    target,
+    propertyKey,
+    descriptor
+  );
 }
 
 withRequest.bound = function bound(
@@ -67,3 +81,25 @@ withRequest.bound = function bound(
 };
 
 export default withRequest;
+
+export function withSubmit<S extends RequestableStore<any, any>>(
+  modelGetter: (self: S) => Validable
+): (
+  target: S,
+  propertyKey: string | symbol,
+  descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
+) => any {
+  // eslint-disable-next-line func-names
+  return function(target, propertyKey, descriptor): any {
+    return withRequestFactory(
+      (self, originalFn) => async (...params: any[]) => {
+        const model = modelGetter(self);
+        if (!model.validate()) return;
+        await self['request'](() => originalFn.call(self, ...params));
+      },
+      target,
+      propertyKey,
+      descriptor
+    );
+  };
+}

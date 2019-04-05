@@ -17,5 +17,6 @@ export { default as ValidableStoreModel } from './ValidableStoreModel';
 export { default as RequestableStore } from './RequestableStore';
 export * from './RequestableStore';
 export { default as withRequest } from './withRequest';
+export * from './withRequest';
 export { default as JSONSerializable } from './JSONSerializable';
 export * from './JSONSerializable';
