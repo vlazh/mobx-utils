@@ -1,8 +1,11 @@
 import ReactionDisposer from './ReactionDisposer';
 
 export default abstract class BaseStore<RS extends object> extends ReactionDisposer {
-  constructor(protected readonly rootStore: RS) {
+  protected readonly rootStore: RS;
+
+  constructor(rootStore: RS) {
     super();
+    this.rootStore = rootStore;
   }
 
   /** Call by rootStore after all children stores are created. */

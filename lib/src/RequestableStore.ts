@@ -26,8 +26,11 @@ export function isResponseError(error: ResponseErrorLike | Throwable): error is 
 export default class RequestableStore<RS extends object, UIS extends UIStore<RS>> extends BaseStore<
   RS
 > {
-  constructor(rootStore: RS, public uiStore: UIS) {
+  readonly uiStore: UIS;
+
+  constructor(rootStore: RS, uiStore: UIS) {
     super(rootStore);
+    this.uiStore = uiStore;
     this.request = this.request.bind(this) as any;
     this.onRequestSuccess = this.onRequestSuccess.bind(this);
     this.onRequestError = this.onRequestError.bind(this);
@@ -52,11 +55,11 @@ export default class RequestableStore<RS extends object, UIS extends UIStore<RS>
   }
 
   protected submit<R>(
-    validable: Validable,
+    model: Validable,
     doWork: AsyncAction<R>,
     ...doWorkParams: any[]
   ): Promise<Try<R>> {
-    if (!validable.validate()) {
+    if (!model.validate()) {
       return Promise.resolve(Try.failure(new Error('`model` is in invalid state.')));
     }
     return this.request<R>(doWork, ...doWorkParams);
