@@ -1,4 +1,4 @@
-import { Omit, ExcludeKeysOfType, Copy } from '@vzh/ts-types';
+import { ExcludeKeysOfType, Copy, Diff } from '@vzh/ts-types';
 import { Option } from '@vzh/ts-types/fp';
 import ValidableStoreModel from './ValidableStoreModel';
 
@@ -13,7 +13,7 @@ export interface JSONArray extends ReadonlyArray<JSONTypes> {}
 type ExcludeFunctions<A extends object> = ExcludeKeysOfType<A, Function>;
 
 type OnlyProps<A extends object> = ExcludeFunctions<
-  Omit<A, keyof ValidableStoreModel<any> & keyof JSONSerializable<any>>
+  Diff<A, ValidableStoreModel<any> & JSONSerializable<any>>
 >;
 
 // Like Moment object
