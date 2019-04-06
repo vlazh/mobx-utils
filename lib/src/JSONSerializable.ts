@@ -1,4 +1,4 @@
-import { ExcludeKeysOfType, Copy, Diff } from '@vzh/ts-types';
+import { ExcludeKeysOfType, Diff } from '@vzh/ts-types';
 import { Option } from '@vzh/ts-types/fp';
 import ValidableStoreModel from './ValidableStoreModel';
 
@@ -13,7 +13,7 @@ export interface JSONArray extends ReadonlyArray<JSONTypes> {}
 type ExcludeFunctions<A extends object> = ExcludeKeysOfType<A, Function>;
 
 type OnlyProps<A extends object> = ExcludeFunctions<
-  Diff<A, ValidableStoreModel<any> & JSONSerializable<any>>
+  Diff<A, ValidableStoreModel<any> | JSONSerializable<any>>
 >;
 
 // Like Moment object
@@ -61,9 +61,10 @@ export type JSONValue<A> = A extends Option<infer T>
 //   : number;
 // const b: B = {};
 
-export type JSONModel<Entity extends object> = Copy<JSONValue<Entity>>;
+// For TS 3.4: replace `Copy<JSONValue<A>>` with itself implemetation.
+export type JSONModel<A extends object> = { [P in keyof JSONValue<A>]: JSONValue<A>[P] };
 
-export default interface JSONSerializable<Entity extends object> {
+export default interface JSONSerializable<A extends object> {
   /**
    * Just for correct infering: https://github.com/Microsoft/TypeScript/issues/26688
    * It's required to define in implementation for correct typing with `JSONModel`.
@@ -71,7 +72,7 @@ export default interface JSONSerializable<Entity extends object> {
    */
   // Temporary remove for TS 3.4.
   // readonly _serializable: Entity;
-  toJSON(): JSONModel<Entity>;
+  toJSON(): JSONModel<A>;
 }
 
 export type CustomSerializerResult = { use: true; value: any } | { use: false };
