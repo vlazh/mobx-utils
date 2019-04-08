@@ -95,10 +95,10 @@
   resolved "https://registry.yarnpkg.com/@types/prop-types/-/prop-types-15.7.0.tgz#4c48fed958d6dcf9487195a0ef6456d5f6e0163a"
   integrity sha512-eItQyV43bj4rR3JPV0Skpl1SncRCdziTEK9/v8VwXmV6d/qOUO8/EuWeHBbCZcsfSHfzI5UyMJLCSXtxxznyZg==
 
-"@types/react@^16.8.12":
-  version "16.8.12"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-16.8.12.tgz#ffbdd7bcd2b7037c3f78e26c708922a2befbb71f"
-  integrity sha512-MZZiv11BQhsxFp5DHDmRKBi6Nv3jwOhRiFFDE7ZJ1+rb52gdOd9y/qY0+5wyV/PQVK9926wFMjpQj3BJ18pb4Q==
+"@types/react@^16.8.13":
+  version "16.8.13"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-16.8.13.tgz#a82b15aad9ab91c40edca0d6889b7745ae24f053"
+  integrity sha512-otJ4ntMuHGrvm67CdDJMAls4WqotmAmW0g3HmWi9LCjSWXrxoXY/nHXrtmMfvPEEmGFNm6NdgMsJmnfH820Qaw==
   dependencies:
     "@types/prop-types" "*"
     csstype "^2.2.0"
@@ -137,10 +137,10 @@
   dependencies:
     "@vzh/ts-types" "^0.5.1"
 
-"@vzh/ts-types@^0.5.1":
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/@vzh/ts-types/-/ts-types-0.5.1.tgz#5dad36bdbbb415b326fa579f3f38bd4e188951ee"
-  integrity sha512-55mQrr5HvKHh/FuMxsXXS/rOk1jv60g7Xg9R+KgfYumT8CmoN9EK9+ba5JXaGMDi8wzOaEZ/dhI7CNYrRD3hIQ==
+"@vzh/ts-types@^0.5.1", "@vzh/ts-types@^0.5.2":
+  version "0.5.2"
+  resolved "https://registry.yarnpkg.com/@vzh/ts-types/-/ts-types-0.5.2.tgz#26ee19741c5465c0674ce947070b71b359a123e7"
+  integrity sha512-66NDuZF8R+DTi53pMG06iypYM1zkPG0JyCYDEm718vp78uJBmF96MFEQ1pl+96HRYEMFQ9pd+bbajMhuQ4P+qA==
 
 acorn-jsx@^5.0.0:
   version "5.0.1"
@@ -227,9 +227,9 @@ brace-expansion@^1.1.7:
     concat-map "0.0.1"
 
 callsites@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/callsites/-/callsites-3.0.0.tgz#fb7eb569b72ad7a45812f93fd9430a3e410b3dd3"
-  integrity sha512-tWnkwu9YEq2uzlBDI4RcLn8jrFvF9AOi8PxDNU3hZZjJcjkcRAq3vCI+vZcg1SuxISDYe86k9VZFwAxDiJGoAw==
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/callsites/-/callsites-3.1.0.tgz#b3630abd8943432f54b3f0519238e33cd7df2f73"
+  integrity sha512-P8BjAsXvZS+VIDUI11hHCQEv74YT67YUi5JJFNWIqL235sBmjX4+qx9Muvls5ivyNENctx46xQLQ3aTuE7ssaQ==
 
 camelcase@^4.1.0:
   version "4.1.0"
@@ -1060,9 +1060,9 @@ number-is-nan@^1.0.0:
   integrity sha1-CXtgK1NCKlIsGvuHkDGDNpQaAR0=
 
 object-keys@^1.0.11, object-keys@^1.0.12:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/object-keys/-/object-keys-1.1.0.tgz#11bd22348dd2e096a045ab06f6c85bcc340fa032"
-  integrity sha512-6OO5X1+2tYkNyNEx6TsCxEqFfRWaqx6EtMiSbGrw8Ob8v9Ne+Hl8rBAgLBZn5wjEz3s/s6U1WXFUFOcxxAwUpg==
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/object-keys/-/object-keys-1.1.1.tgz#1c47f272df277f3b1daf061677d9c82e2322c60e"
+  integrity sha512-NuAESUOUMrlIXOfHKzD6bpPu3tYt3xvjNdRIQ+FeT0lNb4K8WR70CaDxhuNguS2XG+GjkyMwOzsN5ZktImfhLA==
 
 object.assign@^4.1.0:
   version "4.1.0"
@@ -1432,9 +1432,9 @@ spdx-expression-parse@^3.0.0:
     spdx-license-ids "^3.0.0"
 
 spdx-license-ids@^3.0.0:
-  version "3.0.3"
-  resolved "https://registry.yarnpkg.com/spdx-license-ids/-/spdx-license-ids-3.0.3.tgz#81c0ce8f21474756148bbb5f3bfc0f36bf15d76e"
-  integrity sha512-uBIcIl3Ih6Phe3XHK1NqboJLdGfwr1UN3k6wSD1dZpmPsIkb8AGNbZYJ1fOBk834+Gxy8rpfDxrS6XLEMZMY2g==
+  version "3.0.4"
+  resolved "https://registry.yarnpkg.com/spdx-license-ids/-/spdx-license-ids-3.0.4.tgz#75ecd1a88de8c184ef015eafb51b5b48bfd11bb1"
+  integrity sha512-7j8LYJLeY/Yb6ACbQ7F76qy5jHkp0U6jgBfJsk97bwWlVUnUWsAgpyaCvo17h0/RQGnQ036tVDomiwoI4pDkQA==
 
 sprintf-js@~1.0.2:
   version "1.0.3"
