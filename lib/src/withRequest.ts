@@ -33,7 +33,7 @@ function withRequestFactory<S extends RequestableStore<any, any>>(
   return {
     ...rest,
     async value(this: typeof target, ...params: any[]) {
-      await this['request'](() => fn.call(this, ...params));
+      await request(this, fn)(...params);
     },
   };
 }
