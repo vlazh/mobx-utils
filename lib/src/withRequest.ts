@@ -1,4 +1,4 @@
-/* eslint-disable dot-notation */
+/* eslint-disable dot-notation, @typescript-eslint/no-non-null-assertion */
 import RequestableStore, { AsyncAction } from './RequestableStore';
 import Validable from './Validable';
 
@@ -80,6 +80,44 @@ withRequest.bound = function bound(
   };
 };
 
+function isUpdated(inputs: any[], nextInputs: any[]): boolean {
+  if (inputs.length !== nextInputs.length) return true;
+  for (let i = 0; i < inputs.length; i += 1) {
+    if (inputs[i] !== nextInputs[i]) return true;
+  }
+  return false;
+}
+
+withRequest.memo = function memo<S extends RequestableStore<any, any>>(
+  /** Invoke decorated method if this function returns `true` or if returned inputs are changed (shallow compare) */
+  inputsGetter: (self: S) => any[] | boolean
+): (
+  target: S,
+  propertyKey: string | symbol,
+  descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
+) => any {
+  let lastInputs: any[] = [];
+
+  return function withRequestMemo(target, propertyKey, descriptor): any {
+    return withRequestFactory(
+      (self, originalFn) => async (...params: any[]) => {
+        const inputs = inputsGetter(self);
+
+        if (typeof inputs === 'boolean' && !inputs) return;
+        if (Array.isArray(inputs)) {
+          if (!isUpdated(lastInputs, inputs)) return;
+          lastInputs = inputs;
+        }
+
+        await self['request'](() => originalFn.call(self, ...params));
+      },
+      target,
+      propertyKey,
+      descriptor
+    );
+  };
+};
+
 export default withRequest;
 
 export function withSubmit<S extends RequestableStore<any, any>>(
@@ -89,8 +127,7 @@ export function withSubmit<S extends RequestableStore<any, any>>(
   propertyKey: string | symbol,
   descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
 ) => any {
-  // eslint-disable-next-line func-names
-  return function(target, propertyKey, descriptor): any {
+  return function withSubmitRequest(target, propertyKey, descriptor): any {
     return withRequestFactory(
       (self, originalFn) => async (...params: any[]) => {
         const model = modelGetter(self);
