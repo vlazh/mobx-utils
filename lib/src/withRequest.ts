@@ -80,23 +80,37 @@ withRequest.bound = function bound(
   };
 };
 
-function isUpdated(inputs: any[], nextInputs: any[]): boolean {
-  if (inputs.length !== nextInputs.length) return true;
-  for (let i = 0; i < inputs.length; i += 1) {
-    if (inputs[i] !== nextInputs[i]) return true;
+function isUpdated(lastInputs: any[] | undefined, nextInputs: any[]): boolean {
+  // Always true for empty cache
+  if (!lastInputs) return true;
+  // Always true for empty inputs
+  if (nextInputs.length === 0) return true;
+  if (lastInputs.length !== nextInputs.length) return true;
+  for (let i = 0; i < lastInputs.length; i += 1) {
+    if (lastInputs[i] !== nextInputs[i]) return true;
   }
   return false;
 }
 
 withRequest.memo = function memo<S extends RequestableStore<any, any>>(
   /** Invoke decorated method if this function returns `true` or if returned inputs are changed (shallow compare) */
-  inputsGetter: (self: S) => any[] | boolean
+  inputsGetter: (self: S) => any[] | boolean,
+  /** In seconds */
+  lifetime: number = 0
 ): (
   target: S,
   propertyKey: string | symbol,
   descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
 ) => any {
-  let lastInputs: any[] = [];
+  let lastInputs: any[] | undefined;
+  let cacheTimeoutHandler: number | undefined;
+  const clearCache =
+    lifetime > 0
+      ? () => {
+          lastInputs = undefined;
+          cacheTimeoutHandler = undefined;
+        }
+      : undefined;
 
   return function withRequestMemo(target, propertyKey, descriptor): any {
     return withRequestFactory(
@@ -104,9 +118,23 @@ withRequest.memo = function memo<S extends RequestableStore<any, any>>(
         const inputs = inputsGetter(self);
 
         if (typeof inputs === 'boolean' && !inputs) return;
+
         if (Array.isArray(inputs)) {
-          if (!isUpdated(lastInputs, inputs)) return;
-          lastInputs = inputs;
+          if (!isUpdated(lastInputs, inputs)) {
+            // If cache still exists extend timeout
+            if (clearCache && cacheTimeoutHandler) {
+              clearTimeout(cacheTimeoutHandler);
+              cacheTimeoutHandler = setTimeout(clearCache, lifetime * 1000);
+            }
+            return;
+          }
+
+          if (inputs.length > 0) {
+            lastInputs = inputs;
+            // Create/recreate timeout
+            cacheTimeoutHandler && clearTimeout(cacheTimeoutHandler);
+            cacheTimeoutHandler = clearCache && setTimeout(clearCache, lifetime * 1000);
+          }
         }
 
         await self['request'](() => originalFn.call(self, ...params));
