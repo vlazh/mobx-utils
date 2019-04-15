@@ -1,9 +1,10 @@
 /* eslint-disable dot-notation, @typescript-eslint/no-non-null-assertion */
+import { Try } from '@vzh/ts-types/fp';
 import RequestableStore, { AsyncAction } from './RequestableStore';
 import Validable from './Validable';
 
 function withRequestFactory<S extends RequestableStore<any, any>>(
-  request: (self: typeof target, originalFn: Function) => AsyncAction<void>,
+  request: (self: typeof target, originalFn: Function) => AsyncAction<Try<any>>,
   target: S,
   propertyKey: string | symbol,
   descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
@@ -44,8 +45,8 @@ function withRequest(
   descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
 ): any {
   return withRequestFactory(
-    (self, originalFn) => async (...params: any[]) => {
-      await self['request'](() => originalFn.call(self, ...params));
+    (self, originalFn) => (...params: any[]) => {
+      return self['request'](() => originalFn.call(self, ...params));
     },
     target,
     propertyKey,
@@ -69,8 +70,8 @@ withRequest.bound = function bound(
 
       Object.defineProperty(this, propertyKey, {
         ...rest,
-        async value(...params: any[]) {
-          await self['request'](() => fn.call(self, ...params));
+        value(...params: any[]): Promise<Try<any>> {
+          return self['request'](() => fn.call(self, ...params));
         },
       });
 
@@ -103,11 +104,13 @@ withRequest.memo = function memo<S extends RequestableStore<any, any>>(
   descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
 ) => any {
   let lastInputs: any[] | undefined;
+  let lastResult: Try<any> | undefined;
   let cacheTimeoutHandler: number | undefined;
   const clearCache =
     lifetime > 0
       ? () => {
           lastInputs = undefined;
+          lastResult = undefined;
           cacheTimeoutHandler = undefined;
         }
       : undefined;
@@ -117,16 +120,16 @@ withRequest.memo = function memo<S extends RequestableStore<any, any>>(
       (self, originalFn) => async (...params: any[]) => {
         const inputs = inputsGetter(self);
 
-        if (typeof inputs === 'boolean' && !inputs) return;
+        if (typeof inputs === 'boolean' && !inputs && lastResult != null) return lastResult;
 
         if (Array.isArray(inputs)) {
-          if (!isUpdated(lastInputs, inputs)) {
+          if (lastResult != null && !isUpdated(lastInputs, inputs)) {
             // If cache still exists extend timeout
             if (clearCache && cacheTimeoutHandler) {
               clearTimeout(cacheTimeoutHandler);
               cacheTimeoutHandler = setTimeout(clearCache, lifetime * 1000);
             }
-            return;
+            return lastResult;
           }
 
           if (inputs.length > 0) {
@@ -137,7 +140,8 @@ withRequest.memo = function memo<S extends RequestableStore<any, any>>(
           }
         }
 
-        await self['request'](() => originalFn.call(self, ...params));
+        lastResult = await self['request'](() => originalFn.call(self, ...params));
+        return lastResult;
       },
       target,
       propertyKey,
@@ -157,10 +161,9 @@ export function withSubmit<S extends RequestableStore<any, any>>(
 ) => any {
   return function withSubmitRequest(target, propertyKey, descriptor): any {
     return withRequestFactory(
-      (self, originalFn) => async (...params: any[]) => {
+      (self, originalFn) => (...params: any[]) => {
         const model = modelGetter(self);
-        if (!model.validate()) return;
-        await self['request'](() => originalFn.call(self, ...params));
+        return self['submit'](model, () => originalFn.call(self, ...params));
       },
       target,
       propertyKey,
