@@ -120,7 +120,7 @@ withRequest.memo = function memo<S extends RequestableStore<any, any>>(
       (self, originalFn) => async (...params: any[]) => {
         const inputs = inputsGetter(self);
 
-        if (typeof inputs === 'boolean' && !inputs && lastResult != null) return lastResult;
+        if (typeof inputs === 'boolean' && !inputs) return lastResult || Try.success(undefined);
 
         if (Array.isArray(inputs)) {
           if (lastResult != null && !isUpdated(lastInputs, inputs)) {
