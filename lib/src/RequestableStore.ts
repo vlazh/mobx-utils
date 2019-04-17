@@ -10,7 +10,7 @@ export interface ResponseLike {
   statusText?: string;
 }
 
-export interface ResponseErrorLike {
+export interface ErrorResponseLike {
   config: any;
   response: ResponseLike;
 }
@@ -19,8 +19,10 @@ export interface AsyncAction<T> {
   (...params: any[]): Promise<T>;
 }
 
-export function isResponseError(error: ResponseErrorLike | Throwable): error is ResponseErrorLike {
-  return (error as ResponseErrorLike).config !== undefined;
+export function isErrorResponseLike(
+  error: ErrorResponseLike | Throwable
+): error is ErrorResponseLike {
+  return (error as ErrorResponseLike).config !== undefined;
 }
 
 export default class RequestableStore<RS extends object, UIS extends UIStore<RS>> extends BaseStore<
@@ -72,13 +74,13 @@ export default class RequestableStore<RS extends object, UIS extends UIStore<RS>
     return response.data || response.statusText;
   }
 
-  protected getErrorMessage(error: ResponseErrorLike | Throwable): string {
-    return isResponseError(error) && error.response
+  protected getErrorMessage(error: ErrorResponseLike | Throwable): string {
+    return isErrorResponseLike(error) && error.response
       ? this.getResponseErrorMessage(error.response)
       : error.toString();
   }
 
-  protected onRequestError(error: ResponseErrorLike | Throwable): void {
+  protected onRequestError(error: ErrorResponseLike | Throwable): void {
     console.error(error);
 
     this.uiStore.addNotification({
