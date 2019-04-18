@@ -7,7 +7,7 @@ export default abstract class LoadableStore<RS extends object> extends BaseStore
 
   /** true - while has at least 1 running request. */
   @computed
-  get loading() {
+  get loading(): boolean {
     return this.pendingRequestCount > 0;
   }
 
@@ -17,5 +17,9 @@ export default abstract class LoadableStore<RS extends object> extends BaseStore
       return;
     }
     this.pendingRequestCount += value ? 1 : -1;
+  }
+
+  setLoading(value: boolean): void {
+    this.loading = value;
   }
 }
