@@ -103,6 +103,13 @@ export function serialize<V>(
       if (typeof value === 'function' || typeof value === 'symbol') return acc;
       // Skip ValidableStoreModel props
       if (validable && key in validable) return acc;
+      // Skip JSONSerializable field
+      if (
+        key === '_serializable' &&
+        typeof ((v as unknown) as JSONSerializable<{}>).toJSON === 'function'
+      ) {
+        return acc;
+      }
       return { ...acc, [key]: serialize(value, customSerializer) };
     }, {}) as JSONValue<V>;
 
