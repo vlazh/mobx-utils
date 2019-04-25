@@ -36,7 +36,10 @@ type JSONObjectValue<A extends object> = keyof OnlyProps<A> extends never
 
 type ArrayOrObject<A> = A extends ReadonlyArray<infer T>
   ? JSONArrayValue<T>
-  : (A extends object ? JSONObjectValue<A> : UnknownType);
+  : (A extends Uint8Array | Uint16Array | Uint32Array | Int8Array | Int16Array | Int32Array
+      ? Array<number>
+      : (A extends object ? JSONObjectValue<A> : UnknownType));
+// : (A extends object ? JSONObjectValue<A> : UnknownType);
 
 type JSONSomeValue<A> = A extends JSONTypes
   ? A
@@ -90,6 +93,17 @@ export function serialize<V>(
 
   if (Array.isArray(v)) {
     return v.map(item => serialize(item, customSerializer)) as JSONValue<V>;
+  }
+
+  if (
+    v instanceof Uint8Array ||
+    v instanceof Uint16Array ||
+    v instanceof Uint32Array ||
+    v instanceof Int8Array ||
+    v instanceof Int16Array ||
+    v instanceof Int32Array
+  ) {
+    return Array.from(v) as JSONValue<V>;
   }
 
   if (v instanceof Option) {
