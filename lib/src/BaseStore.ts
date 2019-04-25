@@ -1,9 +1,14 @@
 import ReactionDisposer from './ReactionDisposer';
+import { JSONModel } from './JSONSerializable';
 
-export default abstract class BaseStore<RS extends object> extends ReactionDisposer {
+export default abstract class BaseStore<
+  RS extends object,
+  S extends object = {}
+> extends ReactionDisposer {
   protected readonly rootStore: RS;
 
-  constructor(rootStore: RS) {
+  // @ts-ignore
+  constructor(rootStore: RS, initialState?: JSONModel<S>) {
     super();
     this.rootStore = rootStore;
   }

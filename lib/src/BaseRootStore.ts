@@ -1,10 +1,15 @@
+/* eslint-disable dot-notation */
 import ReactionDisposer from './ReactionDisposer';
 import BaseStore from './BaseStore';
+import { JSONModel } from './JSONSerializable';
 
-/* eslint-disable dot-notation */
+export default abstract class BaseRootStore<S extends object = {}> extends ReactionDisposer {
+  // @ts-ignore
+  constructor(initialState?: JSONModel<S>) {
+    super();
+  }
 
-export default abstract class BaseRootStore extends ReactionDisposer {
-  private initStore(store: BaseStore<any> | BaseRootStore) {
+  private initStore(store: BaseStore<any> | BaseRootStore): void {
     Object.values(store).forEach(value => {
       if (value === store) return; // Skip self referencies. For example, `jsonModel` in `SerializableModel`.
       if (value instanceof BaseStore) this.initStore(value);
@@ -19,7 +24,7 @@ export default abstract class BaseRootStore extends ReactionDisposer {
   }
 
   /** Initialize all child stores recursively. */
-  protected initialize() {
+  protected initialize(): void {
     this.initStore(this);
   }
 }

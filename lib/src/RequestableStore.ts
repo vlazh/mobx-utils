@@ -3,6 +3,7 @@ import { NotificationType } from './Notification';
 import BaseStore from './BaseStore';
 import UIStore from './UIStore';
 import Validable from './Validable';
+import { JSONModel } from './JSONSerializable';
 
 export interface ResponseLike {
   data?: any;
@@ -25,13 +26,15 @@ export function isErrorResponseLike(
   return (error as ErrorResponseLike).config !== undefined;
 }
 
-export default class RequestableStore<RS extends object, UIS extends UIStore<RS>> extends BaseStore<
-  RS
-> {
+export default class RequestableStore<
+  RS extends object,
+  UIS extends UIStore<RS>,
+  S extends object = {}
+> extends BaseStore<RS, S> {
   readonly uiStore: UIS;
 
-  constructor(rootStore: RS, uiStore: UIS) {
-    super(rootStore);
+  constructor(rootStore: RS, uiStore: UIS, initialState?: JSONModel<S>) {
+    super(rootStore, initialState);
     this.uiStore = uiStore;
     this.request = this.request.bind(this) as any;
     this.onRequestSuccess = this.onRequestSuccess.bind(this);

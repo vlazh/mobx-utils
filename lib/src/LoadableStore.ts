@@ -1,7 +1,10 @@
 import { observable, computed } from 'mobx';
 import BaseStore from './BaseStore';
 
-export default abstract class LoadableStore<RS extends object> extends BaseStore<RS> {
+export default abstract class LoadableStore<
+  RS extends object,
+  S extends object = {}
+> extends BaseStore<RS, S> {
   @observable
   protected pendingRequestCount: number = 0; // For multiple requests
 

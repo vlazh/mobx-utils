@@ -2,8 +2,12 @@ import { Omit } from '@vzh/ts-types';
 import { observable, computed, action } from 'mobx';
 import Notification, { NotificationID, NotificationType } from './Notification';
 import LoadableStore from './LoadableStore';
+import { JSONModel } from './JSONSerializable';
 
-export default class UIStore<RS extends object> extends LoadableStore<RS> {
+export default class UIStore<RS extends object, S extends object = {}> extends LoadableStore<
+  RS,
+  S
+> {
   @observable
   private notificationList: ReadonlyArray<Notification> = [];
 
@@ -12,8 +16,8 @@ export default class UIStore<RS extends object> extends LoadableStore<RS> {
   // To avoid mistakes at react rerenders by id use unique id's on all lifecircle.
   private lastNotificationId: number = 0;
 
-  constructor(rootStore: RS, defaultNotificationTimeout: number = 0) {
-    super(rootStore);
+  constructor(rootStore: RS, defaultNotificationTimeout: number = 0, initialState?: JSONModel<S>) {
+    super(rootStore, initialState);
 
     this.defaultNotificationTimeout = defaultNotificationTimeout;
 
