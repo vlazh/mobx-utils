@@ -13,7 +13,7 @@ export interface JSONArray extends ReadonlyArray<JSONTypes> {}
 type ExcludeFunctions<A extends object> = ExcludeKeysOfType<A, Function>;
 
 type OnlyProps<A extends object> = ExcludeFunctions<
-  Diff<A, ValidableStoreModel<any> | JSONSerializable<any>>
+  Diff<A, ValidableStoreModel<any> & JSONSerializable<any>>
 >;
 
 // Like Moment object
@@ -70,8 +70,8 @@ export default interface JSONSerializable<A extends object> {
    * It's required to define in implementation for correct typing with `JSONModel`.
    * It might be just equals `this`.
    */
-  // Temporary remove for TS 3.4.
-  // readonly _serializable: Entity;
+  // It needs to remove for TS 3.4.1 but required for 3.4.5
+  readonly _serializable: A;
   toJSON(): JSONModel<A>;
 }
 
