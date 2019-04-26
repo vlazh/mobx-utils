@@ -26,24 +26,17 @@ type JSONArrayValue<A> = Array<A extends object ? JSONObjectValue<A> : UnknownTy
 
 type JSONObjectValue<A extends object> = keyof OnlyProps<A> extends never
   ? (A extends ValueContainer<infer R> ? R : {})
-  : {
-      [P in keyof OnlyProps<A>]: JSONValue<A[P]>
-      /* Quick fix for 3.4.1: implementation of JSONValue */
-      // [P in keyof OnlyProps<A>]: A[P] extends Option<infer T>
-      //   ? JSONSomeValue<T> | undefined
-      //   : JSONSomeValue<A[P]>
-    };
+  : { [P in keyof OnlyProps<A>]: JSONValue<A[P]> };
 
 type ArrayOrObject<A> = A extends ReadonlyArray<infer T>
   ? JSONArrayValue<T>
   : (A extends Uint8Array | Uint16Array | Uint32Array | Int8Array | Int16Array | Int32Array
       ? Array<number>
       : (A extends object ? JSONObjectValue<A> : UnknownType));
-// : (A extends object ? JSONObjectValue<A> : UnknownType);
 
 type JSONSomeValue<A> = A extends JSONTypes
   ? A
-  : /* Object type. Also undefined? */ (A extends JSONSerializable<infer T>
+  : (A extends JSONSerializable<infer T>
       ? JSONObjectValue<T>
       : (undefined extends A
           ? ArrayOrObject<Exclude<A, undefined>> | undefined
@@ -53,19 +46,9 @@ export type JSONValue<A> = A extends Option<infer T>
   ? JSONSomeValue<T> | undefined
   : JSONSomeValue<A>;
 
-// type A = { a?: Function; b: {}; valueOf: (a?: string) => object; toJSON(): any; jsonModel0: any };
-// type B = undefined extends A['a'] ? string : number;
-// type B = A['b'] extends JSONTypes ? string : number;
-// type B = A['b'] extends object | undefined ? string : number;
-// type B = Exclude<A['a'], undefined>;
-// type B = keyof SerializableModel<any>;
-// type B = keyof SerializableModel<any> extends Extract<keyof A, keyof SerializableModel<any>>
-//   ? string
-//   : number;
-// const b: B = {};
-
-// For TS 3.4: replace `Copy<JSONValue<A>>` with itself implemetation.
+// For TS 3.4.1: replace `Copy<JSONValue<A>>` with itself implemetation.
 export type JSONModel<A extends object> = { [P in keyof JSONValue<A>]: JSONValue<A>[P] };
+// export type JSONModel<A extends object> = Copy<JSONValue<A>>;
 
 export default interface JSONSerializable<A extends object> {
   /**
@@ -73,8 +56,8 @@ export default interface JSONSerializable<A extends object> {
    * It's required to define in implementation for correct typing with `JSONModel`.
    * It might be just equals `this`.
    */
-  // It needs to remove for TS 3.4.1 but required for 3.4.5
-  readonly _serializable: A;
+  // It needs to remove with TS 3.4.1 but may be present with 3.4.5
+  // readonly _serializable: A;
   toJSON(): JSONModel<A>;
 }
 
@@ -143,6 +126,17 @@ export function serialize<V>(
 
   return String(v) as JSONValue<V>;
 }
+
+// type A = { a?: Function; b: {}; valueOf: (a?: string) => object; toJSON(): any; jsonModel0: any };
+// type B = undefined extends A['a'] ? string : number;
+// type B = A['b'] extends JSONTypes ? string : number;
+// type B = A['b'] extends object | undefined ? string : number;
+// type B = Exclude<A['a'], undefined>;
+// type B = keyof SerializableModel<any>;
+// type B = keyof SerializableModel<any> extends Extract<keyof A, keyof SerializableModel<any>>
+//   ? string
+//   : number;
+// const b: B = {};
 
 // const a = serialize({ a: 1 });
 // const a = serialize(undefined);
