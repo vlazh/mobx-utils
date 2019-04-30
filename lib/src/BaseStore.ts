@@ -3,12 +3,12 @@ import { JSONModel } from './JSONSerializable';
 
 export default abstract class BaseStore<
   RS extends object,
-  S extends object = {}
+  InitState extends object = {}
 > extends ReactionDisposer {
   protected readonly rootStore: RS;
 
   // @ts-ignore
-  constructor(rootStore: RS, initialState?: JSONModel<S>) {
+  constructor(rootStore: RS, initialState?: JSONModel<InitState>) {
     super();
     this.rootStore = rootStore;
   }

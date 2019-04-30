@@ -29,11 +29,11 @@ export function isErrorResponseLike(
 export default class RequestableStore<
   RS extends object,
   UIS extends UIStore<RS>,
-  S extends object = {}
-> extends BaseStore<RS, S> {
+  InitState extends object = {}
+> extends BaseStore<RS, InitState> {
   readonly uiStore: UIS;
 
-  constructor(rootStore: RS, uiStore: UIS, initialState?: JSONModel<S>) {
+  constructor(rootStore: RS, uiStore: UIS, initialState?: JSONModel<InitState>) {
     super(rootStore, initialState);
     this.uiStore = uiStore;
     this.request = this.request.bind(this) as any;

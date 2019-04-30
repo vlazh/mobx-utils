@@ -3,9 +3,11 @@ import ReactionDisposer from './ReactionDisposer';
 import BaseStore from './BaseStore';
 import { JSONModel } from './JSONSerializable';
 
-export default abstract class BaseRootStore<S extends object = {}> extends ReactionDisposer {
+export default abstract class BaseRootStore<
+  InitState extends object = {}
+> extends ReactionDisposer {
   // @ts-ignore
-  constructor(initialState?: JSONModel<S>) {
+  constructor(initialState?: JSONModel<InitState>) {
     super();
   }
 

@@ -3,8 +3,8 @@ import BaseStore from './BaseStore';
 
 export default abstract class LoadableStore<
   RS extends object,
-  S extends object = {}
-> extends BaseStore<RS, S> {
+  InitState extends object = {}
+> extends BaseStore<RS, InitState> {
   @observable
   protected pendingRequestCount: number = 0; // For multiple requests
 
