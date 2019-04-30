@@ -77,10 +77,14 @@ export default class RequestableStore<
     return response.data || response.statusText;
   }
 
+  protected getThrowableMessage(error: Throwable): string {
+    return error.toString();
+  }
+
   protected getErrorMessage(error: ErrorResponseLike | Throwable): string {
     return isErrorResponseLike(error) && error.response
       ? this.getResponseErrorMessage(error.response)
-      : error.toString();
+      : this.getThrowableMessage(error);
   }
 
   protected onRequestError(error: ErrorResponseLike | Throwable): void {
