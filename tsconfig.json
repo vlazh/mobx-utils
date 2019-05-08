@@ -8,5 +8,5 @@
     "sourceMap": false,
     "incremental": false
   },
-  "files": ["./lib/src/index.ts"]
+  "files": ["./lib/src/index.ts", "./lib/src/typedInject.ts"]
 }
