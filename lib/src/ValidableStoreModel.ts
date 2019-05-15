@@ -5,23 +5,28 @@ import { validate } from 'valtors';
 import ValidableModel, { ValidationErrors } from './ValidableModel';
 import StoreModel from './StoreModel';
 
-type OnlyEntity<A extends object> = Diff<A, ValidableModel<A> & StoreModel<A>>;
+export type OnlyModelEntity<A extends object> = Diff<A, ValidableModel<A> & StoreModel<A>>;
+
+export type ValidableStoreModelLike<A extends ValidableStoreModel<any>> = Pick<
+  A,
+  'changeField' | 'errors' | 'isValid'
+>;
 
 export default class ValidableStoreModel<Entity extends object>
-  extends StoreModel<OnlyEntity<Entity>>
-  implements ValidableModel<OnlyEntity<Entity>> {
-  readonly errors: ValidationErrors<OnlyEntity<Entity>>;
+  extends StoreModel<OnlyModelEntity<Entity>>
+  implements ValidableModel<OnlyModelEntity<Entity>> {
+  readonly errors: ValidationErrors<OnlyModelEntity<Entity>>;
 
-  constructor(errors: ValidationErrors<OnlyEntity<Entity>>) {
+  constructor(errors: ValidationErrors<OnlyModelEntity<Entity>>) {
     super();
     // Так как пустое значение при инициализации, клонируем объект и следим за ним.
     // Наследники должны принимать объект в конструкторе, чтобы не сбить слежение mobx.
     this.errors = observable.object(errors);
   }
 
-  protected onModelChanged<K extends keyof OnlyEntity<Entity>>(
+  protected onModelChanged<K extends keyof OnlyModelEntity<Entity>>(
     name: K,
-    prevValue: OnlyEntity<Entity>[K]
+    prevValue: OnlyModelEntity<Entity>[K]
   ): void {
     super.onModelChanged(name, prevValue);
     this.validate(name);
@@ -33,7 +38,7 @@ export default class ValidableStoreModel<Entity extends object>
   }
 
   @action
-  validate(name?: keyof OnlyEntity<Entity>): boolean {
+  validate(name?: keyof OnlyModelEntity<Entity>): boolean {
     const result = validate(this, name);
 
     const safeResult = Object.keys(result).reduce((acc, key) => {
