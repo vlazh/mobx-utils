@@ -11,8 +11,6 @@ export { default as UIStore } from './UIStore';
 export { default as Model } from './Model';
 export * from './Model';
 export { default as StoreModel } from './StoreModel';
-export { default as createViewModel } from './createViewModel';
-export * from './createViewModel';
 export { default as ValidableStoreModel } from './ValidableStoreModel';
 export * from './ValidableStoreModel';
 export { default as RequestableStore } from './RequestableStore';
