@@ -22,14 +22,16 @@ interface ValueContainer<A> {
 }
 
 type UnknownType = string;
-type JSONArrayValue<A> = Array<A extends object ? JSONObjectValue<A> : UnknownType>;
+type JSONArrayValue<A, IsReadonly extends boolean> = IsReadonly extends true
+  ? ReadonlyArray<A extends object ? JSONObjectValue<A> : UnknownType>
+  : Array<A extends object ? JSONObjectValue<A> : UnknownType>;
 
 type JSONObjectValue<A extends object> = keyof OnlyProps<A> extends never
   ? (A extends ValueContainer<infer R> ? R : {})
   : { [P in keyof OnlyProps<A>]: JSONValue<A[P]> };
 
 type ArrayOrObject<A> = A extends ReadonlyArray<infer T>
-  ? JSONArrayValue<T>
+  ? (A extends Array<infer T> ? JSONArrayValue<T, false> : JSONArrayValue<T, true>)
   : (A extends Uint8Array | Uint16Array | Uint32Array | Int8Array | Int16Array | Int32Array
       ? Array<number>
       : (A extends object ? JSONObjectValue<A> : UnknownType));
