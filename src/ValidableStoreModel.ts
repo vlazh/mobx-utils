@@ -39,7 +39,7 @@ export default class ValidableStoreModel<Entity extends object>
 
   @action
   validate(name?: keyof OnlyModelEntity<Entity>): boolean {
-    const result = validate(this, name);
+    const result = validate(this.target, name);
 
     const safeResult = Object.keys(result).reduce((acc, key) => {
       acc[key] = { error: Option.of(result[key].error) };
