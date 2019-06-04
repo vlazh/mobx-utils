@@ -93,6 +93,21 @@ function isUpdated(lastInputs: any[] | undefined, nextInputs: any[]): boolean {
   return false;
 }
 
+interface MemoCacheEntry {
+  lastInputs: any[] | boolean;
+  lastResult: Try<any>;
+  cacheTimeoutHandler: number | undefined;
+}
+
+const memoCache: WeakMap<RequestableStore<any, any>, MemoCacheEntry> = new WeakMap();
+
+function createRemoveEntryTimer(
+  lifetime: number,
+  key: RequestableStore<any, any>
+): number | undefined {
+  return lifetime > 0 ? setTimeout(() => memoCache.delete(key), lifetime * 1000) : undefined;
+}
+
 withRequest.memo = function memo<S extends RequestableStore<any, any>>(
   /** Invoke decorated method if this function returns `true` or if returned inputs are changed (shallow compare) */
   inputsGetter: (self: S, ...params: any[]) => any[] | boolean,
@@ -103,50 +118,98 @@ withRequest.memo = function memo<S extends RequestableStore<any, any>>(
   propertyKey: string | symbol,
   descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
 ) => any {
-  let lastInputs: any[] | undefined;
-  let lastResult: Try<any> | undefined;
-  let cacheTimeoutHandler: number | undefined;
-  const clearCache =
-    lifetime > 0
-      ? () => {
-          lastInputs = undefined;
-          lastResult = undefined;
-          cacheTimeoutHandler = undefined;
-        }
-      : undefined;
+  // let lastInputs: any[] | undefined;
+  // let lastResult: Try<any> | undefined;
+  // let cacheTimeoutHandler: number | undefined;
+  // const clearCache =
+  //   lifetime > 0
+  //     ? () => {
+  //         lastInputs = undefined;
+  //         lastResult = undefined;
+  //         cacheTimeoutHandler = undefined;
+  //       }
+  //     : undefined;
 
   return function withRequestMemo(target, propertyKey, descriptor): any {
     return withRequestFactory(
       (self, originalFn) => async (...params: any[]) => {
+        const entry = memoCache.get(self);
+        const inputs = inputsGetter(self, ...params);
+
         // is called already earlier
-        if (lastResult != null) {
-          const inputs = inputsGetter(self, ...params);
+        if (entry) {
+          // Recreate timer on every call
+          if (entry.cacheTimeoutHandler) {
+            clearTimeout(entry.cacheTimeoutHandler);
+            memoCache.set(self, {
+              ...entry,
+              lastInputs: inputs,
+              cacheTimeoutHandler: createRemoveEntryTimer(lifetime, self),
+            });
+          }
 
-          if (typeof inputs === 'boolean' && !inputs) return lastResult || Try.success(undefined);
+          // return last result if inputs is false
+          if (typeof inputs === 'boolean' && !inputs) {
+            console.log(propertyKey, 'Return cached [bool]');
+            return entry.lastResult;
+          }
 
-          if (Array.isArray(inputs)) {
-            if (!isUpdated(lastInputs, inputs)) {
-              // If cache still exists extend timeout on every call
-              if (clearCache && cacheTimeoutHandler) {
-                clearTimeout(cacheTimeoutHandler);
-                cacheTimeoutHandler = setTimeout(clearCache, lifetime * 1000);
-              }
-              // return last result if inputs are not updated
-              return lastResult;
-            }
-
-            // if inputs are updated
-            if (inputs.length > 0) {
-              lastInputs = inputs;
-              // Create/recreate timeout
-              clearTimeout(cacheTimeoutHandler);
-              cacheTimeoutHandler = clearCache && setTimeout(clearCache, lifetime * 1000);
-            }
+          // return last result if inputs are not updated
+          if (
+            Array.isArray(inputs) &&
+            Array.isArray(entry.lastInputs) &&
+            !isUpdated(entry.lastInputs, inputs)
+          ) {
+            console.log(propertyKey, 'Return cached [array]');
+            return entry.lastResult;
           }
         }
 
-        lastResult = await self['request'](() => originalFn.call(self, ...params));
-        return lastResult;
+        const result = await self['request'](() => originalFn.call(self, ...params));
+
+        const lastEntry = memoCache.get(self);
+        memoCache.set(self, {
+          ...lastEntry,
+          lastInputs: inputs,
+          lastResult: result,
+          cacheTimeoutHandler:
+            // dont create timer if already recreated
+            lastEntry && lastEntry.cacheTimeoutHandler
+              ? lastEntry.cacheTimeoutHandler
+              : createRemoveEntryTimer(lifetime, self),
+        });
+
+        return result;
+
+        // // is called already earlier
+        // if (lastResult != null) {
+        //   const inputs = inputsGetter(self, ...params);
+
+        //   if (typeof inputs === 'boolean' && !inputs) return lastResult || Try.success(undefined);
+
+        //   if (Array.isArray(inputs)) {
+        //     if (!isUpdated(lastInputs, inputs)) {
+        //       // If cache still exists extend timeout on every call
+        //       if (clearCache && cacheTimeoutHandler) {
+        //         clearTimeout(cacheTimeoutHandler);
+        //         cacheTimeoutHandler = setTimeout(clearCache, lifetime * 1000);
+        //       }
+        //       // return last result if inputs are not updated
+        //       return lastResult;
+        //     }
+
+        //     // if inputs are updated
+        //     if (inputs.length > 0) {
+        //       lastInputs = inputs;
+        //       // Create/recreate timeout
+        //       clearTimeout(cacheTimeoutHandler);
+        //       cacheTimeoutHandler = clearCache && setTimeout(clearCache, lifetime * 1000);
+        //     }
+        //   }
+        // }
+
+        // lastResult = await self['request'](() => originalFn.call(self, ...params));
+        // return lastResult;
       },
       target,
       propertyKey,
