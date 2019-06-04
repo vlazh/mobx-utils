@@ -73,7 +73,7 @@ export function serialize<V>(
   if (customResult && customResult.use) return customResult.value;
 
   if (v == null) {
-    return v;
+    return v as JSONValue<V>;
   }
 
   if (Array.isArray(v)) {
