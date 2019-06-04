@@ -24,10 +24,10 @@
     "major-publish": "npm version major && npm run build && npm publish ./dist/ && git push --follow-tags"
   },
   "devDependencies": {
-    "@types/react": "^16.8.18",
+    "@types/react": "^16.8.19",
     "@typescript-eslint/eslint-plugin": "^1.9.0",
     "@typescript-eslint/parser": "^1.9.0",
-    "@vzh/configs": "^3.24.1",
+    "@vzh/configs": "^3.24.3",
     "@vzh/prettier-config": "^1.1.0",
     "@vzh/ts-types": "^0.7.0",
     "babel-eslint": "^10.0.1",
@@ -35,15 +35,15 @@
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-config-prettier": "^4.3.0",
-    "eslint-plugin-import": "^2.17.2",
+    "eslint-plugin-import": "^2.17.3",
     "eslint-plugin-prettier": "^3.1.0",
     "mobx": "^5.9.4",
-    "mobx-react": "^5.4.4",
-    "mobx-utils": "^5.4.0",
+    "mobx-react": "^6.0.3",
+    "mobx-utils": "^5.4.1",
     "prettier": "^1.17.1",
     "rimraf": "^2.6.3",
-    "typescript": "^3.4.5",
-    "valtors": "^2.0.0",
+    "typescript": "^3.5.1",
+    "valtors": "^2.0.2",
     "webpack-merge": "^4.2.1"
   },
   "peerDependencies": {
