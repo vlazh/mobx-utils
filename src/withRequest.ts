@@ -95,7 +95,7 @@ function isUpdated(lastInputs: any[] | undefined, nextInputs: any[]): boolean {
 
 withRequest.memo = function memo<S extends RequestableStore<any, any>>(
   /** Invoke decorated method if this function returns `true` or if returned inputs are changed (shallow compare) */
-  inputsGetter: (self: S) => any[] | boolean,
+  inputsGetter: (self: S, ...params: any[]) => any[] | boolean,
   /** In seconds */
   lifetime: number = 0
 ): (
@@ -118,25 +118,30 @@ withRequest.memo = function memo<S extends RequestableStore<any, any>>(
   return function withRequestMemo(target, propertyKey, descriptor): any {
     return withRequestFactory(
       (self, originalFn) => async (...params: any[]) => {
-        const inputs = inputsGetter(self);
+        // is called already earlier
+        if (lastResult != null) {
+          const inputs = inputsGetter(self, ...params);
 
-        if (typeof inputs === 'boolean' && !inputs) return lastResult || Try.success(undefined);
+          if (typeof inputs === 'boolean' && !inputs) return lastResult || Try.success(undefined);
 
-        if (Array.isArray(inputs)) {
-          if (lastResult != null && !isUpdated(lastInputs, inputs)) {
-            // If cache still exists extend timeout
-            if (clearCache && cacheTimeoutHandler) {
-              clearTimeout(cacheTimeoutHandler);
-              cacheTimeoutHandler = setTimeout(clearCache, lifetime * 1000);
+          if (Array.isArray(inputs)) {
+            if (!isUpdated(lastInputs, inputs)) {
+              // If cache still exists extend timeout on every call
+              if (clearCache && cacheTimeoutHandler) {
+                clearTimeout(cacheTimeoutHandler);
+                cacheTimeoutHandler = setTimeout(clearCache, lifetime * 1000);
+              }
+              // return last result if inputs are not updated
+              return lastResult;
             }
-            return lastResult;
-          }
 
-          if (inputs.length > 0) {
-            lastInputs = inputs;
-            // Create/recreate timeout
-            cacheTimeoutHandler && clearTimeout(cacheTimeoutHandler);
-            cacheTimeoutHandler = clearCache && setTimeout(clearCache, lifetime * 1000);
+            // if inputs are updated
+            if (inputs.length > 0) {
+              lastInputs = inputs;
+              // Create/recreate timeout
+              clearTimeout(cacheTimeoutHandler);
+              cacheTimeoutHandler = clearCache && setTimeout(clearCache, lifetime * 1000);
+            }
           }
         }
 
