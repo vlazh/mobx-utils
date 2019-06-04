@@ -108,6 +108,29 @@ function createRemoveEntryTimer(
   return lifetime > 0 ? setTimeout(() => memoCache.delete(key), lifetime * 1000) : undefined;
 }
 
+function getLastResult(
+  entry: MemoCacheEntry | undefined,
+  inputs: MemoCacheEntry['lastInputs']
+): MemoCacheEntry['lastResult'] | undefined {
+  if (!entry) return undefined;
+
+  // return last result if inputs is false
+  if (typeof inputs === 'boolean' && !inputs) {
+    return entry.lastResult;
+  }
+
+  // return last result if inputs are not updated
+  if (
+    Array.isArray(inputs) &&
+    Array.isArray(entry.lastInputs) &&
+    !isUpdated(entry.lastInputs, inputs)
+  ) {
+    return entry.lastResult;
+  }
+
+  return undefined;
+}
+
 withRequest.memo = function memo<S extends RequestableStore<any, any>>(
   /** Invoke decorated method if this function returns `true` or if returned inputs are changed (shallow compare) */
   inputsGetter: (self: S, ...params: any[]) => any[] | boolean,
@@ -136,47 +159,18 @@ withRequest.memo = function memo<S extends RequestableStore<any, any>>(
         const entry = memoCache.get(self);
         const inputs = inputsGetter(self, ...params);
 
-        // is called already earlier
-        if (entry) {
-          // Recreate timer on every call
-          if (entry.cacheTimeoutHandler) {
-            clearTimeout(entry.cacheTimeoutHandler);
-            memoCache.set(self, {
-              ...entry,
-              lastInputs: inputs,
-              cacheTimeoutHandler: createRemoveEntryTimer(lifetime, self),
-            });
-          }
+        const result =
+          getLastResult(entry, inputs) ||
+          (await self['request'](() => originalFn.call(self, ...params)));
 
-          // return last result if inputs is false
-          if (typeof inputs === 'boolean' && !inputs) {
-            console.log(propertyKey, 'Return cached [bool]');
-            return entry.lastResult;
-          }
+        // Recreate timer on every call
+        entry && entry.cacheTimeoutHandler && clearTimeout(entry.cacheTimeoutHandler);
 
-          // return last result if inputs are not updated
-          if (
-            Array.isArray(inputs) &&
-            Array.isArray(entry.lastInputs) &&
-            !isUpdated(entry.lastInputs, inputs)
-          ) {
-            console.log(propertyKey, 'Return cached [array]');
-            return entry.lastResult;
-          }
-        }
-
-        const result = await self['request'](() => originalFn.call(self, ...params));
-
-        const lastEntry = memoCache.get(self);
         memoCache.set(self, {
-          ...lastEntry,
+          ...entry,
           lastInputs: inputs,
           lastResult: result,
-          cacheTimeoutHandler:
-            // dont create timer if already recreated
-            lastEntry && lastEntry.cacheTimeoutHandler
-              ? lastEntry.cacheTimeoutHandler
-              : createRemoveEntryTimer(lifetime, self),
+          cacheTimeoutHandler: createRemoveEntryTimer(lifetime, self),
         });
 
         return result;
