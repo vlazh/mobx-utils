@@ -8,5 +8,10 @@
     "sourceMap": false,
     "incremental": false
   },
-  "files": ["./src/index.ts", "./src/ViewModel/index.ts", "./src/typedInject.ts"]
+  "files": [
+    "./src/index.ts",
+    "./src/ViewModel/index.ts",
+    "./src/typedInject.ts",
+    "./src/storage/index.ts"
+  ]
 }
