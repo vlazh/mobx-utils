@@ -85,7 +85,7 @@ function isUpdated(lastInputs: any[] | undefined, nextInputs: any[]): boolean {
   // Always true for empty cache
   if (!lastInputs) return true;
   // Always true for empty inputs
-  if (nextInputs.length === 0) return true;
+  // if (nextInputs.length === 0) return true;
   if (lastInputs.length !== nextInputs.length) return true;
   for (let i = 0; i < lastInputs.length; i += 1) {
     if (lastInputs[i] !== nextInputs[i]) return true;
@@ -95,115 +95,94 @@ function isUpdated(lastInputs: any[] | undefined, nextInputs: any[]): boolean {
 
 interface MemoCacheEntry {
   lastInputs: any[] | boolean;
+  lastParams: any[] | undefined;
   lastResult: Try<any>;
   cacheTimeoutHandler: number | undefined;
 }
 
-const memoCache: WeakMap<RequestableStore<any, any>, MemoCacheEntry> = new WeakMap();
+const memoCache: WeakMap<Function, MemoCacheEntry> = new WeakMap();
 
-function createRemoveEntryTimer(
-  lifetime: number,
-  key: RequestableStore<any, any>
-): number | undefined {
+function createRemoveEntryTimer(lifetime: number, key: Function): number | undefined {
   return lifetime > 0 ? setTimeout(() => memoCache.delete(key), lifetime * 1000) : undefined;
 }
 
+/**
+ * @param entry Cache for function
+ * @param inputs function inputs
+ * @param originalParams undefined if not required to check params
+ */
 function getLastResult(
   entry: MemoCacheEntry | undefined,
-  inputs: MemoCacheEntry['lastInputs']
+  inputs: MemoCacheEntry['lastInputs'],
+  originalParams?: any[]
 ): MemoCacheEntry['lastResult'] | undefined {
-  if (!entry) return undefined;
+  if (!entry) {
+    return undefined;
+  }
 
   // return last result if inputs is false
-  if (typeof inputs === 'boolean' && !inputs) {
-    return entry.lastResult;
-  }
+  let notUpdated = typeof inputs === 'boolean' && !inputs;
 
   // return last result if inputs are not updated
   if (
+    !notUpdated &&
     Array.isArray(inputs) &&
     Array.isArray(entry.lastInputs) &&
     !isUpdated(entry.lastInputs, inputs)
   ) {
+    notUpdated = true;
+  }
+
+  // If inputs are not updated then check originalParams
+  // and return last result if originalParams are not updated
+  if (notUpdated && originalParams && !isUpdated(entry.lastParams, originalParams)) {
     return entry.lastResult;
   }
 
   return undefined;
 }
 
-withRequest.memo = function memo<S extends RequestableStore<any, any>>(
+export interface MemoOptions<S extends RequestableStore<any, any>> {
   /** Invoke decorated method if this function returns `true` or if returned inputs are changed (shallow compare) */
-  inputsGetter: (self: S, ...params: any[]) => any[] | boolean,
+  inputs?: (self: S, ...originalParams: any[]) => any[] | boolean;
+  /** Merge */
+  checkOriginalParams?: boolean;
   /** In seconds */
-  lifetime: number = 0
-): (
+  lifetime?: number;
+}
+
+withRequest.memo = function memo<S extends RequestableStore<any, any>>({
+  inputs: inputsGetter,
+  checkOriginalParams = true,
+  lifetime = 0,
+}: MemoOptions<S> = {}): (
   target: S,
   propertyKey: string | symbol,
   descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
 ) => any {
-  // let lastInputs: any[] | undefined;
-  // let lastResult: Try<any> | undefined;
-  // let cacheTimeoutHandler: number | undefined;
-  // const clearCache =
-  //   lifetime > 0
-  //     ? () => {
-  //         lastInputs = undefined;
-  //         lastResult = undefined;
-  //         cacheTimeoutHandler = undefined;
-  //       }
-  //     : undefined;
-
   return function withRequestMemo(target, propertyKey, descriptor): any {
     return withRequestFactory(
-      (self, originalFn) => async (...params: any[]) => {
-        const entry = memoCache.get(self);
-        const inputs = inputsGetter(self, ...params);
+      (self, originalFn) => async (...originalParams: any[]) => {
+        const entry = memoCache.get(originalFn);
+        const inputs = inputsGetter ? inputsGetter(self, ...originalParams) : [];
 
         const result =
-          getLastResult(entry, inputs) ||
-          (await self['request'](() => originalFn.call(self, ...params)));
+          getLastResult(entry, inputs, checkOriginalParams ? originalParams : undefined) ||
+          // call function if no last result yet or inputs are not updated
+          (await self['request'](() => originalFn.call(self, ...originalParams)));
 
         // Recreate timer on every call
         entry && entry.cacheTimeoutHandler && clearTimeout(entry.cacheTimeoutHandler);
 
-        memoCache.set(self, {
+        memoCache.set(originalFn, {
           ...entry,
           lastInputs: inputs,
           lastResult: result,
-          cacheTimeoutHandler: createRemoveEntryTimer(lifetime, self),
+          lastParams: checkOriginalParams ? originalParams : undefined,
+          cacheTimeoutHandler: createRemoveEntryTimer(lifetime, originalFn),
         });
 
         return result;
-
-        // // is called already earlier
-        // if (lastResult != null) {
-        //   const inputs = inputsGetter(self, ...params);
-
-        //   if (typeof inputs === 'boolean' && !inputs) return lastResult || Try.success(undefined);
-
-        //   if (Array.isArray(inputs)) {
-        //     if (!isUpdated(lastInputs, inputs)) {
-        //       // If cache still exists extend timeout on every call
-        //       if (clearCache && cacheTimeoutHandler) {
-        //         clearTimeout(cacheTimeoutHandler);
-        //         cacheTimeoutHandler = setTimeout(clearCache, lifetime * 1000);
-        //       }
-        //       // return last result if inputs are not updated
-        //       return lastResult;
-        //     }
-
-        //     // if inputs are updated
-        //     if (inputs.length > 0) {
-        //       lastInputs = inputs;
-        //       // Create/recreate timeout
-        //       clearTimeout(cacheTimeoutHandler);
-        //       cacheTimeoutHandler = clearCache && setTimeout(clearCache, lifetime * 1000);
-        //     }
-        //   }
-        // }
-
-        // lastResult = await self['request'](() => originalFn.call(self, ...params));
-        // return lastResult;
       },
       target,
       propertyKey,
