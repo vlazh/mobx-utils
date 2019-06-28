@@ -19,3 +19,5 @@ export { default as withRequest } from './withRequest';
 export * from './withRequest';
 export { default as JSONSerializable } from './JSONSerializable';
 export * from './JSONSerializable';
+export { default as BaseAppStore } from './BaseAppStore';
+export * from './BaseAppStore';

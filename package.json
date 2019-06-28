@@ -24,10 +24,11 @@
     "major-publish": "npm version major && npm run build && npm publish ./dist/ && git push --follow-tags"
   },
   "devDependencies": {
+    "@types/jwt-decode": "^2.2.1",
     "@types/react": "^16.8.22",
     "@typescript-eslint/eslint-plugin": "^1.11.0",
     "@typescript-eslint/parser": "^1.11.0",
-    "@vzh/configs": "^3.31.0",
+    "@vzh/configs": "^3.34.3",
     "@vzh/prettier-config": "^1.1.0",
     "@vzh/ts-types": "^0.7.0",
     "babel-eslint": "^10.0.2",
@@ -37,6 +38,7 @@
     "eslint-config-prettier": "^6.0.0",
     "eslint-plugin-import": "^2.18.0",
     "eslint-plugin-prettier": "^3.1.0",
+    "jwt-decode": "^2.2.0",
     "localforage": "^1.7.3",
     "mobx": "^5.10.1",
     "mobx-react": "^6.1.1",
