@@ -21,8 +21,4 @@ export default abstract class LoadableStore<
     }
     this.pendingRequestCount += value ? 1 : -1;
   }
-
-  setLoading(value: boolean): void {
-    this.loading = value;
-  }
 }
