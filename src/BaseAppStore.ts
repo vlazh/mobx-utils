@@ -1,4 +1,4 @@
-import { observable, computed, action } from 'mobx';
+import { observable, computed, action, runInAction } from 'mobx';
 import jwtDecode from 'jwt-decode';
 import { Option, None, Try } from '@vzh/ts-types/fp';
 import RequestableStore from './RequestableStore';
@@ -8,9 +8,18 @@ export interface BaseJwtDecoded {
   readonly exp: number;
 }
 
-function expired(decoded: BaseJwtDecoded): boolean {
+export function isExpired(decoded: BaseJwtDecoded): boolean {
   const tokenExpiration = decoded.exp;
   return !!tokenExpiration && new Date(tokenExpiration * 1000).getTime() - Date.now() < 0;
+}
+
+export function decodeToken<JwtDecoded extends BaseJwtDecoded>(token: string): Option<JwtDecoded> {
+  return Try.of(() => jwtDecode<JwtDecoded>(token))
+    .recover(err => {
+      console.error(err);
+      throw err;
+    })
+    .toOption();
 }
 
 export default class BaseAppStore<
@@ -30,27 +39,24 @@ export default class BaseAppStore<
 
   @computed
   get isLoggedIn(): boolean {
-    return !this.decoded.map(expired).getOrElse(true);
-  }
-
-  protected clearAuth(): void {
-    this.decoded = None;
-  }
-
-  protected applyToken(token: string): void {
-    this.decoded = Try.of(() => jwtDecode<JwtDecoded>(token))
-      .recover(err => {
-        console.error(err);
-        throw err;
-      })
-      .toOption();
+    return !this.decoded.map(isExpired).getOrElse(true);
   }
 
   @action
   updateToken(token: Option<string>): void {
     if (this.token.equals(token)) return;
-    this.clearAuth();
     this.token = token;
-    this.token.forEach(t => this.applyToken(t));
+    token.fold(
+      () => {
+        runInAction(() => {
+          this.decoded = None;
+        });
+      },
+      t => {
+        runInAction(() => {
+          this.decoded = decodeToken(t);
+        });
+      }
+    );
   }
 }
