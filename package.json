@@ -17,7 +17,7 @@
     "copy:configs": "copyfiles package.json README.md LICENSE ./dist/",
     "build": "npm run clean && tsc --project ./tsconfig.json && npm run copy:configs",
     "build-to-tutoron": "npm run clean && tsc --project ./tsconfig.json --outDir '/home/vladimir/dev/sources/tutoron/node_modules/@vzh/mobx-stores/' && copyfiles package.json '/home/vladimir/dev/sources/tutoron/node_modules/@vzh/mobx-stores/'",
-    "build-to-pwa": "npm run clean && tsc --project ./tsconfig.json --outDir '/home/vladimir/dev/sources/pwa/node_modules/@vzh/mobx-stores/' && copyfiles package.json '/home/vladimir/dev/sources/pwa/node_modules/@vzh/mobx-stores/'",
+    "build-to-lcardio-app": "npm run clean && tsc --project ./tsconfig.json --outDir '/home/vladimir/dev/sources/lcardio-app/node_modules/@vzh/mobx-stores/' && copyfiles package.json '/home/vladimir/dev/sources/lcardio-app/node_modules/@vzh/mobx-stores/'",
     "build-to-react-components": "npm run clean && tsc --project ./tsconfig.json --outDir '../react-components/node_modules/@vzh/mobx-stores/' && copyfiles package.json '../react-components/node_modules/@vzh/mobx-stores/'",
     "patch-publish": "npm version patch && npm run build && npm publish ./dist/ && git push --follow-tags",
     "minor-publish": "npm version minor && npm run build && npm publish ./dist/ && git push --follow-tags",
@@ -25,7 +25,7 @@
   },
   "devDependencies": {
     "@types/jwt-decode": "^2.2.1",
-    "@types/react": "^16.8.22",
+    "@types/react": "^16.8.23",
     "@typescript-eslint/eslint-plugin": "^1.11.0",
     "@typescript-eslint/parser": "^1.11.0",
     "@vzh/configs": "../configs/dist/",
@@ -40,12 +40,12 @@
     "eslint-plugin-prettier": "^3.1.0",
     "jwt-decode": "^2.2.0",
     "localforage": "^1.7.3",
-    "mobx": "^5.10.1",
+    "mobx": "^5.11.0",
     "mobx-react": "^6.1.1",
     "mobx-utils": "^5.4.1",
     "prettier": "^1.18.2",
     "rimraf": "^2.6.3",
-    "typescript": "^3.5.2",
+    "typescript": "^3.5.3",
     "valtors": "^2.0.2"
   },
   "peerDependencies": {
