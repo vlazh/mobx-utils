@@ -11,11 +11,36 @@ export async function saveRootState<RootState extends {}>(
 ): Promise<void> {
   try {
     await Promise.all(
-      Object.getOwnPropertyNames(state).map(async prop => {
-        const prevState = await storage.getItem<{} | undefined>(prop);
-        await storage.setItem(prop, prevState ? { ...prevState, ...state[prop] } : state[prop]);
-      })
+      Object.getOwnPropertyNames(state).map(store =>
+        saveStoreState<RootState, keyof JSONStoreState<RootState>>(
+          storage,
+          store as keyof JSONStoreState<RootState>,
+          state[store],
+          throwError
+        )
+      )
     );
+  } catch (ex) {
+    if (throwError) throw ex;
+    console.error(ex.message || ex);
+  }
+}
+
+export async function saveStoreState<
+  RootState extends {},
+  K extends keyof JSONStoreState<RootState>
+>(
+  storage: LocalForageDbMethodsCore,
+  store: K,
+  state?: JSONStoreState<RootState>[K],
+  throwError: boolean = false
+): Promise<void> {
+  try {
+    const prevState = await storage.getItem<JSONStoreState<RootState>[K] | undefined>(
+      store as string
+    );
+    const nextState = prevState ? { ...prevState, ...state } : state;
+    await storage.setItem(store as string, nextState);
   } catch (ex) {
     if (throwError) throw ex;
     console.error(ex.message || ex);
@@ -28,13 +53,13 @@ export async function getStoreState<
 >(
   storage: LocalForageDbMethodsCore,
   store: K,
-  mergeWith?: Partial<JSONStoreState<RootState>[K]>,
+  defaultState?: Partial<JSONStoreState<RootState>[K]>,
   throwError: boolean = false
 ): Promise<Option<JSONStoreState<RootState>[K]>> {
   try {
     const state = await storage.getItem<JSONStoreState<RootState>[K] | undefined>(store as string);
-    if (!state && !mergeWith) return None;
-    return Option.of(mergeWith ? { ...mergeWith, ...state } : state);
+    if (!state && !defaultState) return None;
+    return Option.of(defaultState ? { ...defaultState, ...state } : state);
   } catch (ex) {
     if (throwError) throw ex;
     console.error(ex.message || ex);
