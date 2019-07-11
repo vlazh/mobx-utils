@@ -32,7 +32,7 @@
     "@vzh/prettier-config": "^1.1.0",
     "@vzh/ts-types": "^0.7.0",
     "babel-eslint": "^10.0.2",
-    "copyfiles": "^2.1.0",
+    "copyfiles": "^2.1.1",
     "eslint": "^6.0.1",
     "eslint-config-airbnb-base": "^13.2.0",
     "eslint-config-prettier": "^6.0.0",
