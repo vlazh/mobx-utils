@@ -57,8 +57,8 @@ export type JSONValue<A> = A extends Option<infer T>
   ? JSONSomeValue<T> | undefined
   : JSONSomeValue<A>;
 
-// For TS 3.4.1: replace `Copy<JSONValue<A>>` with itself implemetation.
-export type JSONModel<A extends object> = JSONValue<A>;
+// For TS 3.4.1+: `Copy<JSONValue<A>>` is replaced with itself implemetation to avoid circular dependency error and other.
+export type JSONModel<A extends object> = { [P in keyof JSONValue<A>]: JSONValue<A>[P] };
 
 export default interface JSONSerializable<A extends object> {
   /**
