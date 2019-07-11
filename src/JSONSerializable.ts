@@ -1,4 +1,4 @@
-import { ExcludeKeysOfType, Diff } from '@vzh/ts-types';
+import { ExcludeKeysOfType, Diff, ExtractKeysOfType } from '@vzh/ts-types';
 import { Option } from '@vzh/ts-types/fp';
 import ValidableStoreModel from './ValidableStoreModel';
 
@@ -12,23 +12,32 @@ export interface JSONArray extends ReadonlyArray<JSONTypes> {}
 
 type ExcludeFunctions<A extends object> = ExcludeKeysOfType<A, Function>;
 
-type OnlyProps<A extends object> = ExcludeFunctions<
+type SerializableProps<A extends object> = ExcludeFunctions<
   Diff<A, ValidableStoreModel<any> & JSONSerializable<any>>
 >;
 
 // Like Moment object
-interface ValueContainer<A> {
+interface ValueContainer<A extends JSONPrimitives> {
   valueOf: () => A;
 }
 
 type UnknownType = string;
+
 type JSONArrayValue<A, IsReadonly extends boolean> = IsReadonly extends true
   ? ReadonlyArray<A extends object ? JSONObjectValue<A> : UnknownType>
   : Array<A extends object ? JSONObjectValue<A> : UnknownType>;
 
-type JSONObjectValue<A extends object> = keyof OnlyProps<A> extends never
+declare type Optional<A extends object> = {
+  [P in keyof ExtractKeysOfType<A, Option<any>>]?: JSONValue<A[P]>;
+};
+
+declare type NonOptional<A extends object> = {
+  [P in keyof SerializableProps<ExcludeKeysOfType<A, Option<any>>>]: JSONValue<A[P]>;
+};
+
+type JSONObjectValue<A extends object> = keyof SerializableProps<A> extends never
   ? (A extends ValueContainer<infer R> ? R : {})
-  : { [P in keyof OnlyProps<A>]: JSONValue<A[P]> };
+  : Optional<A> & NonOptional<A>;
 
 type ArrayOrObject<A> = A extends ReadonlyArray<infer T>
   ? (A extends Array<infer T> ? JSONArrayValue<T, false> : JSONArrayValue<T, true>)
@@ -49,8 +58,7 @@ export type JSONValue<A> = A extends Option<infer T>
   : JSONSomeValue<A>;
 
 // For TS 3.4.1: replace `Copy<JSONValue<A>>` with itself implemetation.
-export type JSONModel<A extends object> = { [P in keyof JSONValue<A>]: JSONValue<A>[P] };
-// export type JSONModel<A extends object> = Copy<JSONValue<A>>;
+export type JSONModel<A extends object> = JSONValue<A>;
 
 export default interface JSONSerializable<A extends object> {
   /**
