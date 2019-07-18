@@ -5,7 +5,7 @@ import { validate } from 'valtors';
 import ValidableModel, { ValidationErrors } from './ValidableModel';
 import StoreModel from './StoreModel';
 
-export type OnlyModelEntity<A extends object> = Diff<A, ValidableModel<A> & StoreModel<A>>;
+export type OnlyModelEntity<A extends object> = Diff<A, ValidableModel<A>>;
 
 export type ValidableStoreModelLike<A extends ValidableStoreModel<any>> = Pick<
   A,

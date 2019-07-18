@@ -1,6 +1,6 @@
 import { ExcludeKeysOfType, Diff, ExtractKeysOfType } from '@vzh/ts-types';
 import { Option } from '@vzh/ts-types/fp';
-import ValidableStoreModel from './ValidableStoreModel';
+import ValidableModel from './ValidableModel';
 
 export type JSONPrimitives = string | number | boolean | null | undefined;
 
@@ -13,11 +13,11 @@ export interface JSONArray extends ReadonlyArray<JSONTypes> {}
 type ExcludeFunctions<A extends object> = ExcludeKeysOfType<A, Function>;
 
 type SerializableProps<A extends object> = ExcludeFunctions<
-  Diff<A, ValidableStoreModel<any> & JSONSerializable<any>>
+  Diff<A, ValidableModel<any> & JSONSerializable<any>>
 >;
 
 // Like Moment object
-interface ValueContainer<A extends JSONPrimitives> {
+export interface ValueContainer<A extends JSONPrimitives> {
   valueOf: () => A;
 }
 
@@ -69,72 +69,6 @@ export default interface JSONSerializable<A extends object> {
   // It needs to remove with TS 3.4.1 but may be present with 3.4.5
   // readonly _serializable: A;
   toJSON(): JSONModel<A>;
-}
-
-export type CustomSerializerResult = { use: true; value: any } | { use: false };
-
-export function serialize<V>(
-  v: V,
-  customSerializer?: (value: any) => CustomSerializerResult
-): JSONValue<V> {
-  const customResult = customSerializer && customSerializer(v);
-  if (customResult && customResult.use) return customResult.value;
-
-  if (v == null) {
-    return v as JSONValue<V>;
-  }
-
-  if (Array.isArray(v)) {
-    return v.map(item => serialize(item, customSerializer)) as JSONValue<V>;
-  }
-
-  if (
-    v instanceof Uint8Array ||
-    v instanceof Uint16Array ||
-    v instanceof Uint32Array ||
-    v instanceof Int8Array ||
-    v instanceof Int16Array ||
-    v instanceof Int32Array
-  ) {
-    return Array.from(v) as JSONValue<V>;
-  }
-
-  if (v instanceof Option) {
-    return v.map(value => serialize(value, customSerializer)).orUndefined();
-  }
-
-  if (typeof v === 'object') {
-    const validable = v instanceof ValidableStoreModel ? new ValidableStoreModel({}) : undefined;
-    const obj = Object.entries(v).reduce((acc, [key, value]) => {
-      // Skip functions and symbols
-      if (typeof value === 'function' || typeof value === 'symbol') return acc;
-      // Skip ValidableStoreModel props
-      if (validable && key in validable) return acc;
-      // Skip JSONSerializable field
-      if (
-        key === '_serializable' &&
-        typeof ((v as unknown) as JSONSerializable<{}>).toJSON === 'function'
-      ) {
-        return acc;
-      }
-      return { ...acc, [key]: serialize(value, customSerializer) };
-    }, {}) as JSONValue<V>;
-
-    if (
-      !Object.getOwnPropertyNames(obj).length &&
-      typeof (v as ValueContainer<any>).valueOf === 'function'
-    ) {
-      return (v as ValueContainer<any>).valueOf() as JSONValue<V>;
-    }
-
-    return obj;
-  }
-
-  if (typeof v === 'boolean' || typeof v === 'number' || typeof v === 'string') {
-    return v as JSONValue<V>;
-  }
-
-  return String(v) as JSONValue<V>;
 }
 
 // type A = { a?: Function; b: {}; valueOf: (a?: string) => object; toJSON(): any; jsonModel0: any };
