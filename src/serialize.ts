@@ -1,13 +1,21 @@
 import { Option } from '@vzh/ts-types/fp';
 import JSONSerializable, { JSONValue, ValueContainer } from './JSONSerializable';
-import ValidableStoreModel from './ValidableStoreModel';
 
 export type CustomSerializerResult = { use: true; value: any } | { use: false };
 
-export default function serialize<V>(
-  v: V,
-  customSerializer?: (value: any) => CustomSerializerResult
-): JSONValue<V> {
+export interface SerializeOptions {
+  customSerializer?: (value: any) => CustomSerializerResult;
+  skipValidableModelFields?: boolean;
+  skipJSONSerializableFields?: boolean;
+}
+
+export default function serialize<V>(v: V, options: SerializeOptions = {}): JSONValue<V> {
+  const {
+    customSerializer,
+    skipValidableModelFields = true,
+    skipJSONSerializableFields = true,
+  } = options;
+
   const customResult = customSerializer && customSerializer(v);
   if (customResult && customResult.use) return customResult.value;
 
@@ -16,7 +24,7 @@ export default function serialize<V>(
   }
 
   if (Array.isArray(v)) {
-    return v.map(item => serialize(item, customSerializer)) as JSONValue<V>;
+    return v.map(item => serialize(item, options)) as JSONValue<V>;
   }
 
   if (
@@ -31,24 +39,30 @@ export default function serialize<V>(
   }
 
   if (v instanceof Option) {
-    return v.map(value => serialize(value, customSerializer)).orUndefined();
+    return v.map(value => serialize(value, options)).orUndefined();
   }
 
   if (typeof v === 'object') {
-    const validable = v instanceof ValidableStoreModel ? new ValidableStoreModel({}) : undefined;
     const obj = Object.entries(v).reduce((acc, [key, value]) => {
       // Skip functions and symbols
       if (typeof value === 'function' || typeof value === 'symbol') return acc;
-      // Skip ValidableStoreModel props
-      if (validable && key in validable) return acc;
-      // Skip JSONSerializable field
-      if (
-        key === '_serializable' &&
-        typeof ((v as unknown) as JSONSerializable<{}>).toJSON === 'function'
-      ) {
-        return acc;
+      // Skip ValidableModel fields
+      if (skipValidableModelFields) {
+        if (key === 'changeField') return acc;
+        if (key === 'validate') return acc;
+        if (key === 'isValid') return acc;
+        if (key === 'errors') return acc;
       }
-      return { ...acc, [key]: serialize(value, customSerializer) };
+      // Skip JSONSerializable field
+      if (skipJSONSerializableFields) {
+        if (
+          key === '_serializable' &&
+          typeof ((v as unknown) as JSONSerializable<{}>).toJSON === 'function'
+        ) {
+          return acc;
+        }
+      }
+      return { ...acc, [key]: serialize(value, options) };
     }, {}) as JSONValue<V>;
 
     if (
