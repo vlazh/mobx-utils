@@ -4,6 +4,7 @@ import BaseStore from './BaseStore';
 import UIStore from './UIStore';
 import Validable from './Validable';
 import { JSONModel } from './JSONSerializable';
+import getErrorMessage from './getErrorMessage';
 
 export interface ResponseLike {
   data?: any;
@@ -78,9 +79,7 @@ export default class RequestableStore<
   }
 
   protected getThrowableMessage(error: Throwable): string {
-    if (typeof error === 'string') return error;
-    if (Object.getOwnPropertyNames(error).includes('toString')) return error.toString();
-    return `${error.constructor.name}: ${(error as Error).message}`;
+    return getErrorMessage(error);
   }
 
   protected getErrorMessage(error: ErrorResponseLike | Throwable): string {
