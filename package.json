@@ -13,6 +13,7 @@
     }
   ],
   "scripts": {
+    "update-deps": "yarn upgrade-interactive --latest",
     "clean": "rimraf dist/*",
     "copy:configs": "copyfiles package.json README.md LICENSE ./dist/",
     "build": "npm run clean && tsc --project ./tsconfig.json && npm run copy:configs",
@@ -25,11 +26,11 @@
   },
   "devDependencies": {
     "@types/jwt-decode": "^2.2.1",
-    "@types/react": "^16.8.24",
+    "@types/react": "^16.9.0",
     "@typescript-eslint/eslint-plugin": "^1.13.0",
     "@typescript-eslint/parser": "^1.13.0",
-    "@vzh/configs": "^3.37.0",
-    "@vzh/ts-types": "^0.7.0",
+    "@vzh/configs": "^3.37.1",
+    "@vzh/ts-types": "^0.7.1",
     "babel-eslint": "^10.0.2",
     "copyfiles": "^2.1.1",
     "eslint": "^6.1.0",
@@ -40,12 +41,12 @@
     "jwt-decode": "^2.2.0",
     "localforage": "^1.7.3",
     "mobx": "^5.13.0",
-    "mobx-react": "^6.1.1",
+    "mobx-react": "^6.1.2",
     "mobx-utils": "^5.4.1",
     "prettier": "^1.18.2",
     "rimraf": "^2.6.3",
     "typescript": "^3.5.3",
-    "valtors": "^2.0.2"
+    "valtors": "^2.0.3"
   },
   "peerDependencies": {
     "@vzh/ts-types": "*"

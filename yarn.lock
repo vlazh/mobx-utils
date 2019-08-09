@@ -110,10 +110,10 @@
   resolved "https://registry.yarnpkg.com/@types/prop-types/-/prop-types-15.7.1.tgz#f1a11e7babb0c3cad68100be381d1e064c68f1f6"
   integrity sha512-CFzn9idOEpHrgdw8JsoTkaDDyRWk1jrzIV8djzcgpq0y9tG4B4lFT+Nxh52DVpDXV+n4+NPNv7M1Dj5uMp6XFg==
 
-"@types/react@^16.8.24":
-  version "16.8.24"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-16.8.24.tgz#8d1ea1fcbfa214220da3d3c04e506f1077b0deac"
-  integrity sha512-VpFHUoD37YNY2+lr/+c7qL/tZsIU/bKuskUF3tmGUArbxIcQdb5j3zvo4cuuzu2A6UaVmVn7sJ4PgWYNFEBGzg==
+"@types/react@^16.9.0":
+  version "16.9.0"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-16.9.0.tgz#27434f16d889a335eb4626d1f1e67eda54039e5b"
+  integrity sha512-eOct1hyZI9YZf/eqNlYu7jxA9qyTw1EGXruAJhHhBDBpc00W0C1vwlnh+hkOf7UFZkNK+UxnFBpwAZe3d7XJhQ==
   dependencies:
     "@types/prop-types" "*"
     csstype "^2.2.0"
@@ -156,15 +156,15 @@
     lodash.unescape "4.0.1"
     semver "5.5.0"
 
-"@vzh/configs@^3.37.0":
-  version "3.37.0"
-  resolved "https://registry.yarnpkg.com/@vzh/configs/-/configs-3.37.0.tgz#e605075ee9256072711c73e20819d101ea960671"
-  integrity sha512-pLPEFqc+ZWlBtyPbPeb3Sx8uQvEfLd9FI4llFXDOF65jZzazotL4Ae1tvoJKDn8WQa1LTi3RQWhjpxLq3zg6fg==
+"@vzh/configs@^3.37.1":
+  version "3.37.1"
+  resolved "https://registry.yarnpkg.com/@vzh/configs/-/configs-3.37.1.tgz#841c26d1737b1ef499aaf3011a41db12a127c208"
+  integrity sha512-aVsKAQ5GHgqb1uQdyqeUND2qK5KobB/kXvfr0N2FxL/P1XYHiTSXsarhSfXDghXENKqhScwaT1hEiriaVJVuZA==
 
-"@vzh/ts-types@^0.7.0":
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/@vzh/ts-types/-/ts-types-0.7.0.tgz#2ebfd35428aa0812549de9cab231cc104886a305"
-  integrity sha512-2zP3d3P9FGzsSU9X7p7zfM9bKycqWmW+zmHAvnbEybffnvREOBMKS91vTmL+jNmPAWtThj5DVR+bUInVWkr4Vg==
+"@vzh/ts-types@^0.7.1":
+  version "0.7.1"
+  resolved "https://registry.yarnpkg.com/@vzh/ts-types/-/ts-types-0.7.1.tgz#185c8a643edd7eb5b39902a70378c63c1ff49c92"
+  integrity sha512-cjYadMK60fS7HtZPguZk1sH1Wt/ck8TxZCA3mvP0kxiIlmIXY9jl8zCKN78PjMB3yL5AHIi1PMCs43IIu6M2Iw==
 
 acorn-jsx@^5.0.0:
   version "5.0.1"
@@ -1010,10 +1010,10 @@ mobx-react-lite@1.4.0:
   resolved "https://registry.yarnpkg.com/mobx-react-lite/-/mobx-react-lite-1.4.0.tgz#193beb5fdddf17ae61542f65ff951d84db402351"
   integrity sha512-5xCuus+QITQpzKOjAOIQ/YxNhOl/En+PlNJF+5QU4Qxn9gnNMJBbweAdEW3HnuVQbfqDYEUnkGs5hmkIIStehg==
 
-mobx-react@^6.1.1:
-  version "6.1.1"
-  resolved "https://registry.yarnpkg.com/mobx-react/-/mobx-react-6.1.1.tgz#24a2c8a3393890fa732b4efd34cc6dcccf6e0e7a"
-  integrity sha512-hjACWCTpxZf9Sv1YgWF/r6HS6Nsly1SYF22qBJeUE3j+FMfoptgjf8Zmcx2d6uzA07Cezwap5Cobq9QYa0MKUw==
+mobx-react@^6.1.2:
+  version "6.1.2"
+  resolved "https://registry.yarnpkg.com/mobx-react/-/mobx-react-6.1.2.tgz#ed705566edca4baf1c6d87c3eff3dcd17ba09573"
+  integrity sha512-cJJ3Xy9zaX2ucNdXt9gQuzBqL+ZavxxXLQxHKwztYc0fdxEIHXQYHtHr0kh2pSOdEoEJ3kfY8GeUKpOoGmskOg==
   dependencies:
     mobx-react-lite "1.4.0"
 
@@ -1601,10 +1601,10 @@ validate-npm-package-license@^3.0.1:
     spdx-correct "^3.0.0"
     spdx-expression-parse "^3.0.0"
 
-valtors@^2.0.2:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/valtors/-/valtors-2.0.2.tgz#9eca0dceb68ee82531892aacb48e3de68f2998c8"
-  integrity sha512-q0zwITIkOkNy3nN+hgH1LaqpMtjlCkfk187xCs9L4EWXGJKp+Y8WfMtUr03KfkC1JhpYyVtfv1ajTKAGHo2mRQ==
+valtors@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/valtors/-/valtors-2.0.3.tgz#02fe1a0d5caf5ce410cf2c210e631fd1141df643"
+  integrity sha512-2MATL/glZua9KNSib1ZwWGnizxHZJNy146f37sYmjWtyQAtvH6hWwv4Fs5paEu9T8c22yD04AeV/CuFMtGeyrw==
 
 which-module@^2.0.0:
   version "2.0.0"
