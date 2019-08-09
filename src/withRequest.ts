@@ -1,6 +1,6 @@
 /* eslint-disable dot-notation, @typescript-eslint/no-non-null-assertion */
 import { Try } from '@vzh/ts-types/fp';
-import RequestableStore, { AsyncAction } from './RequestableStore';
+import RequestableStore, { AsyncAction, RequestOptions } from './RequestableStore';
 import Validable from './Validable';
 
 function withRequestFactory<S extends RequestableStore<any, any>>(
@@ -194,7 +194,8 @@ withRequest.memo = function memo<S extends RequestableStore<any, any>>({
 export default withRequest;
 
 export function withSubmit<S extends RequestableStore<any, any>>(
-  modelGetter: (self: S) => Validable
+  modelGetter: (self: S) => Validable,
+  options?: RequestOptions
 ): (
   target: S,
   propertyKey: string | symbol,
@@ -204,7 +205,7 @@ export function withSubmit<S extends RequestableStore<any, any>>(
     return withRequestFactory(
       (self, originalFn) => (...params: any[]) => {
         const model = modelGetter(self);
-        return self['submit'](model, () => originalFn.call(self, ...params));
+        return self['submit'](model, () => originalFn.call(self, ...params), undefined, options);
       },
       target,
       propertyKey,
@@ -212,3 +213,22 @@ export function withSubmit<S extends RequestableStore<any, any>>(
     );
   };
 }
+
+withRequest.props = function props(
+  options: RequestOptions
+): (
+  target: RequestableStore<any, any>,
+  propertyKey: string | symbol,
+  descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
+) => any {
+  return function withRequestProps(target, propertyKey, descriptor): any {
+    return withRequestFactory(
+      (self, originalFn) => (...params: any[]) => {
+        return self['request'](() => originalFn.call(self, ...params), undefined, options);
+      },
+      target,
+      propertyKey,
+      descriptor
+    );
+  };
+};

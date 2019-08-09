@@ -1,5 +1,5 @@
 import { Throwable, Try } from '@vzh/ts-types/fp';
-import { NotificationType } from './Notification';
+import Notification, { NotificationType } from './Notification';
 import BaseStore from './BaseStore';
 import UIStore from './UIStore';
 import Validable from './Validable';
@@ -27,6 +27,8 @@ export function isErrorResponseLike(
   return (error as ErrorResponseLike).config !== undefined;
 }
 
+export interface RequestOptions extends Pick<Notification, 'timeout'> {}
+
 export default class RequestableStore<
   RS extends object,
   UIS extends UIStore<RS>,
@@ -44,16 +46,20 @@ export default class RequestableStore<
 
   // Used Try for always return successed promise but keep error if has.
   // If just use promise with error and not use catch in client code then warning in console.
-  protected async request<R>(doWork: AsyncAction<R>, ...doWorkParams: any[]): Promise<Try<R>> {
+  protected async request<R>(
+    doWork: AsyncAction<R>,
+    doWorkParams?: any[],
+    options?: RequestOptions
+  ): Promise<Try<R>> {
     this.uiStore.cleanNotifications(NotificationType.error);
     this.uiStore.loading = true;
 
     try {
-      const result = await doWork(...doWorkParams);
-      this.onRequestSuccess(result);
+      const result = await doWork(...(doWorkParams || []));
+      this.onRequestSuccess(result, options);
       return Try.success(result);
     } catch (ex) {
-      this.onRequestError(ex);
+      this.onRequestError(ex, options);
       return Try.failure(ex);
     } finally {
       this.uiStore.loading = false;
@@ -63,16 +69,17 @@ export default class RequestableStore<
   protected submit<R>(
     model: Validable,
     doWork: AsyncAction<R>,
-    ...doWorkParams: any[]
+    doWorkParams?: any[],
+    options?: RequestOptions
   ): Promise<Try<R>> {
     if (!model.validate()) {
       return Promise.resolve(Try.failure(new Error('`model` is in invalid state.')));
     }
-    return this.request<R>(doWork, ...doWorkParams);
+    return this.request<R>(doWork, doWorkParams, options);
   }
 
   // @ts-ignore
-  protected onRequestSuccess<R>(result: R): void {}
+  protected onRequestSuccess<R>(result: R, options?: RequestOptions): void {}
 
   protected getResponseErrorMessage(response: ResponseLike): string {
     return response.data || response.statusText;
@@ -88,12 +95,13 @@ export default class RequestableStore<
       : this.getThrowableMessage(error);
   }
 
-  protected onRequestError(error: ErrorResponseLike | Throwable): void {
+  protected onRequestError(error: ErrorResponseLike | Throwable, options?: RequestOptions): void {
     console.error(error);
 
     this.uiStore.addNotification({
       type: NotificationType.error,
       text: this.getErrorMessage(error),
+      timeout: options ? options.timeout : undefined,
     });
   }
 }
