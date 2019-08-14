@@ -22,7 +22,7 @@ export function decodeToken<JwtDecoded extends BaseJwtDecoded>(token: string): O
     .toOption();
 }
 
-export default class BaseAppStore<
+export default class BaseAuthStore<
   JwtDecoded extends BaseJwtDecoded,
   RS extends object,
   UIS extends UIStore<RS>,

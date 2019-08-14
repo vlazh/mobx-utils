@@ -21,5 +21,5 @@ export { default as JSONSerializable } from './JSONSerializable';
 export * from './JSONSerializable';
 export { default as serialize } from './serialize';
 export * from './serialize';
-export { default as BaseAppStore } from './BaseAppStore';
-export * from './BaseAppStore';
+export { default as BaseAuthStore } from './BaseAuthStore';
+export * from './BaseAuthStore';
