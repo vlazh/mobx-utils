@@ -1,15 +1,15 @@
-export type NotificationID = string | number;
+export type NotificationID = number;
 
 export enum NotificationType {
-  info = 'info',
-  success = 'success',
-  error = 'error',
-  warning = 'warning',
+  Info = 'info',
+  Success = 'success',
+  Error = 'error',
+  Warning = 'warning',
 }
 
 export default interface Notification {
   id: NotificationID;
-  type: NotificationType | keyof typeof NotificationType;
+  type: NotificationType;
   text: string;
   timeout?: number;
 }

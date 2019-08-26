@@ -51,7 +51,7 @@ export default class RequestableStore<
     doWorkParams?: any[],
     options?: RequestOptions
   ): Promise<Try<R>> {
-    this.uiStore.cleanNotifications(NotificationType.error);
+    this.uiStore.cleanNotifications(NotificationType.Error);
     this.uiStore.loading = true;
 
     try {
@@ -99,7 +99,7 @@ export default class RequestableStore<
     console.error(error);
 
     this.uiStore.addNotification({
-      type: NotificationType.error,
+      type: NotificationType.Error,
       text: this.getErrorMessage(error),
       timeout: options ? options.timeout : undefined,
     });

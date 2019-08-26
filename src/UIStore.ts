@@ -1,15 +1,15 @@
-import { Omit } from '@vzh/ts-types';
 import { observable, computed, action } from 'mobx';
-import Notification, { NotificationID, NotificationType } from './Notification';
+import Notification, { NotificationType } from './Notification';
 import LoadableStore from './LoadableStore';
 import { JSONModel } from './JSONSerializable';
 
 export default class UIStore<
   RS extends object,
-  InitState extends object = {}
+  InitState extends object = {},
+  N extends Notification = Notification
 > extends LoadableStore<RS, InitState> {
   @observable
-  private notificationList: ReadonlyArray<Notification> = [];
+  private notificationList: ReadonlyArray<N> = [];
 
   private readonly defaultNotificationTimeout: number;
 
@@ -31,23 +31,23 @@ export default class UIStore<
   }
 
   @computed
-  get notifications(): ReadonlyArray<Notification> {
+  get notifications(): ReadonlyArray<N> {
     return this.notificationList;
   }
 
   @computed
   get hasError(): boolean {
-    return this.notificationList.some(n => n.type === NotificationType.error);
+    return this.notificationList.some(n => n.type === NotificationType.Error);
   }
 
   @action
-  addNotification(notification: Omit<Notification, 'id'>): Notification['id'] {
+  addNotification(notification: Omit<N, 'id'>): N['id'] {
     if (this.lastNotificationId === Number.MAX_SAFE_INTEGER) {
       this.lastNotificationId = 0;
     }
     this.lastNotificationId += 1;
     const newId = this.lastNotificationId;
-    this.notificationList = this.notificationList.concat({ ...notification, id: newId });
+    this.notificationList = this.notificationList.concat({ ...notification, id: newId } as N);
 
     const timeout =
       notification.timeout == null ? this.defaultNotificationTimeout : notification.timeout;
@@ -59,12 +59,12 @@ export default class UIStore<
   }
 
   @action
-  closeNotification(id: NotificationID): void {
+  closeNotification(id: N['id']): void {
     this.notificationList = this.notificationList.filter(_ => _.id !== id);
   }
 
   @action
-  cleanNotifications(type?: NotificationType): void {
+  cleanNotifications(type?: N['type']): void {
     this.notificationList = type ? this.notificationList.filter(_ => _.type !== type) : [];
   }
 }
