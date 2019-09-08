@@ -1,83 +1,92 @@
 import { Option } from '@vzh/ts-types/fp';
 import JSONSerializable, { JSONValue, ValueContainer } from './JSONSerializable';
 
-export type CustomSerializerResult = { use: true; value: any } | { use: false };
+export type SerializerResult = { value: any; next: boolean };
 
 export interface SerializeOptions {
-  customSerializer?: (value: any) => CustomSerializerResult;
-  skipValidableModelFields?: boolean;
-  skipJSONSerializableFields?: boolean;
+  serializer?: (value: any) => SerializerResult;
+  excludeValidableModelFields?: boolean;
+  excludeJSONSerializableFields?: boolean;
 }
 
-export default function serialize<V>(v: V, options: SerializeOptions = {}): JSONValue<V> {
+export default function serialize<V>(
+  valueOrObject: V,
+  options: SerializeOptions = {}
+): JSONValue<V> {
   const {
-    customSerializer,
-    skipValidableModelFields = true,
-    skipJSONSerializableFields = true,
+    serializer,
+    excludeValidableModelFields = true,
+    excludeJSONSerializableFields = true,
   } = options;
 
-  const customResult = customSerializer && customSerializer(v);
-  if (customResult && customResult.use) return customResult.value;
+  let value = valueOrObject;
 
-  if (v == null) {
-    return v as JSONValue<V>;
+  if (serializer) {
+    const result = serializer(value);
+    if (!result.next) return result.value;
+    value = result.value;
   }
 
-  if (Array.isArray(v)) {
-    return v.map(item => serialize(item, options)) as JSONValue<V>;
+  if (value == null) {
+    return value as JSONValue<V>;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(item => serialize(item, options)) as JSONValue<V>;
   }
 
   if (
-    v instanceof Uint8Array ||
-    v instanceof Uint16Array ||
-    v instanceof Uint32Array ||
-    v instanceof Int8Array ||
-    v instanceof Int16Array ||
-    v instanceof Int32Array
+    value instanceof Uint8Array ||
+    value instanceof Uint16Array ||
+    value instanceof Uint32Array ||
+    value instanceof Int8Array ||
+    value instanceof Int16Array ||
+    value instanceof Int32Array
   ) {
-    return Array.from(v) as JSONValue<V>;
+    return Array.from(value) as JSONValue<V>;
   }
 
-  if (v instanceof Option) {
-    return v.map(value => serialize(value, options)).orUndefined();
+  if (value instanceof Option) {
+    return value.map(v => serialize(v, options)).orUndefined();
   }
 
-  if (typeof v === 'object') {
-    const obj = Object.entries(v).reduce((acc, [key, value]) => {
+  if (typeof value === 'object') {
+    const obj = Object.entries(value).reduce((acc, [prop, propValue]) => {
       // Skip functions and symbols
-      if (typeof value === 'function' || typeof value === 'symbol') return acc;
+      if (typeof propValue === 'function' || typeof propValue === 'symbol') return acc;
       // Skip ValidableModel fields
-      if (skipValidableModelFields) {
-        if (key === 'changeField') return acc;
-        if (key === 'validate') return acc;
-        if (key === 'isValid') return acc;
-        if (key === 'errors') return acc;
+      if (excludeValidableModelFields) {
+        if (prop === 'changeField') return acc;
+        if (prop === 'validate') return acc;
+        if (prop === 'isValid') return acc;
+        if (prop === 'errors') return acc;
       }
       // Skip JSONSerializable field
-      if (skipJSONSerializableFields) {
+      if (excludeJSONSerializableFields) {
         if (
-          key === '_serializable' &&
-          typeof ((v as unknown) as JSONSerializable<{}>).toJSON === 'function'
+          prop === '_serializable' &&
+          typeof ((value as unknown) as JSONSerializable<{}>).toJSON === 'function'
         ) {
           return acc;
         }
       }
-      return { ...acc, [key]: serialize(value, options) };
+      return { ...acc, [prop]: serialize(propValue, options) };
     }, {}) as JSONValue<V>;
 
+    // Dates and other
     if (
       !Object.getOwnPropertyNames(obj).length &&
-      typeof (v as ValueContainer<any>).valueOf === 'function'
+      typeof (value as ValueContainer<any>).valueOf === 'function'
     ) {
-      return (v as ValueContainer<any>).valueOf() as JSONValue<V>;
+      return (value as ValueContainer<any>).valueOf() as JSONValue<V>;
     }
 
     return obj;
   }
 
-  if (typeof v === 'boolean' || typeof v === 'number' || typeof v === 'string') {
-    return v as JSONValue<V>;
+  if (typeof value === 'boolean' || typeof value === 'number' || typeof value === 'string') {
+    return value as JSONValue<V>;
   }
 
-  return String(v) as JSONValue<V>;
+  return String(value) as JSONValue<V>;
 }
