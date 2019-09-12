@@ -27,7 +27,9 @@ export function isErrorResponseLike(
   return (error as ErrorResponseLike).config !== undefined;
 }
 
-export interface RequestOptions extends Pick<Notification, 'timeout'> {}
+export interface RequestOptions extends Pick<Notification, 'timeout'> {
+  clearErrors?: boolean;
+}
 
 export default class RequestableStore<
   RS extends object,
@@ -51,7 +53,9 @@ export default class RequestableStore<
     doWorkParams?: any[],
     options?: RequestOptions
   ): Promise<Try<R>> {
-    this.uiStore.cleanNotifications(NotificationType.Error);
+    if (!options || options.clearErrors || options.clearErrors === undefined) {
+      this.uiStore.cleanNotifications(NotificationType.Error);
+    }
     this.uiStore.loading = true;
 
     try {
