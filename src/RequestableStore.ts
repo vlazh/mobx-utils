@@ -27,7 +27,8 @@ export function isErrorResponseLike(
   return (error as ErrorResponseLike).config !== undefined;
 }
 
-export interface RequestOptions extends Pick<Notification, 'timeout'> {
+export interface RequestOptions {
+  notificationTimeout?: Notification['timeout'];
   clearErrors?: boolean;
 }
 
@@ -105,7 +106,7 @@ export default class RequestableStore<
     this.uiStore.addNotification({
       type: NotificationType.Error,
       text: this.getErrorMessage(error),
-      timeout: options ? options.timeout : undefined,
+      timeout: options ? options.notificationTimeout : undefined,
     });
   }
 }

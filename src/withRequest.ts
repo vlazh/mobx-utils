@@ -1,5 +1,5 @@
 /* eslint-disable dot-notation, @typescript-eslint/no-non-null-assertion */
-import { IWhenOptions, when } from 'mobx';
+import { IWhenOptions, when as whenFn, runInAction } from 'mobx';
 import { Omit } from '@vzh/ts-types';
 import { Try } from '@vzh/ts-types/fp';
 import RequestableStore, { AsyncAction, RequestOptions } from './RequestableStore';
@@ -43,10 +43,12 @@ function withRequestFactory<S extends RequestableStore<any, any>>(
 }
 
 export interface WithRequestOptions<S extends RequestableStore<any, any>> extends RequestOptions {
-  whenPredicate?: ((this: S, self: S) => boolean) | ((self: S) => boolean);
-  whenOptions?: IWhenOptions;
   before?: (this: S, self: S) => void | ((self: S) => void);
   after?: (this: S, self: S) => void | ((self: S) => void);
+  when?: {
+    predicate: ((this: S, self: S) => boolean) | ((self: S) => boolean);
+    options?: IWhenOptions;
+  };
   memo?: boolean | MemoOptions<S>;
 }
 
@@ -56,23 +58,25 @@ function callRequestWithOptions<S extends RequestableStore<any, any>>(
   self: S,
   originalFn: Function,
   originalFnParams: any[],
-  {
-    before,
-    after,
-    whenPredicate,
-    whenOptions = {},
-    ...requestOptions
-  }: Omit<WithRequestOptions<S>, 'memo'>
+  { before, after, when, ...requestOptions }: Omit<WithRequestOptions<S>, 'memo'>
 ): Promise<Try<any>> {
   return (
-    (whenPredicate ? when(whenPredicate.bind(self, self), whenOptions) : Promise.resolve())
-      .then(() => before && before.call(self, self))
+    (when
+      ? new Promise(resolve => {
+          // call when on next tick
+          setTimeout(() => {
+            resolve(whenFn(() => when.predicate.call(self, self), when.options || {}));
+          });
+        })
+      : Promise.resolve()
+    )
+      .then(() => before && runInAction(before.bind(self, self)))
       .then(() =>
         self['request'](() => originalFn.call(self, ...originalFnParams), undefined, requestOptions)
       )
       // After call request it must be invoked in anyway
       .then(result => {
-        after && after.call(self, self);
+        after && runInAction(after.bind(self, self));
         return result;
       })
   );
