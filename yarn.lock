@@ -91,10 +91,10 @@
   resolved "https://registry.yarnpkg.com/@vzh/configs/-/configs-3.39.0.tgz#2661f43291091688613c145456d34318cc0845a1"
   integrity sha512-+eVPV5FrlzGI8qwCwm6gkO+zOta6xu9W8xQJrldjzVQYpZju09HdzuZ7j7A2C/GbnyBR+MdghJC3bEBgwFBuvg==
 
-"@vzh/ts-types@^0.8.1":
-  version "0.8.1"
-  resolved "https://registry.yarnpkg.com/@vzh/ts-types/-/ts-types-0.8.1.tgz#b7414bfd4f9234bcc080ecc2933ec726e8fc2038"
-  integrity sha512-REqxQ98gLGWrcaTyvdrBRpK3Hicsf0PrOc7bOV/5XlQuugHpvT3gfyPd1DHpp6vBLOnv6Sk0gyspdMwd/qBQiQ==
+"@vzh/ts-types@^0.9.0":
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/@vzh/ts-types/-/ts-types-0.9.0.tgz#7ea144c39ef340db536c7af56d2faa48d7e307e5"
+  integrity sha512-8OG4mBG+0m5FuCD6p/5s3+2U8m2EFgxj+HwC0lq5LjhP+JvIC9XZK+hlHm+07SMUIKhamynUAurBGvMplf0YtQ==
 
 acorn-jsx@^5.0.2:
   version "5.0.2"
@@ -440,10 +440,10 @@ eslint-visitor-keys@^1.0.0, eslint-visitor-keys@^1.1.0:
   resolved "https://registry.yarnpkg.com/eslint-visitor-keys/-/eslint-visitor-keys-1.1.0.tgz#e2a82cea84ff246ad6fb57f9bde5b46621459ec2"
   integrity sha512-8y9YjtM1JBJU/A9Kc+SbaOV4y29sSWckBwMHa+FGtVj5gN/sbnKDf6xJUl+8g7FAij9LVaP8C24DUiH/f/2Z9A==
 
-eslint@^6.3.0:
-  version "6.3.0"
-  resolved "https://registry.yarnpkg.com/eslint/-/eslint-6.3.0.tgz#1f1a902f67bfd4c354e7288b81e40654d927eb6a"
-  integrity sha512-ZvZTKaqDue+N8Y9g0kp6UPZtS4FSY3qARxBs7p4f0H0iof381XHduqVerFWtK8DPtKmemqbqCFENWSQgPR/Gow==
+eslint@^6.4.0:
+  version "6.4.0"
+  resolved "https://registry.yarnpkg.com/eslint/-/eslint-6.4.0.tgz#5aa9227c3fbe921982b2eda94ba0d7fae858611a"
+  integrity sha512-WTVEzK3lSFoXUovDHEbkJqCVPEPwbhCq4trDktNI6ygs7aO41d4cDT0JFAT5MivzZeVLWlg7vHL+bgrQv/t3vA==
   dependencies:
     "@babel/code-frame" "^7.0.0"
     ajv "^6.10.0"
