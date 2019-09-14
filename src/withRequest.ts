@@ -114,21 +114,6 @@ export function withRequest<S extends RequestableStore<any, any>>(
   } as any;
 }
 
-// function withRequest(
-//   target: RequestableStore<any, any>,
-//   propertyKey: string | symbol,
-//   descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
-// ): any {
-//   return withRequestFactory(
-//     (self, originalFn) => (...params: any[]) => {
-//       return self['request'](() => originalFn.call(self, ...params));
-//     },
-//     target,
-//     propertyKey,
-//     descriptor
-//   );
-// }
-
 withRequest.bound = function bound(
   target: RequestableStore<any, any>,
   propertyKey: string | symbol,
@@ -289,44 +274,3 @@ export function withSubmit<S extends RequestableStore<any, any>>(
     );
   };
 }
-
-withRequest.props = function props(
-  options: RequestOptions
-): (
-  target: RequestableStore<any, any>,
-  propertyKey: string | symbol,
-  descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
-) => any {
-  return function withRequestProps(target, propertyKey, descriptor): any {
-    return withRequestFactory(
-      (self, originalFn) => (...params: any[]) => {
-        return self['request'](() => originalFn.call(self, ...params), undefined, options);
-      },
-      target,
-      propertyKey,
-      descriptor
-    );
-  };
-};
-
-// withRequest.when = function when<S extends RequestableStore<any, any>>(
-//   predicate: (this: S) => boolean,
-//   opts?: IWhenOptions
-// ): (
-//   target: S,
-//   propertyKey: string | symbol,
-//   descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
-// ) => any {
-//   return function withRequestWait(target, propertyKey, descriptor): any {
-//     return withRequestFactory(
-//       (self, originalFn) => (...params: any[]) => {
-//         return mobx
-//           .when(predicate.bind(self) as typeof predicate, opts)
-//           .then(() => self['request'](() => originalFn.call(self, ...params), undefined));
-//       },
-//       target,
-//       propertyKey,
-//       descriptor
-//     );
-//   };
-// };
