@@ -1,5 +1,6 @@
 /* eslint-disable dot-notation, @typescript-eslint/no-non-null-assertion */
 import { IWhenOptions, when } from 'mobx';
+import { Omit } from '@vzh/ts-types';
 import { Try } from '@vzh/ts-types/fp';
 import RequestableStore, { AsyncAction, RequestOptions } from './RequestableStore';
 import Validable from './Validable';
@@ -41,106 +42,43 @@ function withRequestFactory<S extends RequestableStore<any, any>>(
   };
 }
 
-interface WithRequestOptions<S extends RequestableStore<any, any>> extends RequestOptions {
+export interface WithRequestOptions<S extends RequestableStore<any, any>> extends RequestOptions {
   whenPredicate?: ((this: S, self: S) => boolean) | ((self: S) => boolean);
   whenOptions?: IWhenOptions;
   before?: (this: S, self: S) => void | ((self: S) => void);
   after?: (this: S, self: S) => void | ((self: S) => void);
+  memo?: boolean | MemoOptions<S>;
 }
 
-type PropertyOrMethodDecorator<S extends RequestableStore<any, any>> = (
-  target: S,
-  propertyKey: string | symbol,
-  descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
-) => any;
+/*  */
 
-function isRequestableStore<S extends RequestableStore<any, any>>(
-  targetOrOpts: S | WithRequestOptions<S>
-): targetOrOpts is S {
-  return typeof targetOrOpts === 'object' && targetOrOpts instanceof RequestableStore;
+function callRequestWithOptions<S extends RequestableStore<any, any>>(
+  self: S,
+  originalFn: Function,
+  originalFnParams: any[],
+  {
+    before,
+    after,
+    whenPredicate,
+    whenOptions = {},
+    ...requestOptions
+  }: Omit<WithRequestOptions<S>, 'memo'>
+): Promise<Try<any>> {
+  return (
+    (whenPredicate ? when(whenPredicate.bind(self, self), whenOptions) : Promise.resolve())
+      .then(() => before && before.call(self, self))
+      .then(() =>
+        self['request'](() => originalFn.call(self, ...originalFnParams), undefined, requestOptions)
+      )
+      // After call request it must be invoked in anyway
+      .then(result => {
+        after && after.call(self, self);
+        return result;
+      })
+  );
 }
 
-export function withRequest<S extends RequestableStore<any, any>>(
-  target: S,
-  propertyKey: string | symbol,
-  descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
-): any;
-
-export function withRequest<S extends RequestableStore<any, any>>(
-  options: WithRequestOptions<S>
-): PropertyOrMethodDecorator<S>;
-
-export function withRequest<S extends RequestableStore<any, any>>(
-  targetOrOpts: S | WithRequestOptions<S>,
-  propertyKey?: string | symbol,
-  descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
-): (typeof targetOrOpts) extends WithRequestOptions<S> ? PropertyOrMethodDecorator<S> : any {
-  if (isRequestableStore(targetOrOpts)) {
-    return withRequestFactory(
-      (self, originalFn) => (...params: any[]) => {
-        return self['request'](() => originalFn.call(self, ...params));
-      },
-      targetOrOpts,
-      propertyKey!,
-      descriptor
-    );
-  }
-
-  return function withRequestOptions(
-    _target: S,
-    _propertyKey: string | symbol,
-    _descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
-  ): any {
-    return withRequestFactory(
-      (self, originalFn) => (...params: any[]) => {
-        const { before, after, whenPredicate, whenOptions = {}, ...requestOptions } = targetOrOpts;
-        return (
-          (whenPredicate ? when(whenPredicate.bind(self, self), whenOptions) : Promise.resolve())
-            .then(() => before && before.call(self, self))
-            .then(() =>
-              self['request'](() => originalFn.call(self, ...params), undefined, requestOptions)
-            )
-            // After call request it must be invoked in anyway
-            .then(result => {
-              after && after.call(self, self);
-              return result;
-            })
-        );
-      },
-      _target,
-      _propertyKey,
-      _descriptor
-    );
-  } as any;
-}
-
-withRequest.bound = function bound(
-  target: RequestableStore<any, any>,
-  propertyKey: string | symbol,
-  descriptor: TypedPropertyDescriptor<AsyncAction<void>>
-): TypedPropertyDescriptor<AsyncAction<void>> {
-  return {
-    configurable: true,
-    enumerable: false,
-
-    get(this: typeof target) {
-      const { value, get, set, ...rest } = descriptor;
-      const fn = value!;
-      // eslint-disable-next-line @typescript-eslint/no-this-alias
-      const self = this;
-
-      Object.defineProperty(this, propertyKey, {
-        ...rest,
-        value(...params: any[]): Promise<Try<any>> {
-          return self['request'](() => fn.call(self, ...params));
-        },
-      });
-
-      return this[propertyKey];
-    },
-    set: () => {},
-  };
-};
+/*  */
 
 function isUpdated(lastInputs: any[] | undefined, nextInputs: any[]): boolean {
   // Always true for empty cache
@@ -212,43 +150,132 @@ export interface MemoOptions<S extends RequestableStore<any, any>> {
   lifetime?: number;
 }
 
-withRequest.memo = function memo<S extends RequestableStore<any, any>>({
-  inputs: inputsGetter,
-  checkOriginalParams = true,
-  lifetime = 0,
-}: MemoOptions<S> = {}): (
+async function withMemo<S extends RequestableStore<any, any>>(
+  self: S,
+  originalFn: Function,
+  originalFnParams: any[],
+  request: typeof callRequestWithOptions,
+  options: Omit<WithRequestOptions<S>, 'memo'>,
+  { inputs: inputsGetter, checkOriginalParams = true, lifetime = 0 }: MemoOptions<S>
+): Promise<Try<any>> {
+  // (self, originalFn) => async (...originalParams: any[]) => {
+  const entry = memoCache.get(originalFn);
+  const inputs = inputsGetter ? inputsGetter(self, ...originalFnParams) : [];
+
+  const result =
+    getLastResult(entry, inputs, checkOriginalParams ? originalFnParams : undefined) ||
+    // call function if no last result yet or inputs are not updated
+    // (await self['request'](() => originalFn.call(self, ...originalFnParams)));
+    (await request(self, originalFn, originalFnParams, options));
+
+  // Recreate timer on every call
+  entry && entry.cacheTimeoutHandler && clearTimeout(entry.cacheTimeoutHandler);
+
+  memoCache.set(originalFn, {
+    ...entry,
+    lastInputs: inputs,
+    lastResult: result,
+    lastParams: checkOriginalParams ? originalFnParams : undefined,
+    cacheTimeoutHandler: createRemoveEntryTimer(lifetime, originalFn),
+  });
+
+  return result;
+}
+
+/*  */
+
+type PropertyOrMethodDecorator<S extends RequestableStore<any, any>> = (
   target: S,
   propertyKey: string | symbol,
   descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
-) => any {
-  return function withRequestMemo(target, propertyKey, descriptor): any {
+) => any;
+
+function isRequestableStore<S extends RequestableStore<any, any>>(
+  targetOrOpts: S | WithRequestOptions<S>
+): targetOrOpts is S {
+  return typeof targetOrOpts === 'object' && targetOrOpts instanceof RequestableStore;
+}
+
+export function withRequest<S extends RequestableStore<any, any>>(
+  target: S,
+  propertyKey: string | symbol,
+  descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
+): any;
+
+export function withRequest<S extends RequestableStore<any, any>>(
+  options: WithRequestOptions<S>
+): PropertyOrMethodDecorator<S>;
+
+export function withRequest<S extends RequestableStore<any, any>>(
+  targetOrOpts: S | WithRequestOptions<S>,
+  propertyKey?: string | symbol,
+  descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
+): (typeof targetOrOpts) extends WithRequestOptions<S> ? PropertyOrMethodDecorator<S> : any {
+  if (isRequestableStore(targetOrOpts)) {
     return withRequestFactory(
-      (self, originalFn) => async (...originalParams: any[]) => {
-        const entry = memoCache.get(originalFn);
-        const inputs = inputsGetter ? inputsGetter(self, ...originalParams) : [];
-
-        const result =
-          getLastResult(entry, inputs, checkOriginalParams ? originalParams : undefined) ||
-          // call function if no last result yet or inputs are not updated
-          (await self['request'](() => originalFn.call(self, ...originalParams)));
-
-        // Recreate timer on every call
-        entry && entry.cacheTimeoutHandler && clearTimeout(entry.cacheTimeoutHandler);
-
-        memoCache.set(originalFn, {
-          ...entry,
-          lastInputs: inputs,
-          lastResult: result,
-          lastParams: checkOriginalParams ? originalParams : undefined,
-          cacheTimeoutHandler: createRemoveEntryTimer(lifetime, originalFn),
-        });
-
-        return result;
+      (self, originalFn) => (...params: any[]) => {
+        return self['request'](() => originalFn.call(self, ...params));
       },
-      target,
-      propertyKey,
+      targetOrOpts,
+      propertyKey!,
       descriptor
     );
+  }
+
+  return function withRequestOptions(
+    _target: S,
+    _propertyKey: string | symbol,
+    _descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
+  ): any {
+    return withRequestFactory(
+      (self, originalFn) => (...params: any[]) => {
+        const { memo, ...restOptions } = targetOrOpts;
+
+        if (memo) {
+          return withMemo(
+            self,
+            originalFn,
+            params,
+            callRequestWithOptions,
+            restOptions,
+            typeof memo === 'object' ? memo : {}
+          );
+        }
+
+        return callRequestWithOptions(self, originalFn, params, restOptions);
+      },
+      _target,
+      _propertyKey,
+      _descriptor
+    );
+  } as any;
+}
+
+withRequest.bound = function bound(
+  target: RequestableStore<any, any>,
+  propertyKey: string | symbol,
+  descriptor: TypedPropertyDescriptor<AsyncAction<void>>
+): TypedPropertyDescriptor<AsyncAction<void>> {
+  return {
+    configurable: true,
+    enumerable: false,
+
+    get(this: typeof target) {
+      const { value, get, set, ...rest } = descriptor;
+      const fn = value!;
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
+      const self = this;
+
+      Object.defineProperty(this, propertyKey, {
+        ...rest,
+        value(...params: any[]): Promise<Try<any>> {
+          return self['request'](() => fn.call(self, ...params));
+        },
+      });
+
+      return this[propertyKey];
+    },
+    set: () => {},
   };
 };
 
