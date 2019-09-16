@@ -29,7 +29,10 @@ export function isErrorResponseLike(
 
 export interface RequestOptions {
   notificationTimeout?: Notification['timeout'];
+  disableLoading?: boolean;
+  disableNotifications?: boolean;
   clearErrors?: boolean;
+  clearNotifications?: boolean;
 }
 
 export default class RequestableStore<
@@ -52,12 +55,17 @@ export default class RequestableStore<
   protected async request<R>(
     doWork: AsyncAction<R>,
     doWorkParams?: any[],
-    options?: RequestOptions
+    options: RequestOptions = {}
   ): Promise<Try<R>> {
-    if (!options || options.clearErrors || options.clearErrors === undefined) {
+    const { clearErrors, clearNotifications = true, disableLoading } = options;
+    if (clearNotifications) {
+      this.uiStore.cleanNotifications();
+    } else if (clearErrors) {
       this.uiStore.cleanNotifications(NotificationType.Error);
     }
-    this.uiStore.loading = true;
+    if (!disableLoading) {
+      this.uiStore.loading = true;
+    }
 
     try {
       const result = await doWork(...(doWorkParams || []));
@@ -67,7 +75,9 @@ export default class RequestableStore<
       this.onRequestError(ex, options);
       return Try.failure(ex);
     } finally {
-      this.uiStore.loading = false;
+      if (!disableLoading) {
+        this.uiStore.loading = false;
+      }
     }
   }
 
@@ -75,7 +85,7 @@ export default class RequestableStore<
     model: Validable,
     doWork: AsyncAction<R>,
     doWorkParams?: any[],
-    options?: RequestOptions
+    options: RequestOptions = {}
   ): Promise<Try<R>> {
     if (!model.validate()) {
       return Promise.resolve(Try.failure(new Error('`model` is in invalid state.')));
@@ -83,13 +93,15 @@ export default class RequestableStore<
     return this.request<R>(doWork, doWorkParams, options);
   }
 
-  // @ts-ignore
-  protected onRequestSuccess<R>(result: R, options?: RequestOptions): void {}
+  // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
+  protected onRequestSuccess<R>(_result: R, _options: RequestOptions = {}): void {}
 
+  // eslint-disable-next-line class-methods-use-this
   protected getResponseErrorMessage(response: ResponseLike): string {
     return response.data || response.statusText;
   }
 
+  // eslint-disable-next-line class-methods-use-this
   protected getThrowableMessage(error: Throwable): string {
     return getErrorMessage(error);
   }
@@ -100,13 +112,18 @@ export default class RequestableStore<
       : this.getThrowableMessage(error);
   }
 
-  protected onRequestError(error: ErrorResponseLike | Throwable, options?: RequestOptions): void {
+  protected onRequestError(
+    error: ErrorResponseLike | Throwable,
+    { disableNotifications, notificationTimeout }: RequestOptions = {}
+  ): void {
     console.error(error);
 
-    this.uiStore.addNotification({
-      type: NotificationType.Error,
-      text: this.getErrorMessage(error),
-      timeout: options ? options.notificationTimeout : undefined,
-    });
+    if (!disableNotifications) {
+      this.uiStore.addNotification({
+        type: NotificationType.Error,
+        text: this.getErrorMessage(error),
+        timeout: notificationTimeout,
+      });
+    }
   }
 }

@@ -5,13 +5,38 @@ import { Try } from '@vzh/ts-types/fp';
 import RequestableStore, { AsyncAction, RequestOptions } from './RequestableStore';
 import Validable from './Validable';
 
-function withRequestFactory<S extends RequestableStore<any, any>>(
-  // eslint-disable-next-line @typescript-eslint/no-use-before-define
-  request: (self: typeof target, originalFn: Function) => AsyncAction<Try<any>>,
+function withDecorator<S extends RequestableStore<any, any>>(
+  request: (self: S, originalFn: Function) => AsyncAction<Try<any>>,
+  bound: boolean,
   target: S,
   propertyKey: string | symbol,
   descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
 ): any {
+  // Method bound:
+  if (bound && descriptor) {
+    return {
+      configurable: true,
+      enumerable: false,
+
+      get(this: typeof target) {
+        const { value, get, set, ...rest } = descriptor;
+        const fn = value!;
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        const self = this;
+
+        Object.defineProperty(this, propertyKey, {
+          ...rest,
+          value(...params: any[]): Promise<Try<any>> {
+            return self['request'](() => fn.call(self, ...params));
+          },
+        });
+
+        return this[propertyKey];
+      },
+      set: () => {},
+    };
+  }
+
   // Property decorator:
   if (!descriptor) {
     let fn: Function = target[propertyKey];
@@ -50,20 +75,19 @@ export interface WithRequestOptions<S extends RequestableStore<any, any>> extend
     options?: IWhenOptions;
   };
   memo?: boolean | MemoOptions<S>;
+  bound?: boolean;
 }
-
-/*  */
 
 function callRequestWithOptions<S extends RequestableStore<any, any>>(
   self: S,
   originalFn: Function,
   originalFnParams: any[],
-  { before, after, when, ...requestOptions }: Omit<WithRequestOptions<S>, 'memo'>
+  { before, after, when, ...requestOptions }: Omit<WithRequestOptions<S>, 'memo' | 'bound'>
 ): Promise<Try<any>> {
   return (
     (when
       ? new Promise(resolve => {
-          // call when on next tick
+          // call whenFn on next tick
           setTimeout(() => {
             resolve(whenFn(() => when.predicate.call(self, self), when.options || {}));
           });
@@ -82,7 +106,7 @@ function callRequestWithOptions<S extends RequestableStore<any, any>>(
   );
 }
 
-/*  */
+/* Memo */
 
 function isUpdated(lastInputs: any[] | undefined, nextInputs: any[]): boolean {
   // Always true for empty cache
@@ -186,7 +210,7 @@ async function withMemo<S extends RequestableStore<any, any>>(
   return result;
 }
 
-/*  */
+/* withRequest */
 
 type PropertyOrMethodDecorator<S extends RequestableStore<any, any>> = (
   target: S,
@@ -216,10 +240,11 @@ export function withRequest<S extends RequestableStore<any, any>>(
   descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
 ): (typeof targetOrOpts) extends WithRequestOptions<S> ? PropertyOrMethodDecorator<S> : any {
   if (isRequestableStore(targetOrOpts)) {
-    return withRequestFactory(
+    return withDecorator(
       (self, originalFn) => (...params: any[]) => {
         return self['request'](() => originalFn.call(self, ...params));
       },
+      false,
       targetOrOpts,
       propertyKey!,
       descriptor
@@ -231,10 +256,10 @@ export function withRequest<S extends RequestableStore<any, any>>(
     _propertyKey: string | symbol,
     _descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
   ): any {
-    return withRequestFactory(
-      (self, originalFn) => (...params: any[]) => {
-        const { memo, ...restOptions } = targetOrOpts;
+    const { bound, memo, ...restOptions } = targetOrOpts;
 
+    return withDecorator(
+      (self, originalFn) => (...params: any[]) => {
         if (memo) {
           return withMemo(
             self,
@@ -248,40 +273,13 @@ export function withRequest<S extends RequestableStore<any, any>>(
 
         return callRequestWithOptions(self, originalFn, params, restOptions);
       },
+      !!bound,
       _target,
       _propertyKey,
       _descriptor
     );
   } as any;
 }
-
-withRequest.bound = function bound(
-  target: RequestableStore<any, any>,
-  propertyKey: string | symbol,
-  descriptor: TypedPropertyDescriptor<AsyncAction<void>>
-): TypedPropertyDescriptor<AsyncAction<void>> {
-  return {
-    configurable: true,
-    enumerable: false,
-
-    get(this: typeof target) {
-      const { value, get, set, ...rest } = descriptor;
-      const fn = value!;
-      // eslint-disable-next-line @typescript-eslint/no-this-alias
-      const self = this;
-
-      Object.defineProperty(this, propertyKey, {
-        ...rest,
-        value(...params: any[]): Promise<Try<any>> {
-          return self['request'](() => fn.call(self, ...params));
-        },
-      });
-
-      return this[propertyKey];
-    },
-    set: () => {},
-  };
-};
 
 export default withRequest;
 
@@ -294,11 +292,12 @@ export function withSubmit<S extends RequestableStore<any, any>>(
   descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
 ) => any {
   return function withSubmitRequest(target, propertyKey, descriptor): any {
-    return withRequestFactory(
+    return withDecorator(
       (self, originalFn) => (...params: any[]) => {
         const model = modelGetter(self);
         return self['submit'](model, () => originalFn.call(self, ...params), undefined, options);
       },
+      false,
       target,
       propertyKey,
       descriptor
