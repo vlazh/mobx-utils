@@ -6,7 +6,7 @@ export default abstract class LoadableStore<
   InitState extends object = {}
 > extends BaseStore<RS, InitState> {
   @observable
-  protected pendingRequestCount: number = 0; // For multiple requests
+  protected pendingRequestCount = 0; // For multiple requests
 
   /** true - while has at least 1 running request. */
   @computed

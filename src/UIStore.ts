@@ -14,17 +14,11 @@ export default class UIStore<
   private readonly defaultNotificationTimeout: number;
 
   // To avoid mistakes at react rerenders by id use unique id's on all lifecircle.
-  private lastNotificationId: number = 0;
+  private lastNotificationId = 0;
 
-  constructor(
-    rootStore: RS,
-    defaultNotificationTimeout: number = 0,
-    initialState?: JSONModel<InitState>
-  ) {
+  constructor(rootStore: RS, defaultNotificationTimeout = 0, initialState?: JSONModel<InitState>) {
     super(rootStore, initialState);
-
     this.defaultNotificationTimeout = defaultNotificationTimeout;
-
     this.addNotification = this.addNotification.bind(this);
     this.closeNotification = this.closeNotification.bind(this);
     this.cleanNotifications = this.cleanNotifications.bind(this);
