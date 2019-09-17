@@ -1,6 +1,6 @@
 import { ExcludeKeysOfType, Diff, ExtractKeysOfType } from '@vzh/ts-types';
 import { Option } from '@vzh/ts-types/fp';
-import ValidableModel from './ValidableModel';
+import ValidableModel from '../models/ValidableModel';
 
 export type JSONPrimitives = string | number | boolean | null | undefined;
 

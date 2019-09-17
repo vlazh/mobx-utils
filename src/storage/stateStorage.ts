@@ -1,13 +1,34 @@
 import 'localforage';
 import { Option, None } from '@vzh/ts-types/fp';
-import { JSONModel } from '../JSONSerializable';
+import { JSONModel } from '../serialization/JSONSerializable';
 
 export type JSONStoreState<RootState extends {}> = Required<JSONModel<RootState>>;
+
+export async function saveStoreState<
+  RootState extends {},
+  K extends keyof JSONStoreState<RootState>
+>(
+  storage: LocalForageDbMethodsCore,
+  store: K,
+  state?: JSONStoreState<RootState>[K],
+  throwError = false
+): Promise<void> {
+  try {
+    const prevState = await storage.getItem<JSONStoreState<RootState>[K] | undefined>(
+      store as string
+    );
+    const nextState = prevState ? { ...prevState, ...state } : state;
+    await storage.setItem(store as string, nextState);
+  } catch (ex) {
+    if (throwError) throw ex;
+    console.error(ex.message || ex);
+  }
+}
 
 export async function saveRootState<RootState extends {}>(
   storage: LocalForageDbMethodsCore,
   state: Partial<JSONStoreState<RootState>>,
-  throwError: boolean = false
+  throwError = false
 ): Promise<void> {
   try {
     await Promise.all(
@@ -26,27 +47,6 @@ export async function saveRootState<RootState extends {}>(
   }
 }
 
-export async function saveStoreState<
-  RootState extends {},
-  K extends keyof JSONStoreState<RootState>
->(
-  storage: LocalForageDbMethodsCore,
-  store: K,
-  state?: JSONStoreState<RootState>[K],
-  throwError: boolean = false
-): Promise<void> {
-  try {
-    const prevState = await storage.getItem<JSONStoreState<RootState>[K] | undefined>(
-      store as string
-    );
-    const nextState = prevState ? { ...prevState, ...state } : state;
-    await storage.setItem(store as string, nextState);
-  } catch (ex) {
-    if (throwError) throw ex;
-    console.error(ex.message || ex);
-  }
-}
-
 export async function getStoreState<
   RootState extends {},
   K extends keyof JSONStoreState<RootState>
@@ -54,7 +54,7 @@ export async function getStoreState<
   storage: LocalForageDbMethodsCore,
   store: K,
   defaultState?: Partial<JSONStoreState<RootState>[K]>,
-  throwError: boolean = false
+  throwError = false
 ): Promise<Option<JSONStoreState<RootState>[K]>> {
   try {
     const state = await storage.getItem<JSONStoreState<RootState>[K] | undefined>(store as string);

@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/unbound-method */
 import { Throwable, Try } from '@vzh/ts-types/fp';
 import Notification, { NotificationType } from './Notification';
 import BaseStore from './BaseStore';
 import UIStore from './UIStore';
-import Validable from './Validable';
-import { JSONModel } from './JSONSerializable';
+import Validable from '../models/Validable';
+import { JSONModel } from '../serialization/JSONSerializable';
 import getErrorMessage from './getErrorMessage';
 
 export interface ResponseLike {

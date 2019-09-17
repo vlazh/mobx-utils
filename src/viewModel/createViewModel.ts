@@ -1,5 +1,5 @@
 import { IViewModel } from 'mobx-utils';
-import Model, { ModelLike } from '../Model';
+import Model, { ModelLike } from '../models/Model';
 import ViewModel from './ViewModel';
 
 export type ViewModelLike<T> = T extends ModelLike<infer E>

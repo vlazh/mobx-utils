@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/unbound-method */
 import { observable, computed, action } from 'mobx';
 import Notification, { NotificationType } from './Notification';
+import { JSONModel } from '../serialization/JSONSerializable';
 import LoadableStore from './LoadableStore';
-import { JSONModel } from './JSONSerializable';
 
 export default class UIStore<
   RS extends object,

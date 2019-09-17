@@ -1,9 +1,9 @@
-/* eslint-disable dot-notation, @typescript-eslint/no-non-null-assertion */
+/* eslint-disable dot-notation, @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unused-vars */
 import { IWhenOptions, when as whenFn, runInAction } from 'mobx';
 import { Omit } from '@vzh/ts-types';
 import { Try } from '@vzh/ts-types/fp';
 import RequestableStore, { AsyncAction, RequestOptions } from './RequestableStore';
-import Validable from './Validable';
+import Validable from '../models/Validable';
 
 function withDecorator<S extends RequestableStore<any, any>>(
   request: (self: S, originalFn: Function) => AsyncAction<Try<any>>,

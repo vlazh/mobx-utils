@@ -1,5 +1,6 @@
+/* eslint-disable class-methods-use-this, @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function */
 import ReactionDisposer from './ReactionDisposer';
-import { JSONModel } from './JSONSerializable';
+import { JSONModel } from '../serialization/JSONSerializable';
 
 export default abstract class BaseStore<
   RS extends object,
@@ -7,8 +8,7 @@ export default abstract class BaseStore<
 > extends ReactionDisposer {
   protected readonly rootStore: RS;
 
-  // @ts-ignore
-  constructor(rootStore: RS, initialState?: JSONModel<InitState>) {
+  constructor(rootStore: RS, _initialState?: JSONModel<InitState>) {
     super();
     this.rootStore = rootStore;
   }

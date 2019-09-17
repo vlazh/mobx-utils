@@ -1,6 +1,6 @@
 import { action } from 'mobx';
 import { ViewModel as ViewModelOriginal } from 'mobx-utils';
-import Model, { ModelLike, NameValue, InputEventLike } from '../Model';
+import Model, { ModelLike, NameValue, InputEventLike } from '../models/Model';
 
 export default class ViewModel<E extends object, T extends ModelLike<E>>
   extends ViewModelOriginal<T>

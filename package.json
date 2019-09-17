@@ -47,8 +47,5 @@
     "typescript": "^3.6.3",
     "valtors": "^2.1.0"
   },
-  "peerDependencies": {
-    "@vzh/ts-types": "*"
-  },
   "prettier": "@vzh/configs/prettier"
 }
