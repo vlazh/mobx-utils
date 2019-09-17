@@ -12,6 +12,21 @@
       "url": "http://github.com/vlazh"
     }
   ],
+  "homepage": "https://github.com/vlazh/mobx-utils",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vlazh/mobx-utils"
+  },
+  "bugs": {
+    "url": "https://github.com/vlazh/mobx-utils/issues"
+  },
+  "keywords": [
+    "mobx",
+    "mobx utils",
+    "mobx store",
+    "mobx model",
+    "mobx serialization"
+  ],
   "scripts": {
     "update-deps": "yarn upgrade-interactive --latest",
     "clean": "rimraf dist/*",
