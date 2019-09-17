@@ -17,8 +17,10 @@ export default abstract class BaseStore<
   protected initialize(): void {}
 
   dispose(): void {
-    const filter = (name: string): boolean => name === 'rootStore';
-    super.dispose(filter);
-    // this.clean(filter);
+    super.dispose(name => name === 'rootStore');
+  }
+
+  clean(): void {
+    super.clean(name => name === 'rootStore');
   }
 }
