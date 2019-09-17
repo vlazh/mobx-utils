@@ -1,11 +1,11 @@
 /* eslint-disable class-methods-use-this, @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function */
-import ReactionDisposer from './ReactionDisposer';
+import CleanerDisposer from './CleanerDisposer';
 import { JSONModel } from '../serialization/JSONSerializable';
 
 export default abstract class BaseStore<
   RS extends object,
   InitState extends object = {}
-> extends ReactionDisposer {
+> extends CleanerDisposer {
   protected readonly rootStore: RS;
 
   constructor(rootStore: RS, _initialState?: JSONModel<InitState>) {
@@ -17,6 +17,8 @@ export default abstract class BaseStore<
   protected initialize(): void {}
 
   dispose(): void {
-    super.dispose(name => name === 'rootStore');
+    const filter = (name: string): boolean => name === 'rootStore';
+    super.dispose(filter);
+    // this.clean(filter);
   }
 }

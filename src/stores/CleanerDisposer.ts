@@ -14,14 +14,29 @@ export function disposeMobxReactions(value: any): void {
   }
 }
 
-export default abstract class ReactionDisposer {
-  /** If callback returns true then do nothing */
+export default abstract class CleanerDisposer {
+  /**
+   * Dispose reactions recursively.
+   * @param callback If callback returns true then do nothing for that name
+   */
   dispose(callback?: (name: string, value: any) => boolean): void {
     Object.entries(this).forEach(([name, value]) => {
       if (value === this) return; // Skip self referencies. For example, `jsonModel` in `SerializableModel`.
       if (callback && callback(name, value)) return;
-      if (value instanceof ReactionDisposer) value.dispose();
+      if (value instanceof CleanerDisposer) value.dispose();
       else disposeMobxReactions(value);
+    });
+  }
+
+  /**
+   * Clean recursively.
+   * @param callback If callback returns true then do nothing for that name
+   */
+  clean(callback?: (name: string, value: any) => boolean): void {
+    Object.entries(this).forEach(([name, value]) => {
+      if (value === this) return; // Skip self referencies. For example, `jsonModel` in `SerializableModel`.
+      if (callback && callback(name, value)) return;
+      if (value instanceof CleanerDisposer) value.clean();
     });
   }
 }

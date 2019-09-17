@@ -1,11 +1,9 @@
 /* eslint-disable dot-notation, @typescript-eslint/no-unused-vars */
-import ReactionDisposer from './ReactionDisposer';
+import CleanerDisposer from './CleanerDisposer';
 import BaseStore from './BaseStore';
 import { JSONModel } from '../serialization/JSONSerializable';
 
-export default abstract class BaseRootStore<
-  InitState extends object = {}
-> extends ReactionDisposer {
+export default abstract class BaseRootStore<InitState extends object = {}> extends CleanerDisposer {
   constructor(_initialState?: JSONModel<InitState>) {
     super();
   }
