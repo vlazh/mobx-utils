@@ -13,7 +13,6 @@
     "./src/viewModel/index.ts",
     "./src/serialization/index.ts",
     "./src/stores/index.ts",
-    "./src/storage/index.ts",
-    "./src/typedInject.ts"
+    "./src/storage/index.ts"
   ]
 }
