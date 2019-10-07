@@ -1,9 +1,29 @@
+/* eslint-disable @typescript-eslint/no-this-alias */
 /* eslint-disable dot-notation, @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unused-vars */
 import { IWhenOptions, when as whenFn, runInAction } from 'mobx';
 import { Omit } from '@vzh/ts-types';
 import { Try } from '@vzh/ts-types/fp';
 import RequestableStore, { AsyncAction, RequestOptions } from './RequestableStore';
 import Validable from '../models/Validable';
+
+function defineInstanceProp<S extends RequestableStore<any, any>>(
+  request: (self: S, originalFn: Function) => AsyncAction<Try<any>>,
+  target: S,
+  propertyKey: string | symbol,
+  initialFn: Function
+): void {
+  let fn = initialFn;
+  Object.defineProperty(target, propertyKey, {
+    configurable: true,
+    enumerable: true,
+    get() {
+      return fn;
+    },
+    set(this: typeof target, nextFn: Function) {
+      fn = request(this, nextFn);
+    },
+  });
+}
 
 function withDecorator<S extends RequestableStore<any, any>>(
   request: (self: S, originalFn: Function) => AsyncAction<Try<any>>,
@@ -21,13 +41,13 @@ function withDecorator<S extends RequestableStore<any, any>>(
       get(this: typeof target) {
         const { value, get, set, ...rest } = descriptor;
         const fn = value!;
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
         const self = this;
 
         Object.defineProperty(this, propertyKey, {
           ...rest,
           value(...params: any[]): Promise<Try<any>> {
-            return self['request'](() => fn.call(self, ...params));
+            // return self['request'](() => fn.call(self, ...params));
+            return request(self, fn)(...params);
           },
         });
 
@@ -39,20 +59,34 @@ function withDecorator<S extends RequestableStore<any, any>>(
 
   // Property decorator:
   if (!descriptor) {
-    let fn: Function = target[propertyKey];
+    // let fn: Function = target[propertyKey];
 
-    Object.defineProperty(target, propertyKey, {
+    // Object.defineProperty(target, propertyKey, {
+    //   configurable: true,
+    //   enumerable: true,
+    //   get() {
+    //     return fn;
+    //   },
+    //   set(this: typeof target, nextFn: Function) {
+    //     fn = request(this, nextFn);
+    //   },
+    // });
+
+    // return undefined;
+
+    return {
       configurable: true,
       enumerable: true,
-      get() {
-        return fn;
+      get(this: typeof target) {
+        // When first get redefine property on concreate class instance
+        defineInstanceProp(request, this, propertyKey, this[propertyKey]);
+        return this[propertyKey];
       },
       set(this: typeof target, nextFn: Function) {
-        fn = request(this, nextFn);
+        // When first set redefine property on concreate class instance
+        defineInstanceProp(request, this, propertyKey, request(this, nextFn));
       },
-    });
-
-    return undefined;
+    };
   }
 
   // Method decorator:
