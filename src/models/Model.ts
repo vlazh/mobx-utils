@@ -7,13 +7,13 @@ export interface NameValue<EntityOrValue, K extends keyof EntityOrValue = any> {
   value: undefined extends K ? EntityOrValue : EntityOrValue[K]; // : EntityOrValue extends object ? (K extends keyof EntityOrValue ? EntityOrValue[K] : any) : any;
 }
 
-export interface InputElementLike extends NameValue<any, any> {
+export interface InputElementLike<V = any> extends NameValue<V, any> {
   type?: string;
 }
 
-export interface InputEventLike {
-  preventDefault: () => void;
-  target: InputElementLike;
+export interface InputEventLike<V = any> {
+  preventDefault?: () => void;
+  target: InputElementLike<V>;
 }
 
 export interface FieldChangeHandler<Entity extends object> {
