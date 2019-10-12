@@ -1,11 +1,14 @@
 import { action, observable, computed } from 'mobx';
 import { Option } from '@vzh/ts-types/fp';
-import { Diff } from '@vzh/ts-types';
+import { Diff, ExcludeKeysOfType } from '@vzh/ts-types';
 import { validate } from 'valtors';
 import ValidableModel, { ValidationErrors } from './ValidableModel';
 import StoreModel from './StoreModel';
 
-export type OnlyModelEntity<A extends object> = Diff<A, ValidableModel<A>>;
+export type OnlyModelEntity<A extends object> = ExcludeKeysOfType<
+  Diff<A, ValidableModel<A>>,
+  Function
+>;
 
 export type ValidableStoreModelLike<A extends ValidableStoreModel<any>> = Pick<
   A,
