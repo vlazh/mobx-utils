@@ -104,6 +104,7 @@ function withDecorator<S extends RequestableStore<any, any>>(
 export interface WithRequestOptions<S extends RequestableStore<any, any>> extends RequestOptions {
   before?: (this: S, self: S) => void | ((self: S) => void);
   after?: (this: S, self: S) => void | ((self: S) => void);
+  /** Suspense until when predicate resolves to true */
   when?: {
     predicate: ((this: S, self: S) => boolean) | ((self: S) => boolean);
     options?: IWhenOptions;
