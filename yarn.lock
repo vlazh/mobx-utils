@@ -79,10 +79,10 @@
   resolved "https://registry.yarnpkg.com/@vzh/configs/-/configs-3.41.0.tgz#22e158e150f27019fdd5bcdbdd0b676183e868ea"
   integrity sha512-pPuYyPBC/qzqvfxgSR0IaqhMKxP+9PNschO4lHmtaWwjru8KQaUNa2qxVlslDMUkEzXP8+8oinCXeyzwFBDbkw==
 
-"@vzh/ts-types@^1.0.4":
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/@vzh/ts-types/-/ts-types-1.0.4.tgz#ec92b9a7903ff56e649ea1a7cdc9a0c268348fa1"
-  integrity sha512-bPBxykoUG9UWvtBEbvtMgpQGlaSosfvmiqEDNNXpDLIBcxvrf7M82AQxo3qS00ri1Ar4IsxsEtGCL7chuv7a0w==
+"@vzh/ts-types@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@vzh/ts-types/-/ts-types-1.1.0.tgz#f7f7749ef08b27438e421cb198e9a6a8467fc52c"
+  integrity sha512-rlEZTI+1Coq0C+rTEx8sp17mMNtXot51d1XvneJDUKXkQCyL1x/l6NmALWR5yFdBMMBTUzwKsPs8v2NTq6yxGw==
 
 acorn-jsx@^5.0.2:
   version "5.1.0"
@@ -1564,10 +1564,10 @@ validate-npm-package-license@^3.0.1:
     spdx-correct "^3.0.0"
     spdx-expression-parse "^3.0.0"
 
-valtors@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/valtors/-/valtors-2.1.0.tgz#888b6df8d54a40b8b21292a5a6a14bd129aacafd"
-  integrity sha512-plRwJWuAJghKCR9e9N5rnP1FU4G6apai4B41og31FwvlXA0I9u7YU9auYGoIlAioiAbIdGxFxlmeVIuHBNGpGg==
+valtors@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/valtors/-/valtors-2.2.0.tgz#cc12ec16ca600cb1f45f626a2ad7ef3a13854c2e"
+  integrity sha512-TILYaQhtsaLLBNBjtYxENwvvQIOWHHVoJDgylwXjn2DSdz+igvyb1AWWnXZ+0CvcUdpw5dHofHTvWfIBDeUihw==
 
 which-module@^2.0.0:
   version "2.0.0"

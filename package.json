@@ -43,7 +43,7 @@
     "@typescript-eslint/eslint-plugin": "^2.4.0",
     "@typescript-eslint/parser": "^2.4.0",
     "@vzh/configs": "^3.41.0",
-    "@vzh/ts-types": "^1.0.4",
+    "@vzh/ts-types": "^1.1.0",
     "copyfiles": "^2.1.1",
     "eslint": "^6.5.1",
     "eslint-config-airbnb-base": "^14.0.0",
@@ -57,7 +57,7 @@
     "prettier": "^1.18.2",
     "rimraf": "^3.0.0",
     "typescript": "^3.6.4",
-    "valtors": "^2.1.0"
+    "valtors": "^2.2.0"
   },
   "prettier": "@vzh/configs/prettier"
 }
