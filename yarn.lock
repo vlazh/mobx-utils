@@ -74,15 +74,15 @@
     lodash.unescape "4.0.1"
     semver "^6.3.0"
 
-"@vzh/configs@^3.41.0":
-  version "3.41.0"
-  resolved "https://registry.yarnpkg.com/@vzh/configs/-/configs-3.41.0.tgz#22e158e150f27019fdd5bcdbdd0b676183e868ea"
-  integrity sha512-pPuYyPBC/qzqvfxgSR0IaqhMKxP+9PNschO4lHmtaWwjru8KQaUNa2qxVlslDMUkEzXP8+8oinCXeyzwFBDbkw==
+"@vzh/configs@^3.41.1":
+  version "3.41.1"
+  resolved "https://registry.yarnpkg.com/@vzh/configs/-/configs-3.41.1.tgz#d21ead6ef1bcb1263da093fa8917d77d2dbcb8e6"
+  integrity sha512-5bjI2DB+Yfo8Ge+h1L6GDVxRGei3JChdeUlmjJ5xlIuUWSEyXriYVSlPF6wEqGFxETz/VHfpTrbyteHAsNv1HA==
 
-"@vzh/ts-types@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@vzh/ts-types/-/ts-types-1.1.0.tgz#f7f7749ef08b27438e421cb198e9a6a8467fc52c"
-  integrity sha512-rlEZTI+1Coq0C+rTEx8sp17mMNtXot51d1XvneJDUKXkQCyL1x/l6NmALWR5yFdBMMBTUzwKsPs8v2NTq6yxGw==
+"@vzh/ts-types@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@vzh/ts-types/-/ts-types-1.1.1.tgz#35da7522bc162797f3df054ae15113b76a6a652e"
+  integrity sha512-p/aWmOF0xjrmXYHjuVye6HVpKUJinCXyn6UVna3jRZqSXx98dVs11P4KsSUbZYVaACJPDl9qUWM2eIbATtu9GQ==
 
 acorn-jsx@^5.0.2:
   version "5.1.0"
@@ -1564,10 +1564,10 @@ validate-npm-package-license@^3.0.1:
     spdx-correct "^3.0.0"
     spdx-expression-parse "^3.0.0"
 
-valtors@^2.2.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/valtors/-/valtors-2.2.0.tgz#cc12ec16ca600cb1f45f626a2ad7ef3a13854c2e"
-  integrity sha512-TILYaQhtsaLLBNBjtYxENwvvQIOWHHVoJDgylwXjn2DSdz+igvyb1AWWnXZ+0CvcUdpw5dHofHTvWfIBDeUihw==
+valtors@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/valtors/-/valtors-2.2.1.tgz#ce9674cd50cc4c1657e7e2eea5fbf1bea31390f1"
+  integrity sha512-MuxvkKP6oM+qTpxVOJBQQPxdv4CsylXdgaoUrnN+DMMtXwhfm9ZwoqU8wgDIhhLT/cCpMBH8S+STli4S7up7bg==
 
 which-module@^2.0.0:
   version "2.0.0"
