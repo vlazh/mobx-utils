@@ -25,9 +25,8 @@ export function decodeToken<JwtDecoded extends BaseJwtDecoded>(token: string): O
 export default class BaseAuthStore<
   JwtDecoded extends BaseJwtDecoded,
   RS extends object,
-  UIS extends UIStore<RS>,
-  InitState extends object = {}
-> extends RequestableStore<RS, UIS, InitState> {
+  UIS extends UIStore<RS>
+> extends RequestableStore<RS, UIS> {
   @observable
   protected decoded: Option<JwtDecoded> = None;
 

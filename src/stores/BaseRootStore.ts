@@ -1,13 +1,8 @@
 /* eslint-disable dot-notation, @typescript-eslint/no-unused-vars */
 import CleanerDisposer from './CleanerDisposer';
 import BaseStore from './BaseStore';
-import { JSONModel } from '../serialization/JSONSerializable';
 
-export default abstract class BaseRootStore<InitState extends object = {}> extends CleanerDisposer {
-  constructor(_initialState?: JSONModel<InitState>) {
-    super();
-  }
-
+export default abstract class BaseRootStore extends CleanerDisposer {
   private initStore(store: BaseStore<any> | BaseRootStore): void {
     Object.values(store).forEach(value => {
       if (value === store) return; // Skip self referencies. For example, `jsonModel` in `SerializableModel`.

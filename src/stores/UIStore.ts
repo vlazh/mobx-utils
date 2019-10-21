@@ -1,14 +1,12 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { observable, computed, action } from 'mobx';
 import Notification, { NotificationType } from './Notification';
-import { JSONModel } from '../serialization/JSONSerializable';
 import LoadableStore from './LoadableStore';
 
 export default class UIStore<
   RS extends object,
-  InitState extends object = {},
   N extends Notification = Notification
-> extends LoadableStore<RS, InitState> {
+> extends LoadableStore<RS> {
   @observable
   private notificationList: ReadonlyArray<N> = [];
 
@@ -17,8 +15,8 @@ export default class UIStore<
   // To avoid mistakes at react rerenders by id use unique id's on all lifecircle.
   private lastNotificationId = 0;
 
-  constructor(rootStore: RS, defaultNotificationTimeout = 0, initialState?: JSONModel<InitState>) {
-    super(rootStore, initialState);
+  constructor(rootStore: RS, defaultNotificationTimeout = 0) {
+    super(rootStore);
     this.defaultNotificationTimeout = defaultNotificationTimeout;
     this.addNotification = this.addNotification.bind(this);
     this.closeNotification = this.closeNotification.bind(this);

@@ -4,7 +4,6 @@ import Notification, { NotificationType } from './Notification';
 import BaseStore from './BaseStore';
 import UIStore from './UIStore';
 import Validable from '../models/Validable';
-import { JSONModel } from '../serialization/JSONSerializable';
 import getErrorMessage from './getErrorMessage';
 
 export interface ResponseLike {
@@ -36,17 +35,15 @@ export interface RequestOptions {
   clearNotifications?: boolean;
 }
 
-export default class RequestableStore<
-  RS extends object,
-  UIS extends UIStore<RS>,
-  InitState extends object = {}
-> extends BaseStore<RS, InitState> {
+export default class RequestableStore<RS extends object, UIS extends UIStore<RS>> extends BaseStore<
+  RS
+> {
   readonly uiStore: UIS;
 
-  constructor(rootStore: RS, uiStore: UIS, initialState?: JSONModel<InitState>) {
-    super(rootStore, initialState);
+  constructor(rootStore: RS, uiStore: UIS) {
+    super(rootStore);
     this.uiStore = uiStore;
-    this.request = this.request.bind(this) as any;
+    this.request = this.request.bind(this);
     this.onRequestSuccess = this.onRequestSuccess.bind(this);
     this.onRequestError = this.onRequestError.bind(this);
   }
@@ -65,7 +62,7 @@ export default class RequestableStore<
       this.uiStore.cleanNotifications(NotificationType.Error);
     }
     if (!disableLoading) {
-      this.uiStore.loading = true;
+      this.uiStore.setLoading(true);
     }
 
     try {
@@ -77,7 +74,7 @@ export default class RequestableStore<
       return Try.failure(ex);
     } finally {
       if (!disableLoading) {
-        this.uiStore.loading = false;
+        this.uiStore.setLoading(false);
       }
     }
   }
