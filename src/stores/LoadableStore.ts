@@ -32,7 +32,6 @@ export default abstract class LoadableStore<RS extends object> extends BaseStore
   /** Increment or decrement running requests number. */
   @action
   setLoading(value: boolean): void {
-    console.log(this);
     if (this.pendingRequestCount === 0 && !value) {
       return;
     }
