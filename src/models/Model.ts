@@ -82,7 +82,7 @@ export default class Model<Entity extends object> implements ModelLike<Entity> {
   set(entity: Entity): this {
     const { target } = this;
     Object.getOwnPropertyNames(entity).forEach(k => {
-      if (k in target[k]) {
+      if (k in target) {
         target[k] = entity[k];
       }
     });
