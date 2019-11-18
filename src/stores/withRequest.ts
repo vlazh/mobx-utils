@@ -102,6 +102,7 @@ function withDecorator<S extends RequestableStore<any, any>>(
 }
 
 export interface WithRequestOptions<S extends RequestableStore<any, any>> extends RequestOptions {
+  validate?: (this: S, self: S) => boolean | ((self: S) => boolean);
   before?: (this: S, self: S) => void | ((self: S) => void);
   after?: (this: S, self: S) => void | ((self: S) => void);
   /** Suspense until when predicate resolves to true */
@@ -113,32 +114,46 @@ export interface WithRequestOptions<S extends RequestableStore<any, any>> extend
   bound?: boolean;
 }
 
-function callRequestWithOptions<S extends RequestableStore<any, any>>(
+async function callRequestWithOptions<S extends RequestableStore<any, any>>(
   self: S,
   originalFn: Function,
   originalFnParams: any[],
-  { before, after, when, ...requestOptions }: Omit<WithRequestOptions<S>, 'memo' | 'bound'>
+  {
+    validate,
+    before,
+    after,
+    when,
+    ...requestOptions
+  }: Omit<WithRequestOptions<S>, 'memo' | 'bound'>
 ): Promise<Try<any>> {
-  return (
-    (when
-      ? new Promise(resolve => {
-          // call whenFn on next tick
-          setTimeout(() => {
-            resolve(whenFn(() => when.predicate.call(self, self), when.options || {}));
-          });
-        })
-      : Promise.resolve()
-    )
-      .then(() => before && runInAction(before.bind(self, self)))
-      .then(() =>
-        self['request'](() => originalFn.call(self, ...originalFnParams), undefined, requestOptions)
-      )
-      // After call request it must be invoked in anyway
-      .then(result => {
-        after && runInAction(after.bind(self, self));
-        return result;
+  const isValid = await (validate
+    ? new Promise(resolve => resolve(validate.call(self, self)))
+    : Promise.resolve(true));
+  if (!isValid) {
+    return Try.failure(new Error('Something is not valid.'));
+  }
+
+  await (when
+    ? new Promise(resolve => {
+        // call whenFn on next tick
+        setTimeout(() => {
+          resolve(whenFn(() => when.predicate.call(self, self), when.options || {}));
+        });
       })
+    : Promise.resolve());
+
+  before && runInAction(before.bind(self, self));
+
+  const result = await self['request'](
+    () => originalFn.call(self, ...originalFnParams),
+    undefined,
+    requestOptions
   );
+
+  // After call request it must be invoked in anyway
+  after && runInAction(after.bind(self, self));
+
+  return result;
 }
 
 /* Memo */
@@ -273,7 +288,7 @@ export function withRequest<S extends RequestableStore<any, any>>(
   targetOrOpts: S | WithRequestOptions<S>,
   propertyKey?: string | symbol,
   descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
-): (typeof targetOrOpts) extends WithRequestOptions<S> ? PropertyOrMethodDecorator<S> : any {
+): typeof targetOrOpts extends WithRequestOptions<S> ? PropertyOrMethodDecorator<S> : any {
   if (isRequestableStore(targetOrOpts)) {
     return withDecorator(
       (self, originalFn) => (...params: any[]) => {
