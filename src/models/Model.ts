@@ -77,4 +77,15 @@ export default class Model<Entity extends object> implements ModelLike<Entity> {
 
     this.onModelChanged(name, prevValue);
   }
+
+  /** Sets only declared fields in model */
+  set(entity: Entity): this {
+    const { target } = this;
+    Object.getOwnPropertyNames(entity).forEach(k => {
+      if (k in target[k]) {
+        target[k] = entity[k];
+      }
+    });
+    return this;
+  }
 }
