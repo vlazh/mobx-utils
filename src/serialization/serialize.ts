@@ -23,7 +23,9 @@ export default function serialize<V>(
 
   if (serializer) {
     const result = serializer(value);
+    // if not continue (value serialized by user as needed) just return serialized value ...
     if (!result.next) return result.value;
+    // ... else continue serializing
     value = result.value;
   }
 
