@@ -4,6 +4,7 @@ import Model from './Model';
 export default class StoreModel<Entity extends object> extends Model<Entity> {
   constructor() {
     super();
-    this.changeField = action((this.changeField as Function).bind(this));
+    this.changeField = action(this.changeField.bind(this));
+    this.set = action(this.set.bind(this));
   }
 }
