@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable class-methods-use-this */
+
 /**
  * NameValue<Type> = { value: Type, name: string }
  * NameValue<Type, keyof Type> = { value: Type, name: keyof Type }
@@ -44,8 +48,7 @@ export default class Model<Entity extends object> implements ModelLike<Entity> {
     Object.defineProperty(this, 'target', { ...desc, enumerable: false });
   }
 
-  // @ts-ignore
-  protected onModelChanged<K extends keyof Entity>(name: K, prevValue: Entity[K]): void {}
+  protected onModelChanged<K extends keyof Entity>(_name: K, _prevValue: Entity[K]): void {}
 
   protected getFieldName<K extends keyof Entity>(input: NameValue<any, any>): K {
     if (input.name && input.name in this.target) {
