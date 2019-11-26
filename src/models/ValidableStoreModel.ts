@@ -10,11 +10,6 @@ export type OnlyModelEntity<A extends object> = ExcludeKeysOfType<
   Function
 >;
 
-export type ValidableStoreModelLike<A extends ValidableStoreModel<any>> = Pick<
-  A,
-  'changeField' | 'errors' | 'isValid'
->;
-
 export default class ValidableStoreModel<Entity extends object>
   extends StoreModel<OnlyModelEntity<Entity>>
   implements ValidableModel<OnlyModelEntity<Entity>> {
