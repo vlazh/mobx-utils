@@ -1,5 +1,5 @@
 import { action, observable, computed } from 'mobx';
-import { Option } from '@vzh/ts-types/fp';
+import { Option, None } from '@vzh/ts-types/fp';
 import { Diff, ExcludeKeysOfType } from '@vzh/ts-types';
 import { validate } from 'valtors';
 import ValidableModel, { ValidationErrors } from './ValidableModel';
@@ -47,5 +47,12 @@ export default class ValidableStoreModel<Entity extends object>
     Object.assign(this.errors, safeResult);
 
     return name ? this.errors[name].error.isEmpty() : this.isValid;
+  }
+
+  @action
+  cleanErrors(): void {
+    Object.getOwnPropertyNames(this.errors).forEach(prop => {
+      this.errors[prop] = { ...this.errors[prop], error: None };
+    });
   }
 }
