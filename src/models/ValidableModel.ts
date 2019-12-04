@@ -8,11 +8,17 @@ export interface ErrorProvider {
 
 export type ValidationErrors<Entity extends object> = Record<keyof Entity, ErrorProvider>;
 
-export default interface ValidableModel<Entity extends object>
-  extends ModelLike<Entity>,
-    Validable {
-  errors: ValidationErrors<Entity>;
+export type ValidableEntity<Entity extends object, Keys extends keyof Entity = keyof Entity> = Pick<
+  Entity,
+  Keys
+>;
+
+export default interface ValidableModel<
+  Entity extends object,
+  Keys extends keyof Entity = keyof Entity
+> extends ModelLike<Entity>, Validable {
+  errors: ValidationErrors<ValidableEntity<Entity, Keys>>;
   readonly isValid: boolean;
-  validate(name: keyof Entity): boolean;
+  validate(name: Keys): boolean;
   validate(): boolean;
 }
