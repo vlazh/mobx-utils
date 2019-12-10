@@ -8,17 +8,21 @@ export interface ErrorProvider {
 
 export type ValidationErrors<Entity extends object> = Record<keyof Entity, ErrorProvider>;
 
-export type ValidableEntity<Entity extends object, Keys extends keyof Entity = keyof Entity> = Pick<
-  Entity,
-  Keys
->;
+export type KeysAction = 'pick' | 'omit';
+
+export type ValidableEntity<
+  Entity extends object,
+  PickOrOmit extends KeysAction = 'pick',
+  Keys extends keyof Entity = PickOrOmit extends 'pick' ? keyof Entity : never
+> = PickOrOmit extends 'pick' ? Pick<Entity, Keys> : Omit<Entity, Keys>;
 
 export default interface ValidableModel<
   Entity extends object,
-  Keys extends keyof Entity = keyof Entity
+  PickOrOmit extends KeysAction = 'pick',
+  Keys extends keyof Entity = PickOrOmit extends 'pick' ? keyof Entity : never
 > extends ModelLike<Entity>, Validable {
-  errors: ValidationErrors<ValidableEntity<Entity, Keys>>;
+  errors: ValidationErrors<ValidableEntity<Entity, PickOrOmit, Keys>>;
   readonly isValid: boolean;
-  validate(name: Keys): boolean;
+  validate(name: keyof ValidableEntity<Entity, PickOrOmit, Keys>): boolean;
   validate(): boolean;
 }
