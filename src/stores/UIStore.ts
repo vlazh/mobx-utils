@@ -5,7 +5,7 @@ import LoadableStore from './LoadableStore';
 
 export default class UIStore<
   RS extends object,
-  N extends Notification = Notification
+  N extends Notification<any> = Notification<string>
 > extends LoadableStore<RS> {
   @observable
   private notificationList: ReadonlyArray<N> = [];

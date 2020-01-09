@@ -7,9 +7,9 @@ export enum NotificationType {
   Warning = 'warning',
 }
 
-export default interface Notification {
+export default interface Notification<T = string> {
   id: NotificationID;
   type: NotificationType;
-  text: string;
+  text: T;
   timeout?: number;
 }
