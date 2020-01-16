@@ -7,8 +7,13 @@
  * NameValue<Type, keyof Type> = { value: Type, name: keyof Type }
  */
 export interface NameValue<EntityOrValue, K extends keyof EntityOrValue = any> {
-  name: undefined extends K ? string : K;
-  value: undefined extends K ? EntityOrValue : EntityOrValue[K]; // : EntityOrValue extends object ? (K extends keyof EntityOrValue ? EntityOrValue[K] : any) : any;
+  name: undefined extends K ? string : Exclude<K, never> extends never ? string : K;
+  value: undefined extends K
+    ? EntityOrValue
+    : Exclude<K, never> extends never
+    ? any
+    : EntityOrValue[K];
+  // value: EntityOrValue extends object ? (K extends keyof EntityOrValue ? EntityOrValue[K] : any) : any;
 }
 
 export interface InputElementLike<V = any> extends NameValue<V, any> {
