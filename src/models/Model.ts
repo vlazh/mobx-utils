@@ -76,8 +76,16 @@ export default class Model<Entity extends object> implements ModelLike<Entity> {
     throw new Error(`Property '${input.name}' not found in model.`);
   }
 
-  protected getFieldValue<K extends keyof Entity>(input: InputElementLike): Entity[K] {
-    return input.type === 'number' ? (+input.value as any) : input.value;
+  protected getFieldValue<K extends keyof Entity>(
+    input: InputElementLike,
+    fallback: Entity[K]
+  ): Entity[K] {
+    if (input.type === 'number') {
+      const nextValue = +input.value;
+      if (Number.isNaN(nextValue)) return fallback;
+      return nextValue as any;
+    }
+    return input.value;
   }
 
   changeField<K extends keyof Entity>(event: InputEventLike | NameValue<Entity, K>): void {
@@ -89,7 +97,9 @@ export default class Model<Entity extends object> implements ModelLike<Entity> {
       event.preventDefault && event.preventDefault();
       name = this.getFieldName(event.target);
       prevValue = this.target[name];
-      this.target[name] = this.getFieldValue(event.target);
+      const nextValue = this.getFieldValue(event.target, prevValue);
+      if (nextValue === prevValue) return; // Unchanged, so just exit
+      this.target[name] = nextValue;
     } else {
       name = this.getFieldName(event);
       prevValue = this.target[name];
