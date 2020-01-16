@@ -48,7 +48,7 @@ export default class Model<Entity extends object> implements ModelLike<Entity> {
     Object.defineProperty(this, 'target', { ...desc, enumerable: false });
   }
 
-  protected onModelChanged<K extends keyof Entity>(_name: K, _prevValue: Entity[K]): void {}
+  protected onFieldChanged<K extends keyof Entity>(_name: K, _prevValue: Entity[K]): void {}
 
   protected getFieldName<K extends keyof Entity>(input: NameValue<any, any>): K {
     if (input.name && input.name in this.target) {
@@ -78,7 +78,7 @@ export default class Model<Entity extends object> implements ModelLike<Entity> {
       this.target[name] = event.value as Entity[K];
     }
 
-    this.onModelChanged(name, prevValue);
+    this.onFieldChanged(name, prevValue);
   }
 
   /** Sets only declared fields in model */

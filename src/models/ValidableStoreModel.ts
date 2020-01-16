@@ -27,11 +27,11 @@ export default class ValidableStoreModel<
     this.errors = observable.object(errors);
   }
 
-  protected onModelChanged<K extends keyof OnlyModelEntity<Entity>>(
+  protected onFieldChanged<K extends keyof OnlyModelEntity<Entity>>(
     name: K,
     prevValue: OnlyModelEntity<Entity>[K]
   ): void {
-    super.onModelChanged(name, prevValue);
+    super.onFieldChanged(name, prevValue);
     if (name in this.errors) {
       this.validate(
         (name as unknown) as keyof ValidableEntity<OnlyModelEntity<Entity>, PickOrOmit, Keys>
