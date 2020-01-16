@@ -13,7 +13,7 @@ export default class ViewModel<E extends object, T extends ModelLike<E>>
   }
 
   @action.bound
-  changeField<K extends keyof E>(event: NameValue<E, K> | InputEventLike): void {
+  changeField<K extends keyof E>(event: InputEventLike | NameValue<E, K>): void {
     this.storeModel.changeField(event);
   }
 }
