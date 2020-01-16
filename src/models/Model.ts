@@ -47,6 +47,11 @@ export function isInputEventLike<Entity extends object, K extends keyof Entity>(
   return (event as InputEventLike).target !== undefined;
 }
 
+export interface ModelSetOptions {
+  /** If true then don't fire onFieldChanged */
+  silent?: boolean;
+}
+
 export default class Model<Entity extends object> implements ModelLike<Entity> {
   /**
    * Target object which will be changed by `changeField`.
@@ -95,12 +100,17 @@ export default class Model<Entity extends object> implements ModelLike<Entity> {
   }
 
   /** Sets only declared fields in model */
-  set(entity: Partial<Entity>): this {
+  set(entity: Partial<Entity>, { silent }: ModelSetOptions = {}): this {
     const { target } = this;
     Object.getOwnPropertyNames(entity).forEach(k => {
-      if (k in target) {
-        target[k] = entity[k];
+      if (!(k in target)) {
+        throw new Error(`Property '${k}' not found in model.`);
       }
+      const prevValue = target[k];
+      const nextValue = entity[k];
+      if (prevValue === nextValue) return; // Skip if unchanged
+      target[k] = entity[k];
+      !silent && this.onFieldChanged(k as keyof Entity, prevValue);
     });
     return this;
   }
