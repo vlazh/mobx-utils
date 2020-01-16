@@ -25,12 +25,20 @@ export interface InputEventLike<V = any> {
   target: InputElementLike<V>;
 }
 
-export interface FieldChangeHandler<Entity extends object> {
-  <K extends keyof Entity>(event: InputEventLike | NameValue<Entity, K>): void;
-}
+// export interface FieldChangeHandler<Entity extends object> {
+//   <K extends keyof Entity>(event: InputEventLike | NameValue<Entity, K>): void;
+// }
+
+// export type KeysOrAny<Entity extends object> = undefined extends Entity
+//   ? any
+//   : keyof Entity extends never
+//   ? any
+//   : keyof Entity;
 
 export interface ModelLike<Entity extends object> {
-  changeField: FieldChangeHandler<Entity>;
+  // changeField: FieldChangeHandler<Entity>;
+  // changeField<K extends KeysOrAny<Entity>>(event: InputEventLike | NameValue<Entity, K>): void;
+  changeField<K extends keyof Entity>(event: InputEventLike | NameValue<Entity, K>): void;
 }
 
 export function isInputEventLike<Entity extends object, K extends keyof Entity>(
