@@ -72,8 +72,11 @@ export default interface JSONSerializable<A extends object> {
    * It's required to define in implementation for correct typing with `JSONModel`.
    * It might be just equals `this`.
    */
-  // It needs to remove with TS 3.4.1 but may be present with 3.4.5
-  // readonly _serializable: A;
+  // Must be declared!
+  // Because `Date` type has `toJSON` method and it incorrectly determined as JSONSerializable
+  // because generic type `A` will be erased due to the fact that it is not used.
+  // It needs to remove with TS 3.4.1 but may be present with 3.4.5+
+  readonly _serializable: A;
   toJSON(): JSONModel<A>;
 }
 
