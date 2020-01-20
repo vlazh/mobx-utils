@@ -16,7 +16,7 @@ type SerializableProps<A extends object> = ExcludeFunctions<
   Diff<A, ValidableModel<any> & JSONSerializable<any>>
 >;
 
-// Like Moment object
+// Like Date object, Moment object, luxon.DateTime object
 export interface ValueContainer<A extends JSONPrimitives> {
   valueOf: () => A;
 }
@@ -36,22 +36,28 @@ declare type NonOptional<A extends object> = {
 };
 
 type JSONObjectValue<A extends object> = keyof SerializableProps<A> extends never
-  ? (A extends ValueContainer<infer R> ? R : {})
+  ? A extends ValueContainer<infer R>
+    ? R
+    : {}
   : Optional<A> & NonOptional<A>;
 
 type ArrayOrObject<A> = A extends ReadonlyArray<infer T>
-  ? (A extends Array<infer T> ? JSONArrayValue<T, false> : JSONArrayValue<T, true>)
-  : (A extends Uint8Array | Uint16Array | Uint32Array | Int8Array | Int16Array | Int32Array
-      ? Array<number>
-      : (A extends object ? JSONObjectValue<A> : UnknownType));
+  ? A extends Array<infer T>
+    ? JSONArrayValue<T, false>
+    : JSONArrayValue<T, true>
+  : A extends Uint8Array | Uint16Array | Uint32Array | Int8Array | Int16Array | Int32Array
+  ? Array<number>
+  : A extends object
+  ? JSONObjectValue<A>
+  : UnknownType;
 
 type JSONSomeValue<A> = A extends JSONTypes
   ? A
-  : (A extends JSONSerializable<infer T>
-      ? JSONObjectValue<T>
-      : (undefined extends A
-          ? ArrayOrObject<Exclude<A, undefined>> | undefined
-          : ArrayOrObject<A>));
+  : A extends JSONSerializable<infer T>
+  ? JSONObjectValue<T>
+  : undefined extends A
+  ? ArrayOrObject<Exclude<A, undefined>> | undefined
+  : ArrayOrObject<A>;
 
 export type JSONValue<A> = A extends Option<infer T>
   ? JSONSomeValue<T> | undefined
