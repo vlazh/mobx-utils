@@ -35,9 +35,10 @@ export interface RequestOptions {
   clearNotifications?: boolean;
 }
 
-export default class RequestableStore<RS extends object, UIS extends UIStore<RS>> extends BaseStore<
-  RS
-> {
+export default class RequestableStore<
+  RS extends object,
+  UIS extends UIStore<RS, Notification<any>>
+> extends BaseStore<RS> {
   readonly uiStore: UIS;
 
   constructor(rootStore: RS, uiStore: UIS) {

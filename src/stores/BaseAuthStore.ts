@@ -3,6 +3,7 @@ import jwtDecode from 'jwt-decode';
 import { Option, None, Try } from '@vzh/ts-types/fp';
 import RequestableStore from './RequestableStore';
 import UIStore from './UIStore';
+import Notification from './Notification';
 
 export interface BaseJwtDecoded {
   readonly exp: number;
@@ -25,7 +26,7 @@ export function decodeToken<JwtDecoded extends BaseJwtDecoded>(token: string): O
 export default class BaseAuthStore<
   JwtDecoded extends BaseJwtDecoded,
   RS extends object,
-  UIS extends UIStore<RS>
+  UIS extends UIStore<RS, Notification<any>>
 > extends RequestableStore<RS, UIS> {
   @observable
   protected decoded: Option<JwtDecoded> = None;
