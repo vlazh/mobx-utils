@@ -5,9 +5,9 @@ import { validate } from 'valtors';
 import ValidableModel, { ValidationErrors, ValidableEntity, KeysAction } from './ValidableModel';
 import StoreModel from './StoreModel';
 
-export type OnlyModelEntity<A extends object> = ExcludeKeysOfType<
+export type OnlyModelEntity<A extends object, ExcludeTypes = Function> = ExcludeKeysOfType<
   Diff<A, ValidableModel<A>>,
-  Function
+  ExcludeTypes
 >;
 
 export default class ValidableStoreModel<
