@@ -30,7 +30,7 @@
   "scripts": {
     "update-deps": "yarn upgrade-interactive --latest",
     "clean": "rimraf dist/*",
-    "copy:configs": "copyfiles package.json README.md LICENSE ./dist/",
+    "copy:configs": "copyfiles package.json README.md LICENSE .npmignore ./dist/",
     "build": "npm run clean && tsc --project ./tsconfig.json && npm run copy:configs",
     "build-to-tutoron": "tsc --project ./tsconfig.json --outDir '/home/vladimir/dev/sources/tutoron/node_modules/@vzh/mobx-utils/' && copyfiles package.json '/home/vladimir/dev/sources/tutoron/node_modules/@vzh/mobx-utils/'",
     "build-to-react-components": "tsc --project ./tsconfig.json --outDir '../react-components/node_modules/@vzh/mobx-utils/' && copyfiles package.json '../react-components/node_modules/@vzh/mobx-utils/'",
@@ -40,24 +40,24 @@
   },
   "devDependencies": {
     "@types/jwt-decode": "^2.2.1",
-    "@typescript-eslint/eslint-plugin": "^2.16.0",
-    "@typescript-eslint/parser": "^2.16.0",
+    "@typescript-eslint/eslint-plugin": "^2.19.0",
+    "@typescript-eslint/parser": "^2.19.0",
     "@vzh/configs": "^3.43.1",
     "@vzh/ts-types": "^1.2.0",
-    "copyfiles": "^2.1.1",
+    "copyfiles": "^2.2.0",
     "eslint": "^6.8.0",
     "eslint-config-airbnb-base": "^14.0.0",
-    "eslint-config-prettier": "^6.9.0",
-    "eslint-plugin-import": "^2.20.0",
+    "eslint-config-prettier": "^6.10.0",
+    "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-prettier": "^3.1.2",
     "jwt-decode": "^2.2.0",
     "localforage": "^1.7.3",
-    "mobx": "^5.15.2",
+    "mobx": "^5.15.4",
     "mobx-utils": "^5.5.3",
     "prettier": "^1.19.1",
-    "rimraf": "^3.0.0",
-    "typescript": "^3.7.4",
-    "valtors": "^2.2.1"
+    "rimraf": "^3.0.1",
+    "typescript": "^3.7.5",
+    "valtors": "^2.3.0"
   },
   "prettier": "@vzh/configs/prettier"
 }
