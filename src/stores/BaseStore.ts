@@ -1,4 +1,3 @@
-/* eslint-disable class-methods-use-this, @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function */
 import CleanerDisposer from './CleanerDisposer';
 
 export default abstract class BaseStore<RS extends object> extends CleanerDisposer {
@@ -10,6 +9,7 @@ export default abstract class BaseStore<RS extends object> extends CleanerDispos
   }
 
   /** Call by rootStore after all children stores are created. */
+  // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-empty-function
   protected initialize(): void {}
 
   dispose(): void {

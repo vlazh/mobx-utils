@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { Throwable, Try } from '@vzh/ts-types/fp';
 import Notification, { NotificationType } from './Notification';
-import BaseStore from './BaseStore';
-import UIStore from './UIStore';
 import Validable from '../models/Validable';
 import getErrorMessage from './getErrorMessage';
+import NotificationsStore from './NotificationsStore';
+import WorkerStore from './WorkerStore';
+import BaseStore from './BaseStore';
 
 export interface ResponseLike {
   data?: any;
@@ -29,21 +30,28 @@ export function isErrorResponseLike(
 
 export interface RequestOptions {
   notificationTimeout?: Notification['timeout'];
-  disableLoading?: boolean;
+  disablePending?: boolean;
   disableNotifications?: boolean;
-  clearErrors?: boolean;
-  clearNotifications?: boolean;
+  deleteErrors?: boolean;
+  deleteNotifications?: boolean;
 }
 
 export default class RequestableStore<
   RS extends object,
-  UIS extends UIStore<RS, Notification<any>>
+  NS extends NotificationsStore<RS, Notification<any>> = NotificationsStore<
+    RS,
+    Notification<string>
+  >,
+  WS extends WorkerStore<RS, never> = WorkerStore<RS, never>
 > extends BaseStore<RS> {
-  readonly uiStore: UIS;
+  readonly worker: WS;
 
-  constructor(rootStore: RS, uiStore: UIS) {
+  readonly notifications: NS;
+
+  constructor(rootStore: RS, notifications: NS, tasks: WS) {
     super(rootStore);
-    this.uiStore = uiStore;
+    this.notifications = notifications;
+    this.worker = tasks;
     this.request = this.request.bind(this);
     this.onRequestSuccess = this.onRequestSuccess.bind(this);
     this.onRequestError = this.onRequestError.bind(this);
@@ -56,14 +64,14 @@ export default class RequestableStore<
     doWorkParams?: any[],
     options: RequestOptions = {}
   ): Promise<Try<R>> {
-    const { clearErrors, clearNotifications = true, disableLoading } = options;
-    if (clearNotifications) {
-      this.uiStore.cleanNotifications();
-    } else if (clearErrors) {
-      this.uiStore.cleanNotifications(NotificationType.Error);
+    const { deleteErrors, deleteNotifications, disablePending } = options;
+    if (deleteNotifications) {
+      this.notifications.deleteAll();
+    } else if (deleteErrors) {
+      this.notifications.deleteAll(NotificationType.Error);
     }
-    if (!disableLoading) {
-      this.uiStore.setLoading(true);
+    if (!disablePending) {
+      this.worker.push();
     }
 
     try {
@@ -74,8 +82,8 @@ export default class RequestableStore<
       this.onRequestError(ex, options);
       return Try.failure(ex);
     } finally {
-      if (!disableLoading) {
-        this.uiStore.setLoading(false);
+      if (!disablePending) {
+        this.worker.pop();
       }
     }
   }
@@ -118,7 +126,7 @@ export default class RequestableStore<
     console.error(error);
 
     if (!disableNotifications) {
-      this.uiStore.addNotification({
+      this.notifications.add({
         type: NotificationType.Error,
         text: this.getErrorMessage(error),
         timeout: notificationTimeout,

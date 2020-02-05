@@ -2,8 +2,9 @@ import { observable, computed, action, runInAction } from 'mobx';
 import jwtDecode from 'jwt-decode';
 import { Option, None, Try } from '@vzh/ts-types/fp';
 import RequestableStore from './RequestableStore';
-import UIStore from './UIStore';
 import Notification from './Notification';
+import NotificationsStore from './NotificationsStore';
+import WorkerStore from './WorkerStore';
 
 export interface BaseJwtDecoded {
   readonly exp: number;
@@ -26,8 +27,12 @@ export function decodeToken<JwtDecoded extends BaseJwtDecoded>(token: string): O
 export default class BaseAuthStore<
   JwtDecoded extends BaseJwtDecoded,
   RS extends object,
-  UIS extends UIStore<RS, Notification<any>>
-> extends RequestableStore<RS, UIS> {
+  NS extends NotificationsStore<RS, Notification<any>> = NotificationsStore<
+    RS,
+    Notification<string>
+  >,
+  WS extends WorkerStore<RS, never> = WorkerStore<RS, never>
+> extends RequestableStore<RS, NS, WS> {
   @observable
   protected decoded: Option<JwtDecoded> = None;
 

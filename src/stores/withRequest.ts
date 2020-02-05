@@ -6,7 +6,7 @@ import { Try } from '@vzh/ts-types/fp';
 import RequestableStore, { AsyncAction, RequestOptions } from './RequestableStore';
 import Validable from '../models/Validable';
 
-function defineInstanceProp<S extends RequestableStore<any, any>>(
+function defineInstanceProp<S extends RequestableStore<any, any, any>>(
   request: (self: S, originalFn: Function) => AsyncAction<Try<any>>,
   target: S,
   propertyKey: string | symbol,
@@ -25,7 +25,7 @@ function defineInstanceProp<S extends RequestableStore<any, any>>(
   });
 }
 
-function withDecorator<S extends RequestableStore<any, any>>(
+function withDecorator<S extends RequestableStore<any, any, any>>(
   request: (self: S, originalFn: Function) => AsyncAction<Try<any>>,
   bound: boolean,
   target: S,
@@ -53,6 +53,7 @@ function withDecorator<S extends RequestableStore<any, any>>(
 
         return this[propertyKey];
       },
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
       set: () => {},
     };
   }
@@ -101,7 +102,8 @@ function withDecorator<S extends RequestableStore<any, any>>(
   };
 }
 
-export interface WithRequestOptions<S extends RequestableStore<any, any>> extends RequestOptions {
+export interface WithRequestOptions<S extends RequestableStore<any, any, any>>
+  extends RequestOptions {
   validate?: (this: S, self: S) => boolean | ((self: S) => boolean);
   before?: (this: S, self: S) => void | ((self: S) => void);
   after?: (this: S, self: S) => void | ((self: S) => void);
@@ -114,7 +116,7 @@ export interface WithRequestOptions<S extends RequestableStore<any, any>> extend
   bound?: boolean;
 }
 
-async function callRequestWithOptions<S extends RequestableStore<any, any>>(
+async function callRequestWithOptions<S extends RequestableStore<any, any, any>>(
   self: S,
   originalFn: Function,
   originalFnParams: any[],
@@ -219,7 +221,7 @@ function getLastResult(
   return undefined;
 }
 
-export interface MemoOptions<S extends RequestableStore<any, any>> {
+export interface MemoOptions<S extends RequestableStore<any, any, any>> {
   /** Invoke decorated method if this function returns `true` or if returned inputs are changed (shallow compare) */
   inputs?: (self: S, ...originalParams: any[]) => any[] | boolean;
   /** Merge */
@@ -228,7 +230,7 @@ export interface MemoOptions<S extends RequestableStore<any, any>> {
   lifetime?: number;
 }
 
-async function withMemo<S extends RequestableStore<any, any>>(
+async function withMemo<S extends RequestableStore<any, any, any>>(
   self: S,
   originalFn: Function,
   originalFnParams: any[],
@@ -262,29 +264,29 @@ async function withMemo<S extends RequestableStore<any, any>>(
 
 /* withRequest */
 
-type PropertyOrMethodDecorator<S extends RequestableStore<any, any>> = (
+type PropertyOrMethodDecorator<S extends RequestableStore<any, any, any>> = (
   target: S,
   propertyKey: string | symbol,
   descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
 ) => any;
 
-function isRequestableStore<S extends RequestableStore<any, any>>(
+function isRequestableStore<S extends RequestableStore<any, any, any>>(
   targetOrOpts: S | WithRequestOptions<S>
 ): targetOrOpts is S {
   return typeof targetOrOpts === 'object' && targetOrOpts instanceof RequestableStore;
 }
 
-export function withRequest<S extends RequestableStore<any, any>>(
+export function withRequest<S extends RequestableStore<any, any, any>>(
   target: S,
   propertyKey: string | symbol,
   descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
 ): any;
 
-export function withRequest<S extends RequestableStore<any, any>>(
+export function withRequest<S extends RequestableStore<any, any, any>>(
   options: WithRequestOptions<S>
 ): PropertyOrMethodDecorator<S>;
 
-export function withRequest<S extends RequestableStore<any, any>>(
+export function withRequest<S extends RequestableStore<any, any, any>>(
   targetOrOpts: S | WithRequestOptions<S>,
   propertyKey?: string | symbol,
   descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
@@ -333,7 +335,7 @@ export function withRequest<S extends RequestableStore<any, any>>(
 
 export default withRequest;
 
-export function withSubmit<S extends RequestableStore<any, any>>(
+export function withSubmit<S extends RequestableStore<any, any, any>>(
   modelGetter: (self: S) => Validable,
   options?: RequestOptions
 ): (
