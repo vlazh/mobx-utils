@@ -5,6 +5,7 @@ import { Omit } from '@vzh/ts-types';
 import { Try } from '@vzh/ts-types/fp';
 import RequestableStore, { AsyncAction, RequestOptions } from './RequestableStore';
 import Validable from '../models/Validable';
+import WorkerStore from './WorkerStore';
 
 function defineInstanceProp<S extends RequestableStore<any, any, any>>(
   request: (self: S, originalFn: Function) => AsyncAction<Try<any>>,
@@ -103,7 +104,13 @@ function withDecorator<S extends RequestableStore<any, any, any>>(
 }
 
 export interface WithRequestOptions<S extends RequestableStore<any, any, any>>
-  extends RequestOptions {
+  extends RequestOptions<
+    S extends RequestableStore<any, any, infer WS>
+      ? WS extends WorkerStore<any, infer TaskKeys>
+        ? TaskKeys
+        : never
+      : never
+  > {
   validate?: (this: S, self: S) => boolean | ((self: S) => boolean);
   before?: (this: S, self: S) => void | ((self: S) => void);
   after?: (this: S, self: S) => void | ((self: S) => void);
@@ -337,7 +344,13 @@ export default withRequest;
 
 export function withSubmit<S extends RequestableStore<any, any, any>>(
   modelGetter: (self: S) => Validable,
-  options?: RequestOptions
+  options?: RequestOptions<
+    S extends RequestableStore<any, any, infer WS>
+      ? WS extends WorkerStore<any, infer TaskKeys>
+        ? TaskKeys
+        : never
+      : never
+  >
 ): (
   target: S,
   propertyKey: string | symbol,

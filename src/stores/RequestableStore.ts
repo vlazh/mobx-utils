@@ -4,7 +4,7 @@ import Notification, { NotificationType } from './Notification';
 import Validable from '../models/Validable';
 import getErrorMessage from './getErrorMessage';
 import NotificationsStore from './NotificationsStore';
-import WorkerStore from './WorkerStore';
+import WorkerStore, { PendingTasks } from './WorkerStore';
 import BaseStore from './BaseStore';
 
 export interface ResponseLike {
@@ -28,9 +28,9 @@ export function isErrorResponseLike(
   return (error as ErrorResponseLike).config !== undefined;
 }
 
-export interface RequestOptions {
+export interface RequestOptions<TaskKeys extends string> {
   notificationTimeout?: Notification['timeout'];
-  disablePending?: boolean;
+  pending?: boolean | keyof PendingTasks<TaskKeys>;
   disableNotifications?: boolean;
   deleteErrors?: boolean;
   deleteNotifications?: boolean;
@@ -62,16 +62,16 @@ export default class RequestableStore<
   protected async request<R>(
     doWork: AsyncAction<R>,
     doWorkParams?: any[],
-    options: RequestOptions = {}
+    options: RequestOptions<WS extends WorkerStore<any, infer TaskKeys> ? TaskKeys : never> = {}
   ): Promise<Try<R>> {
-    const { deleteErrors, deleteNotifications, disablePending } = options;
+    const { deleteErrors, deleteNotifications, pending } = options;
     if (deleteNotifications) {
       this.notifications.deleteAll();
     } else if (deleteErrors) {
       this.notifications.deleteAll(NotificationType.Error);
     }
-    if (!disablePending) {
-      this.worker.push();
+    if (pending == null || pending) {
+      this.worker.push(pending === true ? undefined : (pending as any) || undefined);
     }
 
     try {
@@ -82,8 +82,8 @@ export default class RequestableStore<
       this.onRequestError(ex, options);
       return Try.failure(ex);
     } finally {
-      if (!disablePending) {
-        this.worker.pop();
+      if (pending == null || pending) {
+        this.worker.pop(pending === true ? undefined : (pending as any) || undefined);
       }
     }
   }
@@ -92,7 +92,7 @@ export default class RequestableStore<
     model: Validable,
     doWork: AsyncAction<R>,
     doWorkParams?: any[],
-    options: RequestOptions = {}
+    options: RequestOptions<WS extends WorkerStore<any, infer TaskKeys> ? TaskKeys : never> = {}
   ): Promise<Try<R>> {
     if (!model.validate()) {
       return Promise.resolve(Try.failure(new Error('`model` is in invalid state.')));
@@ -100,8 +100,13 @@ export default class RequestableStore<
     return this.request<R>(doWork, doWorkParams, options);
   }
 
-  // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
-  protected onRequestSuccess<R>(_result: R, _options: RequestOptions = {}): void {}
+  // eslint-disable-next-line class-methods-use-this
+  protected onRequestSuccess<R>(
+    _result: R,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _options: RequestOptions<WS extends WorkerStore<any, infer TaskKeys> ? TaskKeys : never> = {}
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+  ): void {}
 
   // eslint-disable-next-line class-methods-use-this
   protected getResponseErrorMessage(response: ResponseLike): string {
@@ -121,7 +126,10 @@ export default class RequestableStore<
 
   protected onRequestError(
     error: ErrorResponseLike | Throwable,
-    { disableNotifications, notificationTimeout }: RequestOptions = {}
+    {
+      disableNotifications,
+      notificationTimeout,
+    }: RequestOptions<WS extends WorkerStore<any, infer TaskKeys> ? TaskKeys : never> = {}
   ): void {
     console.error(error);
 
