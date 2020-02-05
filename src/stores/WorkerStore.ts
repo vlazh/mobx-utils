@@ -21,17 +21,23 @@ export default class WorkerStore<
   }
 
   /** true - while has at least 1 running task. */
-  isPending = computedFn(function isPending(
-    this: WorkerStore<RS, TaskKeys>,
-    key: keyof PendingTasks<TaskKeys> = 'default'
-  ): boolean {
-    // console.log('calc pending', key, this.pendingTasks[key]);
-    return (this.pendingTasks[key] ?? 0) > 0;
-  });
+  isPending = (() => {
+    // Trick to get around inconsistent length of function arguments
+    // because default parameters not present in arguments
+    // https://github.com/mobxjs/mobx-utils/blob/master/src/deepMap.ts#L84
+    const memoized = computedFn(function isPending(
+      this: WorkerStore<RS, TaskKeys>,
+      key: keyof PendingTasks<TaskKeys>
+    ): boolean {
+      // console.log('calc pending', key, this.pendingTasks[key]);
+      return (this.pendingTasks[key] ?? 0) > 0;
+    });
+    return (key: keyof PendingTasks<TaskKeys> = 'default') => memoized.call(this, key);
+  })();
 
   @action
   push(key: keyof PendingTasks<TaskKeys> = 'default'): void {
-    // console.log('push');
+    // console.log('push', key);
     this.pendingTasks[key] = ((this.pendingTasks[key] ?? 0) + 1) as PendingTasks<
       TaskKeys
     >[typeof key];
@@ -39,7 +45,7 @@ export default class WorkerStore<
 
   @action
   pop(key: keyof PendingTasks<TaskKeys> = 'default'): void {
-    // console.log('pop');
+    // console.log('pop', key);
     const value = this.pendingTasks[key] as number;
     if (value == null || value === 0) return;
     this.pendingTasks[key] = (value - 1) as PendingTasks<TaskKeys>[typeof key];
