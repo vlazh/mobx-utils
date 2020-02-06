@@ -64,4 +64,11 @@ export default class BaseAuthStore<
       }
     );
   }
+
+  @action
+  clean(): void {
+    super.clean();
+    this.token = None;
+    this.decoded = None;
+  }
 }
