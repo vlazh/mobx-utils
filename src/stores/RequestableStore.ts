@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { Throwable, Try } from '@vzh/ts-types/fp';
-import Notification, { NotificationType } from './Notification';
 import Validable from '../models/Validable';
 import getErrorMessage from './getErrorMessage';
-import NotificationsStore from './NotificationsStore';
+import NotificationsStore, { Notification } from './NotificationsStore';
 import WorkerStore, { PendingTasks } from './WorkerStore';
 import BaseStore from './BaseStore';
 
@@ -38,10 +37,7 @@ export interface RequestOptions<TaskKeys extends string> {
 
 export default class RequestableStore<
   RS extends object,
-  NS extends NotificationsStore<RS, Notification<any>> = NotificationsStore<
-    RS,
-    Notification<string>
-  >,
+  NS extends NotificationsStore<RS, Notification<any, any>> = NotificationsStore<RS, Notification>,
   WS extends WorkerStore<RS, never> = WorkerStore<RS, never>
 > extends BaseStore<RS> {
   readonly worker: WS;
@@ -68,7 +64,7 @@ export default class RequestableStore<
     if (deleteNotifications) {
       this.notifications.deleteAll();
     } else if (deleteErrors) {
-      this.notifications.deleteAll(NotificationType.Error);
+      this.notifications.deleteAll('error');
     }
     if (pending == null || pending) {
       this.worker.push(pending === true ? undefined : (pending as any) || undefined);
@@ -135,7 +131,7 @@ export default class RequestableStore<
 
     if (!disableNotifications) {
       this.notifications.add({
-        type: NotificationType.Error,
+        type: 'error',
         content: this.getErrorMessage(error),
         timeout: notificationTimeout,
       });

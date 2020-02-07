@@ -1,11 +1,19 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { observable, computed, action } from 'mobx';
-import Notification, { NotificationType } from './Notification';
 import BaseStore from './BaseStore';
+
+export type NotificationID = number;
+
+export interface Notification<TType extends 'error' = 'error', TContent = string> {
+  id: NotificationID;
+  type: TType;
+  content: TContent;
+  timeout?: number;
+}
 
 export default class NotificationsStore<
   RS extends object,
-  N extends Notification<any> = Notification<string>
+  N extends Notification<any, any> = Notification
 > extends BaseStore<RS> {
   @observable
   protected notifications: readonly N[] = [];
@@ -34,7 +42,7 @@ export default class NotificationsStore<
 
   @computed
   get hasError(): boolean {
-    return this.notifications.some(n => n.type === NotificationType.Error);
+    return this.notifications.some(n => n.type === 'error');
   }
 
   @action

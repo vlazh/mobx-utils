@@ -1,7 +1,5 @@
 export { default as getErrorMessage } from './getErrorMessage';
 export * from './getErrorMessage';
-export { default as Notification } from './Notification';
-export * from './Notification';
 export { default as CleanerDisposer } from './CleanerDisposer';
 export * from './CleanerDisposer';
 export { default as BaseStore } from './BaseStore';
@@ -12,10 +10,6 @@ export { default as NotificationsStore } from './NotificationsStore';
 export * from './NotificationsStore';
 export { default as WorkerStore } from './WorkerStore';
 export * from './WorkerStore';
-// export { default as LoadableStore } from './LoadableStore';
-// export * from './LoadableStore';
-// export { default as UIStore } from './UIStore';
-// export * from './UIStore';
 export { default as RequestableStore } from './RequestableStore';
 export * from './RequestableStore';
 export { default as withRequest } from './withRequest';
