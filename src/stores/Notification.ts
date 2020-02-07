@@ -10,6 +10,6 @@ export enum NotificationType {
 export default interface Notification<T = string> {
   id: NotificationID;
   type: NotificationType;
-  text: T;
+  content: T;
   timeout?: number;
 }

@@ -136,7 +136,7 @@ export default class RequestableStore<
     if (!disableNotifications) {
       this.notifications.add({
         type: NotificationType.Error,
-        text: this.getErrorMessage(error),
+        content: this.getErrorMessage(error),
         timeout: notificationTimeout,
       });
     }
