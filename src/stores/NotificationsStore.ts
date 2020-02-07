@@ -46,13 +46,16 @@ export default class NotificationsStore<
   }
 
   @action
-  add(notification: Omit<N, 'id'>): N['id'] {
+  add(notification: Omit<N, 'id'>, prepend = false): N['id'] {
     if (this.lastNotificationId === Number.MAX_SAFE_INTEGER) {
       this.lastNotificationId = 0;
     }
     this.lastNotificationId += 1;
     const newId = this.lastNotificationId;
-    this.notifications = this.notifications.concat({ ...notification, id: newId } as N);
+
+    this.notifications = prepend
+      ? [{ ...notification, id: newId } as N].concat(this.notifications)
+      : this.notifications.concat({ ...notification, id: newId } as N);
 
     const timeout =
       notification.timeout == null ? this.defaultNotificationTimeout : notification.timeout;
