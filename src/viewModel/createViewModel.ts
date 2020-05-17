@@ -3,11 +3,11 @@ import Model, { ModelLike } from '../models/Model';
 import ViewModel from './ViewModel';
 
 export type ViewModelLike<T> = T extends ModelLike<infer E>
-  ? (E & ModelLike<E> & IViewModel<T>)
+  ? E & ModelLike<E> & IViewModel<T>
   : never;
 
 export default function createViewModel<E extends object, T extends Model<E>>(
   model: T
 ): ViewModelLike<T> {
-  return new ViewModel<E, T>(model) as ViewModelLike<T>;
+  return (new ViewModel<E, T>(model) as unknown) as ViewModelLike<T>;
 }
