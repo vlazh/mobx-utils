@@ -26,9 +26,9 @@
   },
   "devDependencies": {
     "@types/jwt-decode": "^2.2.1",
-    "@typescript-eslint/eslint-plugin": "^2.33.0",
-    "@typescript-eslint/parser": "^2.33.0",
-    "@vzh/configs": "^3.53.3",
+    "@typescript-eslint/eslint-plugin": "^2.34.0",
+    "@typescript-eslint/parser": "^2.34.0",
+    "@vzh/configs": "^3.53.4",
     "@vzh/ts-types": "^1.3.1",
     "copyfiles": "^2.2.0",
     "eslint": "^7.0.0",
@@ -42,7 +42,7 @@
     "mobx-utils": "^5.5.7",
     "prettier": "^2.0.5",
     "rimraf": "^3.0.2",
-    "typescript": "^3.9.2",
+    "typescript": "^3.9.3",
     "valtors": "^2.3.0"
   },
   "prettier": "@vzh/configs/prettier"
