@@ -92,10 +92,10 @@
   resolved "https://registry.yarnpkg.com/@vzh/configs/-/configs-3.56.0.tgz#6bc33fe445931d6149fc7c84da3e83ccb98a5d2e"
   integrity sha512-TJNrog5sJOUoRLBiwHY+58E/VTlABLdUfa9QqG/PV02yEPHYWDLGCJRGVfv0/+Oij3msY+pO7SD/IBe/4BkkvQ==
 
-"@vzh/ts-types@^1.5.0":
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/@vzh/ts-types/-/ts-types-1.5.0.tgz#a6b097256b67c0ad345fe58e7c0ec003aedf69b5"
-  integrity sha512-1nLiLSharWDiIhd8VW8tzn2zERoSziAQNGv0vYhnDV0zy3ijwNEEvHhyCajEPND+2zFEzN9/N9qtxC12xLvctw==
+"@vzh/ts-types@^1.6.0":
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/@vzh/ts-types/-/ts-types-1.6.0.tgz#f9fc67cabb5e3e18d98bdf3878badc700addb54b"
+  integrity sha512-ozrHgiBIX1LtN/OnmjFJBqOWFUJUBlIjyiEu7whwteudJQE/P/7DnWkv5b1gG9Rc9RcUInogmCZszT69y89AzQ==
 
 acorn-jsx@^5.2.0:
   version "5.2.0"

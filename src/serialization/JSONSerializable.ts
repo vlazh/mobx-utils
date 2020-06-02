@@ -1,26 +1,15 @@
-import { JSONValue as JSONValueOrigin, ObjectToJSON } from '@vzh/ts-types/json';
+import {
+  JSONValue as JSONValueOrigin,
+  JSONSerializable as JSONSerializableOrigin,
+} from '@vzh/ts-types/json';
 import ValidableModel from '../models/ValidableModel';
 
-export type JSONValue<A> = A extends JSONSerializable<infer T>
-  ? ObjectToJSON<T, keyof (ValidableModel<any> & JSONSerializable<any>)>
-  : JSONValueOrigin<A, keyof (ValidableModel<any> & JSONSerializable<any>)>;
+export type JSONValue<A> = JSONValueOrigin<A, keyof ValidableModel<any>>;
 
-// For TS 3.4.1+: `Copy<JSONValue<A>>` is replaced with itself implemetation to avoid circular dependency error and other.
-export type JSONModel<A extends object> = { [P in keyof JSONValue<A>]: JSONValue<A>[P] };
+export type JSONModel<A extends object> = JSONValue<A>;
 
-export default interface JSONSerializable<A extends object> {
-  /**
-   * Just for correct infering: https://github.com/Microsoft/TypeScript/issues/26688
-   * It's required to define in implementation for correct typing with `JSONModel`.
-   * It might be just equals `this`.
-   */
-  // Must be declared!
-  // Because `Date` type has `toJSON` method and it incorrectly determined as JSONSerializable
-  // because generic type `A` will be erased due to the fact that it is not used.
-  // It needs to remove with TS 3.4.1 but may be present with 3.4.5+
-  readonly _serializable: JSONSerializable<A>;
-  toJSON(): JSONModel<A>;
-}
+export default interface JSONSerializable<A extends object>
+  extends JSONSerializableOrigin<A, keyof ValidableModel<any>> {}
 
 // type A = { a?: Function; b: {}; valueOf: (a?: string) => object; toJSON(): any; jsonModel0: any };
 // type B = undefined extends A['a'] ? string : number;
@@ -44,6 +33,7 @@ export default interface JSONSerializable<A extends object> {
 // type B = JSONModel<{ o?: ValidableStoreModel<{}> }>;
 // type B = JSONModel<number[]>;
 // type B = JSONModel<{ a: 1; b: { q: string; w: string[] }[] }>;
-// const b: B = {};
+// type B = JSONModel<{ a: JSONSerializable<{ q: number }> }>;
+// const b: B = { a:{} };
 // type J = JSONObject;
 // const j: J = { a: 0, 1: 7, z: new Date() };
