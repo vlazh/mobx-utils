@@ -54,7 +54,7 @@ export default class WorkerStore<
   @action
   clean(): void {
     super.clean();
-    Object.getOwnPropertyNames(this.pendingTasks).forEach(key => {
+    Object.getOwnPropertyNames(this.pendingTasks).forEach((key) => {
       delete this.pendingTasks[key];
     });
     this.pendingTasks.default = 0;

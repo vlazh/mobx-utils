@@ -13,10 +13,10 @@ export default abstract class BaseStore<RS extends object> extends CleanerDispos
   protected initialize(): void {}
 
   dispose(): void {
-    super.dispose(name => name === 'rootStore');
+    super.dispose((name) => name === 'rootStore');
   }
 
   clean(): void {
-    super.clean(name => name === 'rootStore');
+    super.clean((name) => name === 'rootStore');
   }
 }

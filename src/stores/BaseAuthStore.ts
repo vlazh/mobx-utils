@@ -16,7 +16,7 @@ export function isExpired(decoded: BaseJwtDecoded): boolean {
 
 export function decodeToken<JwtDecoded extends BaseJwtDecoded>(token: string): Option<JwtDecoded> {
   return Try.of(() => jwtDecode<JwtDecoded>(token))
-    .recover(err => {
+    .recover((err) => {
       console.error(err);
       throw err;
     })
@@ -53,7 +53,7 @@ export default class BaseAuthStore<
           this.decoded = None;
         });
       },
-      t => {
+      (t) => {
         runInAction(() => {
           this.decoded = decodeToken(t);
         });

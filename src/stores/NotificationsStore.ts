@@ -42,7 +42,7 @@ export default class NotificationsStore<
 
   @computed
   get hasError(): boolean {
-    return this.notifications.some(n => n.type === 'error');
+    return this.notifications.some((n) => n.type === 'error');
   }
 
   @action
@@ -69,12 +69,12 @@ export default class NotificationsStore<
 
   @action
   delete(id: N['id']): void {
-    this.notifications = this.notifications.filter(_ => _.id !== id);
+    this.notifications = this.notifications.filter((_) => _.id !== id);
   }
 
   @action
   deleteAll(type?: N['type']): void {
-    this.notifications = type ? this.notifications.filter(_ => _.type !== type) : [];
+    this.notifications = type ? this.notifications.filter((_) => _.type !== type) : [];
   }
 
   @action
