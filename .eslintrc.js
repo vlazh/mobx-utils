@@ -1,6 +1,6 @@
 module.exports = {
-  root: true,  
-  extends: require.resolve('@vzh/configs/eslint/ts.common.eslintrc.js'),
+  root: true,
+  extends: require.resolve('@vzh/configs/eslint/common'),
   rules: {
     'no-empty-function': 'off',
     '@typescript-eslint/array-type': 'off',
