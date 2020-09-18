@@ -35,7 +35,7 @@ export default function serialize<V>(
   }
 
   if (Array.isArray(value)) {
-    return value.map(item => serialize(item, options)) as JSONValue<V>;
+    return value.map((item) => serialize(item, options)) as JSONValue<V>;
   }
 
   if (
@@ -50,7 +50,7 @@ export default function serialize<V>(
   }
 
   if (value instanceof Option) {
-    return value.map(v => serialize(v, options)).orUndefined();
+    return value.map((v) => serialize(v, options)).orUndefined();
   }
 
   if (typeof value === 'object') {

@@ -11,10 +11,11 @@ export type OnlyModelEntity<A extends object, ExcludeTypes = Function> = Exclude
 >;
 
 export default class ValidableStoreModel<
-  Entity extends object,
-  PickOrOmit extends KeysAction = 'pick',
-  Keys extends keyof OnlyModelEntity<Entity> = keyof OnlyModelEntity<Entity>
-> extends StoreModel<OnlyModelEntity<Entity>>
+    Entity extends object,
+    PickOrOmit extends KeysAction = 'pick',
+    Keys extends keyof OnlyModelEntity<Entity> = keyof OnlyModelEntity<Entity>
+  >
+  extends StoreModel<OnlyModelEntity<Entity>>
   implements ValidableModel<OnlyModelEntity<Entity>, PickOrOmit, Keys> {
   readonly errors: ValidationErrors<ValidableEntity<OnlyModelEntity<Entity>, PickOrOmit, Keys>>;
 
@@ -41,7 +42,7 @@ export default class ValidableStoreModel<
 
   @computed
   get isValid(): boolean {
-    return Object.keys(this.errors).every(key => this.errors[key].error.isEmpty());
+    return Object.keys(this.errors).every((key) => this.errors[key].error.isEmpty());
   }
 
   @action
@@ -63,7 +64,7 @@ export default class ValidableStoreModel<
 
   @action
   cleanErrors(): void {
-    Object.getOwnPropertyNames(this.errors).forEach(prop => {
+    Object.getOwnPropertyNames(this.errors).forEach((prop) => {
       this.errors[prop] = { ...this.errors[prop], error: None };
     });
   }

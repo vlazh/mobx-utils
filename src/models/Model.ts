@@ -113,7 +113,7 @@ export default class Model<Entity extends object> implements ModelLike<Entity> {
   /** Sets only declared fields in model */
   set(entity: Partial<Entity>, { silent, errorIfUnknownField = true }: ModelSetOptions = {}): this {
     const { target } = this;
-    Object.getOwnPropertyNames(entity).forEach(k => {
+    Object.getOwnPropertyNames(entity).forEach((k) => {
       if (k in target) {
         const prevValue = target[k];
         const nextValue = entity[k];

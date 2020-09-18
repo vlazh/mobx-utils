@@ -20,7 +20,8 @@ export default interface ValidableModel<
   Entity extends object,
   PickOrOmit extends KeysAction = 'pick',
   Keys extends keyof Entity = PickOrOmit extends 'pick' ? keyof Entity : never
-> extends ModelLike<Entity>, Validable {
+> extends ModelLike<Entity>,
+    Validable {
   errors: ValidationErrors<ValidableEntity<Entity, PickOrOmit, Keys>>;
   readonly isValid: boolean;
   validate(name: keyof ValidableEntity<Entity, PickOrOmit, Keys>): boolean;

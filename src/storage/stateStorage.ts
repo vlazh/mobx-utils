@@ -32,7 +32,7 @@ export async function saveRootState<RootState extends {}>(
 ): Promise<void> {
   try {
     await Promise.all(
-      Object.getOwnPropertyNames(state).map(store =>
+      Object.getOwnPropertyNames(state).map((store) =>
         saveStoreState<RootState, keyof JSONStoreState<RootState>>(
           storage,
           store as keyof JSONStoreState<RootState>,
