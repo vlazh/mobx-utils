@@ -1,6 +1,6 @@
-import { Option } from '@vzh/ts-types/fp';
-import Validable from './Validable';
-import { ModelLike } from './Model';
+import type { Option } from '@vzh/ts-utils/fp/Option';
+import type Validable from './Validable';
+import type { ModelLike } from './Model';
 
 export interface ErrorProvider {
   error: Option<string>;

@@ -1,6 +1,5 @@
 import { action, observable, computed } from 'mobx';
-import { ExcludeKeysOfType, Diff } from '@vzh/ts-types';
-import { Option, None } from '@vzh/ts-types/fp';
+import { Option, None } from '@vzh/ts-utils/fp/Option';
 import { validate } from 'valtors';
 import ValidableModel, { ValidationErrors, ValidableEntity, KeysAction } from './ValidableModel';
 import StoreModel from './StoreModel';

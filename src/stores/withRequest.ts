@@ -1,10 +1,5 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
-/* eslint-disable dot-notation */
-/* eslint-disable @typescript-eslint/no-this-alias */
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { IWhenOptions, when as whenFn, runInAction } from 'mobx';
-import { Omit } from '@vzh/ts-types';
-import { Try } from '@vzh/ts-types/fp';
+import { Try } from '@vzh/ts-utils/fp/Try';
 import RequestableStore, { AsyncAction, RequestOptions } from './RequestableStore';
 import Validable from '../models/Validable';
 import WorkerStore from './WorkerStore';
@@ -132,7 +127,7 @@ async function callRequestWithOptions<S extends RequestableStore<any, any, any>>
     after,
     when,
     ...requestOptions
-  }: Omit<WithRequestOptions<S>, 'memo' | 'bound'>
+  }: OmitStrict<WithRequestOptions<S>, 'memo' | 'bound'>
 ): Promise<Try<any>> {
   const isValid = await (validate
     ? new Promise((resolve) => resolve(validate.call(self, self)))
@@ -241,7 +236,7 @@ async function withMemo<S extends RequestableStore<any, any, any>>(
   originalFn: Function,
   originalFnParams: any[],
   request: typeof callRequestWithOptions,
-  options: Omit<WithRequestOptions<S>, 'memo'>,
+  options: OmitStrict<WithRequestOptions<S>, 'memo'>,
   { inputs: inputsGetter, checkOriginalParams = true, lifetime = 0 }: MemoOptions<S>
 ): Promise<Try<any>> {
   // (self, originalFn) => async (...originalParams: any[]) => {

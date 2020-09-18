@@ -1,5 +1,5 @@
-import { Option } from '@vzh/ts-types/fp';
-import { ValueContainer } from '@vzh/ts-types/json';
+import { Option } from '@vzh/ts-utils/fp/Option';
+import type { ValueContainer } from '@vzh/ts-utils/json';
 import JSONSerializable, { JSONValue } from './JSONSerializable';
 
 export type SerializerResult = { value: any; next: boolean };

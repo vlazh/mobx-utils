@@ -1,7 +1,7 @@
 import {
   JSONValue as JSONValueOrigin,
   JSONSerializable as JSONSerializableOrigin,
-} from '@vzh/ts-types/json';
+} from '@vzh/ts-utils/json';
 import ValidableModel from '../models/ValidableModel';
 
 export type JSONValue<A> = JSONValueOrigin<A, keyof ValidableModel<any>>;

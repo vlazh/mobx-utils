@@ -1,5 +1,5 @@
 import 'localforage';
-import { Option, None } from '@vzh/ts-types/fp';
+import { Option, None } from '@vzh/ts-utils/fp/Option';
 import { JSONModel } from '../serialization/JSONSerializable';
 
 export type JSONStoreState<RootState extends {}> = Required<JSONModel<RootState>>;

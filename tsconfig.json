@@ -10,7 +10,7 @@
     "typeRoots": [
       "./node_modules/@types",
       "./node_modules/@vzh/configs/@types",
-      "./node_modules/@vzh/ts-types/@types",
+      "./node_modules/@vzh/ts-utils/@types",
       "./@types"
     ]
   },
