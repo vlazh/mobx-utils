@@ -6,8 +6,15 @@
     "outDir": "./dist",
     "declaration": true,
     "sourceMap": false,
-    "incremental": true
+    "incremental": true,
+    "typeRoots": [
+      "./node_modules/@types",
+      "./node_modules/@vzh/configs/@types",
+      "./node_modules/@vzh/ts-types/@types",
+      "./@types"
+    ]
   },
+
   "files": [
     "./src/models/index.ts",
     "./src/viewModel/index.ts",

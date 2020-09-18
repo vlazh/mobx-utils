@@ -9,7 +9,7 @@ export default class ViewModel<E extends object, T extends ModelLike<E>>
 
   constructor(model: T) {
     super(model);
-    delete this.changeField; // Remove copied method from `model` in order for override it.
+    delete (this as Partial<ModelLike<E>>).changeField; // Remove copied method from `model` in order for override it.
   }
 
   @action.bound
