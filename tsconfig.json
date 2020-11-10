@@ -15,10 +15,11 @@
     ]
   },
   "files": [
-    "./src/models/index.ts",
-    "./src/viewModel/index.ts",
-    "./src/serialization/index.ts",
-    "./src/stores/index.ts",
-    "./src/storage/index.ts"
+    "src/models/index.ts",
+    "src/viewModel/index.ts",
+    "src/serialization/index.ts",
+    "src/stores/index.ts",
+    "src/stores/object.ts",
+    "src/storage/index.ts"
   ]
 }
