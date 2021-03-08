@@ -1,6 +1,6 @@
 import { observable, computed, action, runInAction } from 'mobx';
 import jwtDecode from 'jwt-decode';
-import { Option, None, Try } from '@vzh/ts-utils/fp';
+import { Option, None, Try } from '@vlazh/ts-utils/fp';
 import RequestableStore from './RequestableStore';
 import NotificationsStore, { Notification } from './NotificationsStore';
 import WorkerStore from './WorkerStore';

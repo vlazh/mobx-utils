@@ -13,7 +13,7 @@ export interface NameValue<EntityOrValue, K extends keyof EntityOrValue = any> {
     : Exclude<K, never> extends never
     ? any
     : EntityOrValue[K];
-  // value: EntityOrValue extends object ? (K extends keyof EntityOrValue ? EntityOrValue[K] : any) : any;
+  // value: EntityOrValue extends AnyObject ? (K extends keyof EntityOrValue ? EntityOrValue[K] : any) : any;
 }
 
 export interface InputElementLike<V = any> extends NameValue<V, any> {
@@ -25,23 +25,23 @@ export interface InputEventLike<V = any> {
   target: InputElementLike<V>;
 }
 
-// export interface FieldChangeHandler<Entity extends object> {
+// export interface FieldChangeHandler<Entity extends AnyObject> {
 //   <K extends keyof Entity>(event: InputEventLike | NameValue<Entity, K>): void;
 // }
 
-// export type KeysOrAny<Entity extends object> = undefined extends Entity
+// export type KeysOrAny<Entity extends AnyObject> = undefined extends Entity
 //   ? any
 //   : keyof Entity extends never
 //   ? any
 //   : keyof Entity;
 
-export interface ModelLike<Entity extends object> {
+export interface ModelLike<Entity extends AnyObject> {
   // changeField: FieldChangeHandler<Entity>;
   // changeField<K extends KeysOrAny<Entity>>(event: InputEventLike | NameValue<Entity, K>): void;
   changeField<K extends keyof Entity>(event: InputEventLike | NameValue<Entity, K>): void;
 }
 
-export function isInputEventLike<Entity extends object, K extends keyof Entity>(
+export function isInputEventLike<Entity extends AnyObject, K extends keyof Entity>(
   event: InputEventLike | NameValue<Entity, K>
 ): event is InputEventLike {
   return (event as InputEventLike).target !== undefined;
@@ -53,7 +53,7 @@ export interface ModelSetOptions {
   errorIfUnknownField?: boolean;
 }
 
-export default class Model<Entity extends object> implements ModelLike<Entity> {
+export default class Model<Entity extends AnyObject> implements ModelLike<Entity> {
   /**
    * Target object which will be changed by `changeField`.
    * Useful in `ViewModel`.
@@ -61,7 +61,7 @@ export default class Model<Entity extends object> implements ModelLike<Entity> {
   protected readonly target: Entity;
 
   constructor(target?: Entity) {
-    this.target = target || (this as any);
+    this.target = target || (this as Entity);
     // to avoid circular dependencies on self
     const desc = Object.getOwnPropertyDescriptor(this, 'target');
     Object.defineProperty(this, 'target', { ...desc, enumerable: false });
@@ -118,7 +118,7 @@ export default class Model<Entity extends object> implements ModelLike<Entity> {
         const prevValue = target[k];
         const nextValue = entity[k];
         if (prevValue === nextValue) return; // Skip if unchanged
-        target[k] = entity[k];
+        target[k as keyof Entity] = entity[k] as Entity[typeof k];
         !silent && this.onFieldChanged(k as keyof Entity, prevValue);
       } else if (errorIfUnknownField) {
         throw new Error(`Property '${k}' not found in model.`);

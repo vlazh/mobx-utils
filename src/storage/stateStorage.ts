@@ -1,11 +1,12 @@
 import 'localforage';
-import { Option, None } from '@vzh/ts-utils/fp/Option';
-import { JSONModel } from '../serialization/JSONSerializable';
+import { Option, None } from '@vlazh/ts-utils/fp/Option';
+import getErrorMessage from '@vlazh/ts-utils/getErrorMessage';
+import type { JSONModel } from '../serialization/JSONSerializable';
 
-export type JSONStoreState<RootState extends {}> = Required<JSONModel<RootState>>;
+export type JSONStoreState<RootState extends AnyObject> = Required<JSONModel<RootState>>;
 
 export async function saveStoreState<
-  RootState extends {},
+  RootState extends AnyObject,
   K extends keyof JSONStoreState<RootState>
 >(
   storage: LocalForageDbMethodsCore,
@@ -14,18 +15,16 @@ export async function saveStoreState<
   throwError = false
 ): Promise<void> {
   try {
-    const prevState = await storage.getItem<JSONStoreState<RootState>[K] | undefined>(
-      store as string
-    );
+    const prevState = await storage.getItem<JSONStoreState<RootState>[K]>(store as string);
     const nextState = prevState ? { ...prevState, ...state } : state;
     await storage.setItem(store as string, nextState);
-  } catch (ex) {
+  } catch (ex: unknown) {
     if (throwError) throw ex;
-    console.error(ex.message || ex);
+    console.error(getErrorMessage(ex));
   }
 }
 
-export async function saveRootState<RootState extends {}>(
+export async function saveRootState<RootState extends AnyObject>(
   storage: LocalForageDbMethodsCore,
   state: Partial<JSONStoreState<RootState>>,
   throwError = false
@@ -43,12 +42,12 @@ export async function saveRootState<RootState extends {}>(
     );
   } catch (ex) {
     if (throwError) throw ex;
-    console.error(ex.message || ex);
+    console.error(getErrorMessage(ex));
   }
 }
 
 export async function getStoreState<
-  RootState extends {},
+  RootState extends AnyObject,
   K extends keyof JSONStoreState<RootState>
 >(
   storage: LocalForageDbMethodsCore,
@@ -57,12 +56,14 @@ export async function getStoreState<
   throwError = false
 ): Promise<Option<JSONStoreState<RootState>[K]>> {
   try {
-    const state = await storage.getItem<JSONStoreState<RootState>[K] | undefined>(store as string);
+    const state = await storage.getItem<JSONStoreState<RootState>[K]>(store as string);
     if (!state && !defaultState) return None;
-    return Option.of(defaultState ? { ...defaultState, ...state } : state);
+    return Option.of(
+      defaultState ? ({ ...defaultState, ...state } as JSONStoreState<RootState>[K]) : state
+    );
   } catch (ex) {
     if (throwError) throw ex;
-    console.error(ex.message || ex);
+    console.error(getErrorMessage(ex));
     return None;
   }
 }

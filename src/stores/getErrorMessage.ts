@@ -1,4 +1,4 @@
-import type { Throwable } from '@vzh/ts-utils/fp/Try';
+import type { Throwable } from '@vlazh/ts-utils/fp/Try';
 
 export default function getErrorMessage(error: Throwable): string {
   if (typeof error === 'string') return error;

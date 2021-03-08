@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/unbound-method */
-import { Throwable, Try } from '@vzh/ts-utils/fp/Try';
+import { Throwable, Try } from '@vlazh/ts-utils/fp/Try';
 import Validable from '../models/Validable';
 import getErrorMessage from './getErrorMessage';
 import NotificationsStore, { Notification } from './NotificationsStore';

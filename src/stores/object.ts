@@ -1,4 +1,5 @@
-import { transaction, toJS } from 'mobx';
+import { transaction, toJS, makeAutoObservable, AnnotationsMap } from 'mobx';
+import type { CreateObservableOptions } from 'mobx/dist/internal';
 
 export type StateLike<S extends AnyObject> = ExcludeKeysOfType<S, AnyFunction>;
 
@@ -52,31 +53,39 @@ export function updateState<S extends AnyObject>(state: S, patch: Partial<S>): S
   Object.getOwnPropertyNames(patch).forEach((prop) => {
     if (typeof patch[prop] !== 'function' && prop in state) {
       // eslint-disable-next-line no-param-reassign
-      state[prop] = patch[prop as keyof S];
+      state[prop as keyof S] = patch[prop as keyof S] as S[keyof S];
     }
   });
   return state;
 }
 
-export function createStore<S extends AnyObject>(initialState: S): StoreLike<S> {
-  let initial: StateLike<S> = initialState;
-  return {
-    ...initialState,
-    [storeSymbolProp]: storeSymbol,
+export function createStore<T extends AnyObject>(
+  initialState: T,
+  overrides?: AnnotationsMap<T, never>,
+  options?: CreateObservableOptions
+): StoreLike<T> {
+  let initial: StateLike<T> = initialState;
+  return makeAutoObservable<StoreLike<T>>(
+    {
+      ...initialState,
+      [storeSymbolProp]: storeSymbol,
 
-    init(state) {
-      initial = state;
-      this.update(state);
-    },
+      init(state) {
+        initial = state;
+        this.update(state);
+      },
 
-    update(patch) {
-      updateState(this, patch);
-    },
+      update(patch) {
+        updateState(this, patch);
+      },
 
-    reset() {
-      this.update(initial);
+      reset() {
+        this.update(initial);
+      },
     },
-  };
+    overrides,
+    options
+  );
 }
 
 export function createRootStore<S extends States>(stores: S): RootStoreLike<S> {

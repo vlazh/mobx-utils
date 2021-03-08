@@ -1,15 +1,20 @@
-import {
-  JSONValue as JSONValueOrigin,
+import type {
+  Jsonify,
   JSONSerializable as JSONSerializableOrigin,
-} from '@vzh/ts-utils/json';
-import ValidableModel from '../models/ValidableModel';
+} from '@vlazh/ts-utils/types/json';
+import type ValidableModel from '../models/ValidableModel';
 
-export type JSONValue<A> = JSONValueOrigin<A, keyof ValidableModel<any>>;
+export type JSONOf<A> = A extends ValidableModel<any>
+  ? Jsonify<A | ValidableModel<EmptyObject>, keyof ValidableModel<EmptyObject>>
+  : Jsonify<A>;
 
-export type JSONModel<A extends object> = JSONValue<A>;
+export type JSONModel<A extends AnyObject> = JSONOf<A>;
 
-export default interface JSONSerializable<A extends object>
-  extends JSONSerializableOrigin<A, keyof ValidableModel<any>> {}
+export default interface JSONSerializable<A extends AnyObject>
+  extends JSONSerializableOrigin<
+    A | ValidableModel<EmptyObject>,
+    keyof ValidableModel<EmptyObject>
+  > {}
 
 // type A = { a?: Function; b: {}; valueOf: (a?: string) => object; toJSON(): any; jsonModel0: any };
 // type B = undefined extends A['a'] ? string : number;

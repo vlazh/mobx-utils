@@ -1,6 +1,8 @@
-import { Option } from '@vzh/ts-utils/fp/Option';
-import type { ValueContainer } from '@vzh/ts-utils/json';
-import JSONSerializable, { JSONValue } from './JSONSerializable';
+/* eslint-disable import/no-duplicates */
+import { Option } from '@vlazh/ts-utils/fp/Option';
+import type { ValueContainer } from '@vlazh/ts-utils/types/json';
+import type JSONSerializable from './JSONSerializable';
+import type { JSONOf } from './JSONSerializable';
 
 export type SerializerResult = { value: any; next: boolean };
 
@@ -10,32 +12,29 @@ export interface SerializeOptions {
   excludeJSONSerializableFields?: boolean;
 }
 
-export default function serialize<V>(
-  valueOrObject: V,
-  options: SerializeOptions = {}
-): JSONValue<V> {
+export default function serialize<V>(valueOrObject: V, options: SerializeOptions = {}): JSONOf<V> {
   const {
     serializer,
     excludeValidableModelFields = true,
     excludeJSONSerializableFields = true,
   } = options;
 
-  let value = valueOrObject;
+  let value: AnyObject = valueOrObject;
 
   if (serializer) {
     const result = serializer(value);
     // if not continue (value serialized by user as needed) just return serialized value ...
-    if (!result.next) return result.value;
+    if (!result.next) return result.value as JSONOf<V>;
     // ... else continue serializing
-    value = result.value;
+    value = result.value as AnyObject;
   }
 
   if (value == null) {
-    return value as JSONValue<V>;
+    return value as JSONOf<V>;
   }
 
   if (Array.isArray(value)) {
-    return value.map((item) => serialize(item, options)) as JSONValue<V>;
+    return value.map((item) => serialize(item, options)) as JSONOf<V>;
   }
 
   if (
@@ -46,7 +45,7 @@ export default function serialize<V>(
     value instanceof Int16Array ||
     value instanceof Int32Array
   ) {
-    return Array.from(value) as JSONValue<V>;
+    return Array.from(value) as JSONOf<V>;
   }
 
   if (value instanceof Option) {
@@ -74,22 +73,22 @@ export default function serialize<V>(
         }
       }
       return { ...acc, [prop]: serialize(propValue, options) };
-    }, {}) as JSONValue<V>;
+    }, {}) as JSONOf<V>;
 
     // Dates and other
     if (
       !Object.getOwnPropertyNames(obj).length &&
       typeof (value as ValueContainer<any>).valueOf === 'function'
     ) {
-      return (value as ValueContainer<any>).valueOf() as JSONValue<V>;
+      return (value as ValueContainer<any>).valueOf() as JSONOf<V>;
     }
 
     return obj;
   }
 
   if (typeof value === 'boolean' || typeof value === 'number' || typeof value === 'string') {
-    return value as JSONValue<V>;
+    return value as JSONOf<V>;
   }
 
-  return String(value) as JSONValue<V>;
+  return String(value) as JSONOf<V>;
 }

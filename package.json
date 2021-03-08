@@ -1,5 +1,5 @@
 {
-  "name": "@vzh/mobx-utils",
+  "name": "@vlazh/mobx-utils",
   "version": "2.7.3",
   "description": "MobX utils",
   "main": "index.js",
@@ -13,36 +13,43 @@
     "mobx model",
     "mobx serialization"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vlazh/mobx-utils"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
   "scripts": {
     "clean": "rimraf dist/*",
     "copy:configs": "copyfiles package.json README.md LICENSE .npmignore ./dist/",
     "build": "npm run clean && tsc --project ./tsconfig.json",
-    "build-to-tutoron": "tsc --project ./tsconfig.json --outDir '/home/vladimir/dev/sources/tutoron/node_modules/@vzh/mobx-utils/' && copyfiles package.json '/home/vladimir/dev/sources/tutoron/node_modules/@vzh/mobx-utils/'",
-    "build-to-react-components": "tsc --project ./tsconfig.json --outDir '../react-components/node_modules/@vzh/mobx-utils/' && copyfiles package.json '../react-components/node_modules/@vzh/mobx-utils/'",
-    "patch-publish": "npm run build && npm version patch && npm run copy:configs && npm publish ./dist/ --access public && git push --follow-tags",
-    "minor-publish": "npm run build && npm version minor && npm run copy:configs && npm publish ./dist/ --access public && git push --follow-tags",
-    "major-publish": "npm run build && npm version major && npm run copy:configs && npm publish ./dist/ --access public && git push --follow-tags"
+    "build-to-tutoron": "tsc --project ./tsconfig.json --outDir '/home/vladimir/dev/sources/tutoron/node_modules/@vlazh/mobx-utils/' && copyfiles package.json '/home/vladimir/dev/sources/tutoron/node_modules/@vlazh/mobx-utils/'",
+    "build-to-react-components": "tsc --project ./tsconfig.json --outDir '../react-components/node_modules/@vlazh/mobx-utils/' && copyfiles package.json '../react-components/node_modules/@vlazh/mobx-utils/'",
+    "patch-publish": "npm run build && npm version patch && npm run copy:configs && npm publish ./dist/ && git push --follow-tags",
+    "minor-publish": "npm run build && npm version minor && npm run copy:configs && npm publish ./dist/ && git push --follow-tags",
+    "major-publish": "npm run build && npm version major && npm run copy:configs && npm publish ./dist/ && git push --follow-tags"
   },
   "devDependencies": {
     "@types/jwt-decode": "^3.1.0",
-    "@typescript-eslint/eslint-plugin": "^4.14.0",
-    "@typescript-eslint/parser": "^4.14.0",
-    "@vzh/configs": "^3.71.1",
-    "@vzh/ts-utils": "^1.17.0",
+    "@typescript-eslint/eslint-plugin": "^4.16.1",
+    "@typescript-eslint/parser": "^4.16.1",
+    "@vlazh/configs": "^3.73.7",
+    "@vlazh/ts-utils": "^1.24.3",
     "copyfiles": "^2.4.1",
-    "eslint": "^7.18.0",
+    "eslint": "^7.21.0",
     "eslint-config-airbnb-base": "^14.2.1",
-    "eslint-config-prettier": "^7.2.0",
+    "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^3.3.1",
     "jwt-decode": "^3.1.2",
     "localforage": "^1.9.0",
-    "mobx": "^6.0.4",
+    "mobx": "^6.1.8",
     "mobx-utils": "^6.0.3",
     "prettier": "^2.2.1",
     "rimraf": "^3.0.2",
-    "typescript": "^4.1.3",
+    "typescript": "^4.2.3",
     "valtors": "^2.3.0"
   },
-  "prettier": "@vzh/configs/prettier"
+  "prettier": "@vlazh/configs/prettier"
 }
