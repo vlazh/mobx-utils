@@ -1,5 +1,5 @@
 import { IWhenOptions, when as whenFn, runInAction } from 'mobx';
-import { Try } from '@vlazh/ts-utils/fp/Try';
+import { Try } from '@js-toolkit/ts-utils/fp/Try';
 import RequestableStore, { AsyncAction, RequestOptions } from './RequestableStore';
 import Validable from '../models/Validable';
 import WorkerStore from './WorkerStore';

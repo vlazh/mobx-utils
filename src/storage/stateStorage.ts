@@ -1,6 +1,6 @@
 import 'localforage';
-import { Option, None } from '@vlazh/ts-utils/fp/Option';
-import getErrorMessage from '@vlazh/ts-utils/getErrorMessage';
+import { Option, None } from '@js-toolkit/ts-utils/fp/Option';
+import getErrorMessage from '@js-toolkit/ts-utils/getErrorMessage';
 import type { JSONModel } from '../serialization/JSONSerializable';
 
 export type JSONStoreState<RootState extends AnyObject> = Required<JSONModel<RootState>>;

@@ -38,6 +38,16 @@
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
 
+"@js-toolkit/configs@^3.73.7":
+  version "3.73.12"
+  resolved "https://npm.pkg.github.com/download/@js-toolkit/configs/3.73.12/f3497cdf0d0d6f5ea912db43ec36f6fb9fc11e160d1a33522995a22534bcdb47#aa36c465c4977fec759316fef533395518f85cc6"
+  integrity sha512-z/jq3sp+eg+LAAH/Z+/sgxw0PhxXLOtO+0SdF3bXHqBx2VFJabGyLpxp2Ao3G1oZQFBr+9vjR33ofEfJc8yCdA==
+
+"@js-toolkit/ts-utils@^1.24.3":
+  version "1.26.4"
+  resolved "https://npm.pkg.github.com/download/@js-toolkit/ts-utils/1.26.4/9226576299514220dc39838902b200f00a6a53081875323821052e9bf2ce226f#149e5b7e69425e5d336ccc3e66c86a9a7d378289"
+  integrity sha512-YaKvKGdFW2+8zDjBrNW+HjQMwbYpLkfStkN72y1nKTO1MwjHoOQKyYyTLk9fx6rswaPSA4WWC+dL2esB3LkAYg==
+
 "@nodelib/fs.scandir@2.1.4":
   version "2.1.4"
   resolved "https://registry.yarnpkg.com/@nodelib/fs.scandir/-/fs.scandir-2.1.4.tgz#d4b3549a5db5de2683e0c1071ab4f140904bbf69"
@@ -145,16 +155,6 @@
   dependencies:
     "@typescript-eslint/types" "4.16.1"
     eslint-visitor-keys "^2.0.0"
-
-"@vlazh/configs@^3.73.7":
-  version "3.73.10"
-  resolved "https://npm.pkg.github.com/download/@vlazh/configs/3.73.10/02a9d4d03b572fc76583839fbd2d3d5befe82d3624f76a4ef247d4b3f49f74c3#2076acdf80514d69735220a994f521a86fdfde63"
-  integrity sha512-dYj7cg3jRdjzMQz8ax2ovZuxkm2U0A4hvY5XoW9xQNIc3rqC9vXvQ2mL/PqcpNN98pnWcbgnfiblIc+MRygekw==
-
-"@vlazh/ts-utils@^1.24.3":
-  version "1.26.2"
-  resolved "https://npm.pkg.github.com/download/@vlazh/ts-utils/1.26.2/bf6a7d085477841fb62a810bbdceafebafe1cbb22e1dd3c2a744abb6b41b4a38#0c2aa9f8b9566f3b74ed65b6de75245088871cba"
-  integrity sha512-+boWZoEAOdq5qjt8TzFShWLcC3n9ITJ6lOe3g00yEjVrTVSebMSzLUDikymI4pRKGCqq4YfUmS0WM7F52fvieQ==
 
 acorn-jsx@^5.3.1:
   version "5.3.1"

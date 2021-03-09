@@ -1,5 +1,5 @@
 {
-  "extends": "@vlazh/configs/ts/common.tsconfig.json",
+  "extends": "@js-toolkit/configs/ts/common.tsconfig.json",
   "compilerOptions": {
     "isolatedModules": false,
     "baseUrl": "./src",
@@ -9,7 +9,7 @@
     "incremental": true,
     "typeRoots": ["./node_modules/@types", "./@types"]
   },
-  "include": ["./node_modules/@vlazh/ts-utils/types"],
+  "include": ["./node_modules/@js-toolkit/ts-utils/types"],
   "files": [
     "src/models/index.ts",
     "src/viewModel/index.ts",

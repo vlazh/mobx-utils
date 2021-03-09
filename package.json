@@ -34,8 +34,8 @@
     "@types/jwt-decode": "^3.1.0",
     "@typescript-eslint/eslint-plugin": "^4.16.1",
     "@typescript-eslint/parser": "^4.16.1",
-    "@vlazh/configs": "^3.73.7",
-    "@vlazh/ts-utils": "^1.24.3",
+    "@js-toolkit/configs": "^3.73.7",
+    "@js-toolkit/ts-utils": "^1.24.3",
     "copyfiles": "^2.4.1",
     "eslint": "^7.21.0",
     "eslint-config-airbnb-base": "^14.2.1",
@@ -51,5 +51,5 @@
     "typescript": "^4.2.3",
     "valtors": "^2.3.0"
   },
-  "prettier": "@vlazh/configs/prettier"
+  "prettier": "@js-toolkit/configs/prettier"
 }

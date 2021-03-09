@@ -1,6 +1,6 @@
 /* eslint-disable import/no-duplicates */
-import { Option } from '@vlazh/ts-utils/fp/Option';
-import type { ValueContainer } from '@vlazh/ts-utils/types/json';
+import { Option } from '@js-toolkit/ts-utils/fp/Option';
+import type { ValueContainer } from '@js-toolkit/ts-utils/types/json';
 import type JSONSerializable from './JSONSerializable';
 import type { JSONOf } from './JSONSerializable';
 
