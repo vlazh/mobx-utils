@@ -27,29 +27,28 @@
     "build-to-tutoron": "tsc --project ./tsconfig.json --outDir '/home/vladimir/dev/sources/tutoron/node_modules/@vlazh/mobx-utils/' && copyfiles package.json '/home/vladimir/dev/sources/tutoron/node_modules/@vlazh/mobx-utils/'",
     "build-to-react-components": "tsc --project ./tsconfig.json --outDir '../react-components/node_modules/@vlazh/mobx-utils/' && copyfiles package.json '../react-components/node_modules/@vlazh/mobx-utils/'",
     "patch-publish": "npm run build && npm version patch && npm run copy:configs && npm publish ./dist/ && git push --follow-tags",
-    "minor-publish": "npm run build && npm version minor && npm run copy:configs && npm publish ./dist/ && git push --follow-tags",
-    "major-publish": "npm run build && npm version major && npm run copy:configs && npm publish ./dist/ && git push --follow-tags"
+    "minor-publish": "npm run build && npm version minor && npm run copy:configs && npm publish ./dist/ && git push --follow-tags"
   },
   "devDependencies": {
+    "@js-toolkit/configs": "^3.77.2",
+    "@js-toolkit/ts-utils": "^1.28.5",
     "@types/jwt-decode": "^3.1.0",
-    "@typescript-eslint/eslint-plugin": "^4.16.1",
-    "@typescript-eslint/parser": "^4.16.1",
-    "@js-toolkit/configs": "^3.73.7",
-    "@js-toolkit/ts-utils": "^1.24.3",
+    "@typescript-eslint/eslint-plugin": "^4.25.0",
+    "@typescript-eslint/parser": "^4.25.0",
     "copyfiles": "^2.4.1",
-    "eslint": "^7.21.0",
+    "eslint": "^7.27.0",
     "eslint-config-airbnb-base": "^14.2.1",
-    "eslint-config-prettier": "^8.1.0",
-    "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-prettier": "^3.3.1",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.23.3",
+    "eslint-plugin-prettier": "^3.4.0",
     "jwt-decode": "^3.1.2",
     "localforage": "^1.9.0",
-    "mobx": "^6.1.8",
-    "mobx-utils": "^6.0.3",
-    "prettier": "^2.2.1",
+    "mobx": "^6.3.2",
+    "mobx-utils": "^6.0.4",
+    "prettier": "^2.3.0",
     "rimraf": "^3.0.2",
-    "typescript": "^4.2.3",
-    "valtors": "^2.3.0"
+    "typescript": "^4.3.2",
+    "valtors": "^2.3.2"
   },
   "prettier": "@js-toolkit/configs/prettier"
 }
