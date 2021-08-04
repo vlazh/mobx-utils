@@ -10,8 +10,8 @@ Base classes and utilities of mobx stores and validable mobx models.
 
 ```ts
 import { action } from 'mobx';
-import { BaseRootStore, NotificationsStore, WorkerStore } from '@vzh/mobx-utils/stores';
-import { JSONModel, JSONSerializable } from '@vzh/mobx-utils/serialization';
+import { BaseRootStore, NotificationsStore, WorkerStore } from '@vlazh/mobx-utils/stores';
+import { JSONModel, JSONSerializable } from '@vlazh/mobx-utils/serialization';
 import AuthStore from './AuthStore';
 import AppStore from './AppStore';
 import SignUpStore from './SignUpStore';
@@ -74,7 +74,7 @@ export default class RootStore extends BaseRootStore implements JSONSerializable
 #### AppStore
 
 ```ts
-import { RequestableStore, NotificationsStore, WorkerStore } from '@vzh/mobx-utils/stores';
+import { RequestableStore, NotificationsStore, WorkerStore } from '@vlazh/mobx-utils/stores';
 import RootStore from './RootStore';
 
 export default class AppStore
