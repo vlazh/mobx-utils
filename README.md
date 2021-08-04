@@ -2,6 +2,8 @@
 
 ![GitHub package.json version](https://img.shields.io/github/package-json/v/vlazh/mobx-utils)
 
+Base classes and utilities of mobx stores and validable mobx models.
+
 ## Example
 
 #### RootStore
