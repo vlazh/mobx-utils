@@ -1,4 +1,6 @@
-[![npm package](https://img.shields.io/npm/v/@vzh/mobx-utils.svg?style=flat-square)](https://www.npmjs.org/package/@vzh/mobx-utils)
+# MobX Utils
+
+![GitHub package.json version](https://img.shields.io/github/package-json/v/vlazh/mobx-utils)
 
 ## Example
 
