@@ -4,18 +4,19 @@ import { validate } from 'valtors';
 import ValidableModel, { ValidationErrors, ValidableEntity, KeysAction } from './ValidableModel';
 import StoreModel from './StoreModel';
 
-export type OnlyModelEntity<A extends object, ExcludeTypes = Function> = ExcludeKeysOfType<
+export type OnlyModelEntity<A extends AnyObject, ExcludeTypes = AnyFunction> = ExcludeKeysOfType<
   Diff<A, ValidableModel<A>>,
   ExcludeTypes
 >;
 
 export default class ValidableStoreModel<
-    Entity extends object,
+    Entity extends AnyObject,
     PickOrOmit extends KeysAction = 'pick',
     Keys extends keyof OnlyModelEntity<Entity> = keyof OnlyModelEntity<Entity>
   >
   extends StoreModel<OnlyModelEntity<Entity>>
-  implements ValidableModel<OnlyModelEntity<Entity>, PickOrOmit, Keys> {
+  implements ValidableModel<OnlyModelEntity<Entity>, PickOrOmit, Keys>
+{
   readonly errors: ValidationErrors<ValidableEntity<OnlyModelEntity<Entity>, PickOrOmit, Keys>>;
 
   constructor(
@@ -27,14 +28,14 @@ export default class ValidableStoreModel<
     this.errors = observable.object(errors);
   }
 
-  protected onFieldChanged<K extends keyof OnlyModelEntity<Entity>>(
+  protected override onFieldChanged<K extends keyof OnlyModelEntity<Entity>>(
     name: K,
     prevValue: OnlyModelEntity<Entity>[K]
   ): void {
     super.onFieldChanged(name, prevValue);
     if (name in this.errors) {
       this.validate(
-        (name as unknown) as keyof ValidableEntity<OnlyModelEntity<Entity>, PickOrOmit, Keys>
+        name as unknown as keyof ValidableEntity<OnlyModelEntity<Entity>, PickOrOmit, Keys>
       );
     }
   }
@@ -47,7 +48,7 @@ export default class ValidableStoreModel<
   @action
   validate(name?: keyof ValidableEntity<OnlyModelEntity<Entity>, PickOrOmit, Keys>): boolean {
     const result = validate(
-      (this.target as unknown) as ValidableEntity<OnlyModelEntity<Entity>, PickOrOmit, Keys>,
+      this.target as unknown as ValidableEntity<OnlyModelEntity<Entity>, PickOrOmit, Keys>,
       name
     );
 

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import { Throwable, Try } from '@js-toolkit/ts-utils/fp/Try';
 import Validable from '../models/Validable';
 import getErrorMessage from './getErrorMessage';
@@ -36,7 +35,7 @@ export interface RequestOptions<TaskKeys extends string> {
 }
 
 export default class RequestableStore<
-  RS extends object,
+  RS extends AnyObject,
   NS extends NotificationsStore<RS, Notification<any, any>> = NotificationsStore<RS, Notification>,
   WS extends WorkerStore<RS, never> = WorkerStore<RS, never>
 > extends BaseStore<RS> {
@@ -74,7 +73,7 @@ export default class RequestableStore<
       const result = await doWork(...(doWorkParams || []));
       this.onRequestSuccess(result, options);
       return Try.success(result);
-    } catch (ex) {
+    } catch (ex: any) {
       this.onRequestError(ex, options);
       return Try.failure(ex);
     } finally {
@@ -106,7 +105,7 @@ export default class RequestableStore<
 
   // eslint-disable-next-line class-methods-use-this
   protected getResponseErrorMessage(response: ResponseLike): string {
-    return response.data || response.statusText;
+    return (response.data && String(response.data)) || response.statusText;
   }
 
   // eslint-disable-next-line class-methods-use-this

@@ -1,14 +1,20 @@
+/* eslint-disable dot-notation */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-empty-function */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-this-alias */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { IWhenOptions, when as whenFn, runInAction } from 'mobx';
 import { Try } from '@js-toolkit/ts-utils/fp/Try';
+import type Validable from '../models/Validable';
 import RequestableStore, { AsyncAction, RequestOptions } from './RequestableStore';
-import Validable from '../models/Validable';
 import WorkerStore from './WorkerStore';
 
 function defineInstanceProp<S extends RequestableStore<any, any, any>>(
-  request: (self: S, originalFn: Function) => AsyncAction<Try<any>>,
+  request: (self: S, originalFn: AnyFunction) => AsyncAction<Try<any>>,
   target: S,
   propertyKey: string | symbol,
-  initialFn: Function
+  initialFn: AnyFunction
 ): void {
   let fn = initialFn;
   Object.defineProperty(target, propertyKey, {
@@ -17,7 +23,7 @@ function defineInstanceProp<S extends RequestableStore<any, any, any>>(
     get() {
       return fn;
     },
-    set(this: typeof target, nextFn: Function) {
+    set(this: typeof target, nextFn: AnyFunction) {
       fn = request(this, nextFn);
     },
   });
@@ -26,7 +32,7 @@ function defineInstanceProp<S extends RequestableStore<any, any, any>>(
 type BabelDescriptor = TypedPropertyDescriptor<AsyncAction<void>> & { initializer?: () => any };
 
 function withDecorator<S extends RequestableStore<any, any, any>>(
-  request: (self: S, originalFn: Function) => AsyncAction<Try<any>>,
+  request: (self: S, originalFn: AnyFunction) => AsyncAction<Try<any>>,
   bound: boolean,
   target: S,
   propertyKey: string | symbol,
@@ -90,11 +96,20 @@ function withDecorator<S extends RequestableStore<any, any, any>>(
       defineInstanceProp(request, this, propertyKey, this[propertyKey]);
       return this[propertyKey];
     },
-    set(this: typeof target, nextFn: Function) {
+    set(this: typeof target, nextFn: AnyFunction) {
       // When first set invoked we are redefine property on concreate class instance
       defineInstanceProp(request, this, propertyKey, request(this, nextFn));
     },
   };
+}
+
+export interface MemoOptions<S extends RequestableStore<any, any, any>> {
+  /** Invoke decorated method if this function returns `true` or if returned inputs are changed (shallow compare) */
+  inputs?: (self: S, ...originalParams: any[]) => any[] | boolean;
+  /** Merge */
+  checkOriginalParams?: boolean;
+  /** In seconds */
+  lifetime?: number;
 }
 
 export interface WithRequestOptions<S extends RequestableStore<any, any, any>>
@@ -119,7 +134,7 @@ export interface WithRequestOptions<S extends RequestableStore<any, any, any>>
 
 async function callRequestWithOptions<S extends RequestableStore<any, any, any>>(
   self: S,
-  originalFn: Function,
+  originalFn: AnyFunction,
   originalFnParams: any[],
   {
     validate,
@@ -180,9 +195,9 @@ interface MemoCacheEntry {
   cacheTimeoutHandler: number | undefined;
 }
 
-const memoCache: WeakMap<Function, MemoCacheEntry> = new WeakMap();
+const memoCache: WeakMap<AnyFunction, MemoCacheEntry> = new WeakMap();
 
-function createRemoveEntryTimer(lifetime: number, key: Function): number | undefined {
+function createRemoveEntryTimer(lifetime: number, key: AnyFunction): number | undefined {
   return lifetime > 0 ? setTimeout(() => memoCache.delete(key), lifetime * 1000) : undefined;
 }
 
@@ -222,18 +237,9 @@ function getLastResult(
   return undefined;
 }
 
-export interface MemoOptions<S extends RequestableStore<any, any, any>> {
-  /** Invoke decorated method if this function returns `true` or if returned inputs are changed (shallow compare) */
-  inputs?: (self: S, ...originalParams: any[]) => any[] | boolean;
-  /** Merge */
-  checkOriginalParams?: boolean;
-  /** In seconds */
-  lifetime?: number;
-}
-
 async function withMemo<S extends RequestableStore<any, any, any>>(
   self: S,
-  originalFn: Function,
+  originalFn: AnyFunction,
   originalFnParams: any[],
   request: typeof callRequestWithOptions,
   options: OmitStrict<WithRequestOptions<S>, 'memo'>,
@@ -294,9 +300,10 @@ function withRequest<S extends RequestableStore<any, any, any>>(
 ): typeof targetOrOptions extends WithRequestOptions<S> ? PropertyOrMethodDecorator<S> : any {
   if (isRequestableStore(targetOrOptions)) {
     return withDecorator(
-      (self, originalFn) => (...params: any[]) => {
-        return self['request'](() => originalFn.call(self, ...params));
-      },
+      (self, originalFn) =>
+        (...params: any[]) => {
+          return self['request'](() => originalFn.call(self, ...params));
+        },
       false,
       targetOrOptions,
       propertyKeyOrNothing!,
@@ -309,23 +316,24 @@ function withRequest<S extends RequestableStore<any, any, any>>(
     propertyKey: string | symbol,
     descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
   ): any {
-    const { bound, memo, ...restOptions } = targetOrOptions;
+    const { bound, memo, ...restOptions } = targetOrOptions as WithRequestOptions<S>;
 
     return withDecorator(
-      (self, originalFn) => (...params: any[]) => {
-        if (memo) {
-          return withMemo(
-            self,
-            originalFn,
-            params,
-            callRequestWithOptions,
-            restOptions,
-            typeof memo === 'object' ? memo : {}
-          );
-        }
+      (self, originalFn) =>
+        (...params: any[]) => {
+          if (memo) {
+            return withMemo(
+              self,
+              originalFn,
+              params,
+              callRequestWithOptions,
+              restOptions,
+              typeof memo === 'object' ? memo : {}
+            );
+          }
 
-        return callRequestWithOptions(self, originalFn, params, restOptions);
-      },
+          return callRequestWithOptions(self, originalFn, params, restOptions);
+        },
       !!bound,
       target,
       propertyKey,
@@ -352,10 +360,11 @@ export function withSubmit<S extends RequestableStore<any, any, any>>(
 ) => any {
   return function withSubmitRequest(target, propertyKey, descriptor): any {
     return withDecorator(
-      (self, originalFn) => (...params: any[]) => {
-        const model = modelGetter(self);
-        return self['submit'](model, () => originalFn.call(self, ...params), undefined, options);
-      },
+      (self, originalFn) =>
+        (...params: any[]) => {
+          const model = modelGetter(self);
+          return self['submit'](model, () => originalFn.call(self, ...params), undefined, options);
+        },
       false,
       target,
       propertyKey,

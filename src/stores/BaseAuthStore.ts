@@ -25,7 +25,7 @@ export function decodeToken<JwtDecoded extends BaseJwtDecoded>(token: string): O
 
 export default class BaseAuthStore<
   JwtDecoded extends BaseJwtDecoded,
-  RS extends object,
+  RS extends AnyObject,
   NS extends NotificationsStore<RS, Notification<any, any>> = NotificationsStore<RS, Notification>,
   WS extends WorkerStore<RS, never> = WorkerStore<RS, never>
 > extends RequestableStore<RS, NS, WS> {
@@ -62,7 +62,7 @@ export default class BaseAuthStore<
   }
 
   @action
-  clean(): void {
+  override clean(): void {
     super.clean();
     this.token = None;
     this.decoded = None;

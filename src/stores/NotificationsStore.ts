@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import { observable, computed, action } from 'mobx';
 import BaseStore from './BaseStore';
 
@@ -12,7 +11,7 @@ export interface Notification<TType extends 'error' = 'error', TContent = string
 }
 
 export default class NotificationsStore<
-  RS extends object,
+  RS extends AnyObject,
   N extends Notification<any, any> = Notification
 > extends BaseStore<RS> {
   @observable
@@ -78,7 +77,7 @@ export default class NotificationsStore<
   }
 
   @action
-  clean(): void {
+  override clean(): void {
     super.clean();
     this.deleteAll();
   }

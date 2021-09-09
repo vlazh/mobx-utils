@@ -1,6 +1,6 @@
 import CleanerDisposer from './CleanerDisposer';
 
-export default abstract class BaseStore<RS extends object> extends CleanerDisposer {
+export default abstract class BaseStore<RS extends AnyObject> extends CleanerDisposer {
   protected readonly rootStore: RS;
 
   constructor(rootStore: RS) {
@@ -12,11 +12,11 @@ export default abstract class BaseStore<RS extends object> extends CleanerDispos
   // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-empty-function
   protected initialize(): void {}
 
-  dispose(): void {
+  override dispose(): void {
     super.dispose((name) => name === 'rootStore');
   }
 
-  clean(): void {
+  override clean(): void {
     super.clean((name) => name === 'rootStore');
   }
 }

@@ -1,8 +1,6 @@
-/* eslint-disable import/no-duplicates */
 import { Option } from '@js-toolkit/ts-utils/fp/Option';
 import type { ValueContainer } from '@js-toolkit/ts-utils/types/json';
-import type JSONSerializable from './JSONSerializable';
-import type { JSONOf } from './JSONSerializable';
+import type { JSONSerializable, JSONOf } from './JSONSerializable';
 
 export type SerializerResult = { value: any; next: boolean };
 
@@ -67,7 +65,7 @@ export default function serialize<V>(valueOrObject: V, options: SerializeOptions
       if (excludeJSONSerializableFields) {
         if (
           prop === '_serializable' &&
-          typeof ((value as unknown) as JSONSerializable<{}>).toJSON === 'function'
+          typeof (value as unknown as JSONSerializable<{}>).toJSON === 'function'
         ) {
           return acc;
         }

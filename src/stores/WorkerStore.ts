@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import { observable, action } from 'mobx';
 import { computedFn } from 'mobx-utils';
 import BaseStore from './BaseStore';
@@ -8,7 +7,7 @@ export type PendingTasks<TaskKeys extends string> = { default: number } & {
 };
 
 export default class WorkerStore<
-  RS extends object,
+  RS extends AnyObject,
   TaskKeys extends string = never
 > extends BaseStore<RS> {
   @observable
@@ -38,9 +37,8 @@ export default class WorkerStore<
   @action
   push(key: keyof PendingTasks<TaskKeys> = 'default'): void {
     // console.log('push', key);
-    this.pendingTasks[key] = ((this.pendingTasks[key] ?? 0) + 1) as PendingTasks<
-      TaskKeys
-    >[typeof key];
+    this.pendingTasks[key] = ((this.pendingTasks[key] ?? 0) +
+      1) as PendingTasks<TaskKeys>[typeof key];
   }
 
   @action
@@ -52,7 +50,7 @@ export default class WorkerStore<
   }
 
   @action
-  clean(): void {
+  override clean(): void {
     super.clean();
     Object.getOwnPropertyNames(this.pendingTasks).forEach((key) => {
       delete this.pendingTasks[key];
