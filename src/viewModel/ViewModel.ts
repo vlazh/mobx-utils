@@ -1,10 +1,11 @@
 import { action } from 'mobx';
 import { ViewModel as ViewModelOriginal } from 'mobx-utils';
-import Model, { ModelLike, NameValue, InputEventLike } from '../models/Model';
+import Model, { ModelLike, NameValue, InputEventLike } from '../model/Model';
 
-export default class ViewModel<E extends object, T extends ModelLike<E>>
+export default class ViewModel<E extends AnyObject, T extends ModelLike<E>>
   extends ViewModelOriginal<T>
-  implements ModelLike<E> {
+  implements ModelLike<E>
+{
   protected storeModel = new Model<E>(this as any);
 
   constructor(model: T) {

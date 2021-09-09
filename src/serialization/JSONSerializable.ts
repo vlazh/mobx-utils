@@ -2,7 +2,7 @@ import type {
   Jsonify,
   JSONSerializable as JSONSerializableOrigin,
 } from '@js-toolkit/ts-utils/types/json';
-import type ValidableModel from '../models/ValidableModel';
+import type ValidableModel from '../model/ValidableModel';
 
 export type JSONOf<A> = A extends ValidableModel<any>
   ? Jsonify<A | ValidableModel<EmptyObject>, keyof ValidableModel<EmptyObject>>

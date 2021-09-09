@@ -6,7 +6,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { IWhenOptions, when as whenFn, runInAction } from 'mobx';
 import { Try } from '@js-toolkit/ts-utils/fp/Try';
-import type Validable from '../models/Validable';
+import type Validable from '../model/Validable';
 import RequestableStore, { AsyncAction, RequestOptions } from './RequestableStore';
 import WorkerStore from './WorkerStore';
 

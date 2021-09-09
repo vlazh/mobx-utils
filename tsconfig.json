@@ -10,11 +10,11 @@
   },
   "include": ["./node_modules/@js-toolkit/ts-utils/types"],
   "files": [
-    "src/models/index.ts",
+    "src/model/index.ts",
     "src/viewModel/index.ts",
     "src/serialization/index.ts",
-    "src/stores/index.ts",
-    "src/stores/object.ts",
+    "src/store/index.ts",
+    "src/store/object.ts",
     "src/storage/index.ts"
   ]
 }

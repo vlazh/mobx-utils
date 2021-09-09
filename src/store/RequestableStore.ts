@@ -1,5 +1,5 @@
 import { Throwable, Try } from '@js-toolkit/ts-utils/fp/Try';
-import Validable from '../models/Validable';
+import Validable from '../model/Validable';
 import getErrorMessage from './getErrorMessage';
 import NotificationsStore, { Notification } from './NotificationsStore';
 import WorkerStore, { PendingTasks } from './WorkerStore';
