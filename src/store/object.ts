@@ -1,5 +1,10 @@
-import { transaction, toJS, makeAutoObservable, AnnotationsMap } from 'mobx';
-import type { CreateObservableOptions } from 'mobx/dist/internal';
+import {
+  transaction,
+  toJS,
+  makeAutoObservable,
+  AnnotationsMap,
+  CreateObservableOptions,
+} from 'mobx';
 
 export type StateLike<S extends AnyObject> = ExcludeKeysOfType<S, AnyFunction>;
 
