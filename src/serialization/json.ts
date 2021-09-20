@@ -4,18 +4,15 @@ import type {
 } from '@js-toolkit/ts-utils/types/json';
 import type ValidableModel from '../model/ValidableModel';
 
-export type JSONOf<A> = A extends ValidableModel<any>
-  ? Jsonify<A | ValidableModel<EmptyObject>, keyof ValidableModel<EmptyObject>>
+export type JsonOf<A> = A extends ValidableModel<any>
+  ? Jsonify<OmitStrict<A, keyof ValidableModel<any>>>
   : Jsonify<A>;
 
-export type JSONModel<A extends AnyObject> = JSONOf<A>;
+// export type JSONModel<A extends AnyObject> = JsonOf<A>;
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface JSONSerializable<A extends AnyObject>
-  extends JSONSerializableOrigin<
-    A | ValidableModel<EmptyObject>,
-    keyof ValidableModel<EmptyObject>
-  > {}
+  extends JSONSerializableOrigin<Omit<A, keyof ValidableModel<any>>> {}
 
 // type A = { a?: Function; b: {}; valueOf: (a?: string) => object; toJSON(): any; jsonModel0: any };
 // type B = undefined extends A['a'] ? string : number;

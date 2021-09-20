@@ -1,6 +1,6 @@
 import { Option } from '@js-toolkit/ts-utils/fp/Option';
 import type { ValueContainer } from '@js-toolkit/ts-utils/types/json';
-import type { JSONSerializable, JSONOf } from './JSONSerializable';
+import type { JSONSerializable, JsonOf } from './json';
 
 export type SerializerResult = { value: any; next: boolean };
 
@@ -10,29 +10,31 @@ export interface SerializeOptions {
   excludeJSONSerializableFields?: boolean;
 }
 
-export default function serialize<V>(valueOrObject: V, options: SerializeOptions = {}): JSONOf<V> {
+export function serialize<V>(valueOrObject: V, options: SerializeOptions = {}): JsonOf<V> {
+  type Result = JsonOf<V>;
+
   const {
     serializer,
     excludeValidableModelFields = true,
     excludeJSONSerializableFields = true,
   } = options;
 
-  let value: AnyObject = valueOrObject;
+  let value: unknown = valueOrObject;
 
   if (serializer) {
     const result = serializer(value);
     // if not continue (value serialized by user as needed) just return serialized value ...
-    if (!result.next) return result.value as JSONOf<V>;
+    if (!result.next) return result.value as Result;
     // ... else continue serializing
     value = result.value as AnyObject;
   }
 
   if (value == null) {
-    return value as JSONOf<V>;
+    return value as Result;
   }
 
   if (Array.isArray(value)) {
-    return value.map((item) => serialize(item, options)) as JSONOf<V>;
+    return value.map((item: unknown) => serialize(item, options)) as Result;
   }
 
   if (
@@ -43,14 +45,14 @@ export default function serialize<V>(valueOrObject: V, options: SerializeOptions
     value instanceof Int16Array ||
     value instanceof Int32Array
   ) {
-    return Array.from(value) as JSONOf<V>;
+    return Array.from(value) as Result;
   }
 
   if (value instanceof Option) {
-    return value.map((v) => serialize(v, options)).orUndefined();
+    return value.map((v: unknown) => serialize(v, options)).orUndefined() as Result;
   }
 
-  if (typeof value === 'object') {
+  if (value && typeof value === 'object') {
     const obj = Object.entries(value).reduce((acc, [prop, propValue]) => {
       // Skip functions and symbols
       if (typeof propValue === 'function' || typeof propValue === 'symbol') return acc;
@@ -65,28 +67,29 @@ export default function serialize<V>(valueOrObject: V, options: SerializeOptions
       if (excludeJSONSerializableFields) {
         if (
           prop === '_serializable' &&
-          typeof (value as unknown as JSONSerializable<{}>).toJSON === 'function'
+          typeof (value as JSONSerializable<any>).toJSON === 'function'
         ) {
           return acc;
         }
       }
-      return { ...acc, [prop]: serialize(propValue, options) };
-    }, {}) as JSONOf<V>;
+      return { ...acc, [prop]: serialize<unknown>(propValue, options) };
+    }, {}) as Result;
 
     // Dates and other
     if (
       !Object.getOwnPropertyNames(obj).length &&
       typeof (value as ValueContainer<any>).valueOf === 'function'
     ) {
-      return (value as ValueContainer<any>).valueOf() as JSONOf<V>;
+      return (value as ValueContainer<any>).valueOf() as Result;
     }
 
     return obj;
   }
 
-  if (typeof value === 'boolean' || typeof value === 'number' || typeof value === 'string') {
-    return value as JSONOf<V>;
+  const valueType = typeof value;
+  if (valueType === 'boolean' || valueType === 'number' || valueType === 'string') {
+    return value as Result;
   }
 
-  return String(value) as JSONOf<V>;
+  return String(value) as Result;
 }
