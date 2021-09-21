@@ -20,7 +20,7 @@ export type JSStates<S extends States> = { [P in keyof StateLike<S>]: StateLike<
 
 export interface RootStoreMethods<S extends States> {
   init: (states: Partial<JSStates<S>>) => void;
-  update: (states: Partial<JSStates<S>>) => void;
+  update: (states: DeepPartial<JSStates<S>, 2>) => void;
   resetAll: VoidFunction;
   toJS: () => JSStates<S>;
 }
