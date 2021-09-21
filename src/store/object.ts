@@ -101,8 +101,9 @@ export function createRootStore<S extends States>(stores: S): RootStoreLike<S> {
     init(states) {
       transaction(() => {
         Object.getOwnPropertyNames(states).forEach((prop) => {
-          if (states[prop] && typeof states[prop] !== 'function' && isStore(this[prop])) {
-            (this[prop] as StoreLike<AnyObject>).init(states[prop]);
+          const store = this[prop];
+          if (states[prop] && typeof states[prop] !== 'function' && isStore(store)) {
+            store.init(states[prop]);
           }
         });
       });
@@ -111,8 +112,9 @@ export function createRootStore<S extends States>(stores: S): RootStoreLike<S> {
     update(states) {
       transaction(() => {
         Object.getOwnPropertyNames(states).forEach((prop) => {
-          if (states[prop] && typeof states[prop] !== 'function' && isStore(this[prop])) {
-            (this[prop] as StoreLike<AnyObject>).update(states[prop]);
+          const store = this[prop];
+          if (states[prop] && typeof states[prop] !== 'function' && isStore(store)) {
+            store.update(states[prop]);
           }
         });
       });
@@ -121,8 +123,9 @@ export function createRootStore<S extends States>(stores: S): RootStoreLike<S> {
     resetAll() {
       transaction(() => {
         Object.getOwnPropertyNames(this).forEach((prop) => {
-          if (typeof this[prop] !== 'function' && isStore(this[prop])) {
-            (this[prop] as StoreLike<AnyObject>).reset();
+          const store = this[prop];
+          if (isStore(store)) {
+            store.reset();
           }
         });
       });
@@ -130,8 +133,9 @@ export function createRootStore<S extends States>(stores: S): RootStoreLike<S> {
 
     toJS() {
       return Object.getOwnPropertyNames(this).reduce((acc, prop) => {
-        if (typeof this[prop] !== 'function' && isStore(this[prop])) {
-          acc[prop] = toJS(this[prop]);
+        const store = this[prop];
+        if (isStore(store)) {
+          acc[prop] = toJS(store);
         }
         return acc;
       }, {} as JSStates<S>);
