@@ -10,7 +10,7 @@ export type StateLike<S extends AnyObject> = ExcludeKeysOfType<S, AnyFunction>;
 
 export interface StoreMethods<S extends AnyObject> {
   init: (initialState: StateLike<S>) => void;
-  update: (patch: Partial<StateLike<S>>) => void;
+  update: (patch: Partial<StateLike<S>> | ((state: StateLike<S>) => Partial<StateLike<S>>)) => void;
   reset: VoidFunction;
 }
 
@@ -18,11 +18,16 @@ type States = { [P: string]: StateLike<AnyObject> };
 
 export type JSStates<S extends States> = { [P in keyof StateLike<S>]: StateLike<S[P]> };
 
+type JSStatePatches<S extends States> = {
+  [P in keyof StateLike<S>]?: Parameters<StoreMethods<S[P]>['update']>[0];
+};
+
 export interface RootStoreMethods<S extends States> {
   init: (states: Partial<JSStates<S>>) => void;
-  update: (states: DeepPartial<JSStates<S>, 2>) => void;
+  update: (states: JSStatePatches<S>) => void;
   resetAll: VoidFunction;
   toJS: () => JSStates<S>;
+  transaction: <T>(action: () => T) => T;
 }
 
 export type StoreLike<S extends AnyObject> = S & StoreMethods<S>;
@@ -54,11 +59,15 @@ export function isRootStore<S extends States>(value: AnyObject): value is RootSt
   );
 }
 
-export function updateState<S extends AnyObject>(state: S, patch: Partial<S>): S {
-  Object.getOwnPropertyNames(patch).forEach((prop) => {
-    if (typeof patch[prop] !== 'function' && prop in state) {
+export function updateState<S extends AnyObject>(
+  state: S,
+  patch: Partial<S> | ((store: S) => Partial<S>)
+): S {
+  const patchObject = typeof patch === 'function' ? patch(state) : patch;
+  Object.getOwnPropertyNames(patchObject).forEach((prop) => {
+    if (typeof patchObject[prop] !== 'function' && prop in state) {
       // eslint-disable-next-line no-param-reassign
-      state[prop as keyof S] = patch[prop as keyof S] as S[keyof S];
+      state[prop as keyof S] = patchObject[prop] as S[keyof S];
     }
   });
   return state;
@@ -81,7 +90,7 @@ export function createStore<T extends AnyObject>(
       },
 
       update(patch) {
-        updateState(this, patch);
+        updateState(this as StoreLike<T>, patch);
       },
 
       reset() {
@@ -129,6 +138,10 @@ export function createRootStore<S extends States>(stores: S): RootStoreLike<S> {
           }
         });
       });
+    },
+
+    transaction(action) {
+      return transaction(action);
     },
 
     toJS() {
