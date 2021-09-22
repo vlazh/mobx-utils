@@ -10,7 +10,9 @@ export type StateLike<S extends AnyObject> = ExcludeKeysOfType<S, AnyFunction>;
 
 export interface StoreMethods<S extends AnyObject> {
   init: (initialState: StateLike<S>) => void;
-  update: (patch: Partial<StateLike<S>> | ((state: StateLike<S>) => Partial<StateLike<S>>)) => void;
+  update: (
+    patch: Partial<StateLike<S>> | ((state: StateLike<S>) => Partial<StateLike<S>> | undefined)
+  ) => void;
   reset: VoidFunction;
 }
 
@@ -61,15 +63,17 @@ export function isRootStore<S extends States>(value: AnyObject): value is RootSt
 
 export function updateState<S extends AnyObject>(
   state: S,
-  patch: Partial<S> | ((store: S) => Partial<S>)
+  patch: Parameters<StoreMethods<S>['update']>[0]
 ): S {
   const patchObject = typeof patch === 'function' ? patch(state) : patch;
-  Object.getOwnPropertyNames(patchObject).forEach((prop) => {
-    if (typeof patchObject[prop] !== 'function' && prop in state) {
-      // eslint-disable-next-line no-param-reassign
-      state[prop as keyof S] = patchObject[prop] as S[keyof S];
-    }
-  });
+  if (patchObject) {
+    Object.getOwnPropertyNames(patchObject).forEach((prop) => {
+      if (typeof patchObject[prop] !== 'function' && prop in state) {
+        // eslint-disable-next-line no-param-reassign
+        state[prop as keyof S] = patchObject[prop] as S[keyof S];
+      }
+    });
+  }
   return state;
 }
 
