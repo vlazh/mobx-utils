@@ -101,7 +101,7 @@ export function createStore<T extends AnyObject>(
         this.update(initial);
       },
     },
-    overrides,
+    { ...overrides, [storeSymbolProp]: false },
     options
   );
 }
