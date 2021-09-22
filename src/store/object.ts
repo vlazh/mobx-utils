@@ -29,8 +29,8 @@ type JSStatePatches<S extends States> = {
 type Stores = { [P: string]: StoreLike<AnyObject> };
 
 export interface RootStoreMethods<S extends Stores> {
-  init(states: Partial<JSStates<S>>): void;
-  update(states: JSStatePatches<S>): void;
+  init(initialStates: Partial<JSStates<S>>): void;
+  update(patches: JSStatePatches<S>): void;
   resetAll(): void;
   toJS(): JSStates<S>;
   transaction<T>(action: () => T): T;
@@ -89,15 +89,17 @@ export function createStore<T extends AnyObject>(
   const props = Object.getOwnPropertyNames(descriptors);
 
   // Define default state: exclude getters, setters, functions
-  const filterState = (state: AnyObject, keys?: string[]): StateLike<T> => {
-    const initial = {};
-    (keys ?? Object.getOwnPropertyNames(state)).forEach((prop) => {
+  const filterState = (
+    state: AnyObject,
+    stateProps = Object.getOwnPropertyNames(state)
+  ): StateLike<T> => {
+    return stateProps.reduce((result, prop) => {
       const desc = descriptors[prop];
       if (desc && !desc.get && !desc.set && typeof desc.value !== 'function') {
-        Object.defineProperty(state, prop, desc);
+        Object.defineProperty(result, prop, desc);
       }
-    });
-    return initial as StateLike<T>;
+      return result;
+    }, {} as StateLike<T>);
   };
 
   let initial: StateLike<T> = filterState(initialState, props);
@@ -109,7 +111,7 @@ export function createStore<T extends AnyObject>(
 
     init(state) {
       initial = filterState(state);
-      this.update(state);
+      this.reset();
     },
 
     update(patch) {
@@ -151,12 +153,12 @@ export function createRootStore<S extends Stores>(stores: S): RootStoreLike<S> {
       });
     },
 
-    update(states) {
+    update(patches) {
       transaction(() => {
-        Object.getOwnPropertyNames(states).forEach((prop) => {
+        Object.getOwnPropertyNames(patches).forEach((prop) => {
           const store = this[prop];
-          if (states[prop] && typeof states[prop] !== 'function' && isStore(store)) {
-            store.update(states[prop]);
+          if (isStore(store) && patches[prop] && typeof patches[prop] !== 'function') {
+            store.update(patches[prop]);
           }
         });
       });
