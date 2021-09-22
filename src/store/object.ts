@@ -9,12 +9,14 @@ import {
 export type StateLike<S extends AnyObject> = ExcludeKeysOfType<S, AnyFunction>;
 
 export interface StoreMethods<S extends AnyObject> {
-  init: (initialState: StateLike<S>) => void;
-  update: (
+  init(initialState: StateLike<S>): void;
+  update(
     patch: Partial<StateLike<S>> | ((state: StateLike<S>) => Partial<StateLike<S>> | undefined)
-  ) => void;
-  reset: VoidFunction;
+  ): void;
+  reset(): void;
 }
+
+export type StoreLike<S extends AnyObject> = S & StoreMethods<S>;
 
 type States = { [P: string]: StateLike<AnyObject> };
 
@@ -24,17 +26,17 @@ type JSStatePatches<S extends States> = {
   [P in keyof StateLike<S>]?: Parameters<StoreMethods<S[P]>['update']>[0];
 };
 
-export interface RootStoreMethods<S extends States> {
-  init: (states: Partial<JSStates<S>>) => void;
-  update: (states: JSStatePatches<S>) => void;
-  resetAll: VoidFunction;
-  toJS: () => JSStates<S>;
-  transaction: <T>(action: () => T) => T;
+type Stores = { [P: string]: StoreLike<AnyObject> };
+
+export interface RootStoreMethods<S extends Stores> {
+  init(states: Partial<JSStates<S>>): void;
+  update(states: JSStatePatches<S>): void;
+  resetAll(): void;
+  toJS(): JSStates<S>;
+  transaction<T>(action: () => T): T;
 }
 
-export type StoreLike<S extends AnyObject> = S & StoreMethods<S>;
-
-export type RootStoreLike<S extends States> = S & RootStoreMethods<S>;
+export type RootStoreLike<S extends Stores> = S & RootStoreMethods<S>;
 
 const storeSymbol = Symbol.for('__mobx_object_store__');
 const rootStoreSymbol = Symbol.for('__mobx_object_root_store__');
@@ -51,7 +53,7 @@ export function isStore<S extends AnyObject>(value: AnyObject): value is StoreLi
   );
 }
 
-export function isRootStore<S extends States>(value: AnyObject): value is RootStoreLike<S> {
+export function isRootStore<S extends Stores>(value: AnyObject): value is RootStoreLike<S> {
   return (
     typeof value === 'object' &&
     value[rootStoreSymbolProp] === rootStoreSymbol &&
@@ -132,9 +134,10 @@ export function createStore<T extends AnyObject>(
   );
 }
 
-export function createRootStore<S extends States>(stores: S): RootStoreLike<S> {
+export function createRootStore<S extends Stores>(stores: S): RootStoreLike<S> {
   return {
     ...stores,
+
     [rootStoreSymbolProp]: rootStoreSymbol,
 
     init(states) {
