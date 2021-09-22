@@ -66,6 +66,7 @@ export function updateState<S extends AnyObject>(
   patch: Parameters<StoreMethods<S>['update']>[0]
 ): S {
   const patchObject = typeof patch === 'function' ? patch(state) : patch;
+  // console.log(state, patchObject);
   if (patchObject) {
     Object.getOwnPropertyNames(patchObject).forEach((prop) => {
       if (typeof patchObject[prop] !== 'function' && prop in state) {
@@ -82,25 +83,50 @@ export function createStore<T extends AnyObject>(
   overrides?: AnnotationsMap<T, never>,
   options?: CreateObservableOptions
 ): StoreLike<T> {
-  let initial: StateLike<T> = initialState;
-  return makeAutoObservable<StoreLike<T>>(
-    {
-      ...initialState,
-      [storeSymbolProp]: storeSymbol,
+  const descriptors = Object.getOwnPropertyDescriptors(initialState);
+  const props = Object.getOwnPropertyNames(descriptors);
 
-      init(state) {
-        initial = state;
-        this.update(state);
-      },
+  // Define default state: exclude getters, setters, functions
+  const filterState = (state: AnyObject, keys?: string[]): StateLike<T> => {
+    const initial = {};
+    (keys ?? Object.getOwnPropertyNames(state)).forEach((prop) => {
+      const desc = descriptors[prop];
+      if (desc && !desc.get && !desc.set && typeof desc.value !== 'function') {
+        Object.defineProperty(state, prop, desc);
+      }
+    });
+    return initial as StateLike<T>;
+  };
 
-      update(patch) {
-        updateState(this as StoreLike<T>, patch);
-      },
+  let initial: StateLike<T> = filterState(initialState, props);
 
-      reset() {
-        this.update(initial);
-      },
+  const store: StoreLike<T> = {
+    ...initialState,
+
+    [storeSymbolProp]: storeSymbol,
+
+    init(state) {
+      initial = filterState(state);
+      this.update(state);
     },
+
+    update(patch) {
+      updateState(this as StoreLike<T>, patch);
+    },
+
+    reset() {
+      this.update(initial);
+    },
+  };
+
+  // Redefine getters/setters
+  props.forEach((prop) => {
+    const desc = descriptors[prop];
+    desc && (desc.get || desc.set) && Object.defineProperty(store, prop, desc);
+  });
+
+  return makeAutoObservable<StoreLike<T>>(
+    store,
     { ...overrides, [storeSymbolProp]: false },
     options
   );
