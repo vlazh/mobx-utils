@@ -68,10 +68,13 @@ export function updateState<S extends AnyObject>(
   patch: Parameters<StoreMethods<S>['update']>[0]
 ): S {
   const patchObject = typeof patch === 'function' ? patch(state) : patch;
-  // console.log(state, patchObject);
   if (patchObject) {
     Object.getOwnPropertyNames(patchObject).forEach((prop) => {
-      if (typeof patchObject[prop] !== 'function' && prop in state) {
+      if (
+        typeof patchObject[prop] !== 'function' &&
+        prop in state &&
+        typeof state[prop] !== 'function'
+      ) {
         // eslint-disable-next-line no-param-reassign
         state[prop as keyof S] = patchObject[prop] as S[keyof S];
       }
@@ -157,7 +160,7 @@ export function createRootStore<S extends Stores>(stores: S): RootStoreLike<S> {
       transaction(() => {
         Object.getOwnPropertyNames(patches).forEach((prop) => {
           const store = this[prop];
-          if (isStore(store) && patches[prop] && typeof patches[prop] !== 'function') {
+          if (patches[prop] && isStore(store)) {
             store.update(patches[prop]);
           }
         });
