@@ -1,4 +1,4 @@
-import { Throwable, Try } from '@js-toolkit/ts-utils/fp/Try';
+import { Throwable, Try } from '@js-toolkit/utils/fp/Try';
 import Validable from '../model/Validable';
 import getErrorMessage from './getErrorMessage';
 import NotificationsStore, { Notification } from './NotificationsStore';

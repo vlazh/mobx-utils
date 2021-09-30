@@ -34,7 +34,7 @@
   "devDependencies": {
     "@js-toolkit/configs": "^3.79.0",
     "@js-toolkit/node-utils": "^1.1.4",
-    "@js-toolkit/ts-utils": "^1.37.4",
+    "@js-toolkit/utils": "^1.38.0",
     "@types/jwt-decode": "^3.1.0",
     "@typescript-eslint/eslint-plugin": "^4.31.0",
     "@typescript-eslint/parser": "^4.31.0",

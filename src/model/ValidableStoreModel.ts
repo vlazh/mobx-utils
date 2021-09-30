@@ -1,5 +1,5 @@
 import { action, observable, computed } from 'mobx';
-import { Option, None } from '@js-toolkit/ts-utils/fp/Option';
+import { Option, None } from '@js-toolkit/utils/fp/Option';
 import { validate } from 'valtors';
 import ValidableModel, { ValidationErrors, ValidableEntity, KeysAction } from './ValidableModel';
 import StoreModel from './StoreModel';

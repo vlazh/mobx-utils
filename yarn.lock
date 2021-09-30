@@ -62,10 +62,10 @@
   resolved "https://npm.pkg.github.com/download/@js-toolkit/node-utils/1.1.4/fdfcc14760794cade62184d5b3ffb3da7cb847b3609aab82db6c9e14f68970d9#088981e18ac92a9aee05e4232cfff5047238413a"
   integrity sha512-qqSI80Pa/9I06DA3RZRXVXYm/5XG/NWULROPxEQc3R4uytVVF6xdIm4+doFKQ7dcD+gwIrME6qhyjCudsnkojg==
 
-"@js-toolkit/ts-utils@^1.37.4":
-  version "1.37.4"
-  resolved "https://npm.pkg.github.com/download/@js-toolkit/ts-utils/1.37.4/2031b9990db0d2d54a97b84774a20c970d8e75f947bda223aedd5007db3e5f08#48243603e390274265251914a034fe9490663cc4"
-  integrity sha512-iXe+w1JESlFJjvjH02gMkbMjqH3dPwKl9DD5NfN/XwDxTBKvcuOytso5MFC1T8Kw5y/EM2QQA+gYYsbKXyqz2Q==
+"@js-toolkit/utils@^1.38.0":
+  version "1.38.0"
+  resolved "https://npm.pkg.github.com/download/@js-toolkit/utils/1.38.0/365cdb89b9f6e83c14eae3c3cbdf96cd3ced4cdfb6f5aaaf277bfbd65d78e221#4554e26cb5c63a3c00bf53ea344c902703a0d923"
+  integrity sha512-sIp5ky3UEUim1LPJaseEG/phfYdEIAZgIeXZ6leiLDIQ3wtFVTlhKH/rwgVtpYH6auOjolDj3VwyC0SMHzbFog==
 
 "@nodelib/fs.scandir@2.1.4":
   version "2.1.4"

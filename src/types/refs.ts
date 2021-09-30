@@ -1,1 +1,1 @@
-import '@js-toolkit/ts-utils/types';
+import '@js-toolkit/utils/types';
