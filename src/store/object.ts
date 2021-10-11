@@ -20,13 +20,15 @@ export type StoreLike<S extends AnyObject> = S & StoreMethods<S>;
 
 type States = { [P: string]: StateLike<AnyObject> };
 
-export type JSStates<S extends States> = { [P in keyof StateLike<S>]: StateLike<S[P]> };
+export type JSStates<S extends States> = { readonly [P in keyof StateLike<S>]: StateLike<S[P]> };
 
 type JSStatePatches<S extends States> = {
-  [P in keyof StateLike<S>]?: Parameters<StoreMethods<S[P]>['update']>[0];
+  readonly [P in keyof StateLike<S>]?: Parameters<StoreMethods<S[P]>['update']>[0];
 };
 
-type Stores = { [P: string]: StoreLike<AnyObject> };
+interface Stores {
+  readonly [P: string]: StoreLike<AnyObject>;
+}
 
 export interface RootStoreMethods<S extends Stores> {
   init(initialStates: Partial<JSStates<S>>): void;
@@ -85,11 +87,11 @@ export function updateState<S extends AnyObject>(
   return state;
 }
 
-export function createStore<T extends AnyObject>(
-  initialState: T,
-  overrides?: AnnotationsMap<T, never>,
+export function createStore<S extends AnyObject>(
+  initialState: S,
+  overrides?: AnnotationsMap<S, never>,
   options?: CreateObservableOptions
-): StoreLike<T> {
+): StoreLike<S> {
   const descriptors = Object.getOwnPropertyDescriptors(initialState);
   const props = Object.getOwnPropertyNames(descriptors);
 
@@ -97,19 +99,19 @@ export function createStore<T extends AnyObject>(
   const filterState = (
     state: AnyObject,
     stateProps = Object.getOwnPropertyNames(state)
-  ): StateLike<T> => {
+  ): StateLike<S> => {
     return stateProps.reduce((result, prop) => {
       const desc = descriptors[prop];
       if (desc && !desc.get && !desc.set && typeof desc.value !== 'function') {
         Object.defineProperty(result, prop, desc);
       }
       return result;
-    }, {} as StateLike<T>);
+    }, {} as StateLike<S>);
   };
 
-  let initial: StateLike<T> = filterState(initialState, props);
+  let initial: StateLike<S> = filterState(initialState, props);
 
-  const store: StoreLike<T> = {
+  const store: StoreLike<S> = {
     ...initialState,
 
     [storeSymbolProp]: storeSymbol,
@@ -120,7 +122,7 @@ export function createStore<T extends AnyObject>(
     },
 
     update(patch) {
-      updateState(this as StoreLike<T>, patch);
+      updateState(this as StoreLike<S>, patch);
     },
 
     reset() {
@@ -134,11 +136,7 @@ export function createStore<T extends AnyObject>(
     desc && (desc.get || desc.set) && Object.defineProperty(store, prop, desc);
   });
 
-  return makeAutoObservable<StoreLike<T>>(
-    store,
-    { ...overrides, [storeSymbolProp]: false },
-    options
-  );
+  return makeAutoObservable(store, { ...overrides, [storeSymbolProp]: false }, options);
 }
 
 export function createRootStore<S extends Stores>(stores: S): RootStoreLike<S> {
