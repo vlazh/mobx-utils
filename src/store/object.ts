@@ -43,9 +43,10 @@ const rootStoreSymbol = Symbol.for('__mobx_object_root_store__');
 const storeSymbolProp = '@@__mobx_object_store__';
 const rootStoreSymbolProp = '@@__mobx_object_root_store__';
 
-export function isStore<S extends AnyObject>(value: AnyObject): value is StoreLike<S> {
+export function isStore<S extends AnyObject>(value: unknown): value is StoreLike<S> {
   return (
     typeof value === 'object' &&
+    value != null &&
     value[storeSymbolProp] === storeSymbol &&
     typeof (value as StoreLike<S>).init === 'function' &&
     typeof (value as StoreLike<S>).update === 'function' &&
@@ -53,9 +54,10 @@ export function isStore<S extends AnyObject>(value: AnyObject): value is StoreLi
   );
 }
 
-export function isRootStore<S extends Stores>(value: AnyObject): value is RootStoreLike<S> {
+export function isRootStore<S extends Stores>(value: unknown): value is RootStoreLike<S> {
   return (
     typeof value === 'object' &&
+    value != null &&
     value[rootStoreSymbolProp] === rootStoreSymbol &&
     typeof (value as RootStoreLike<S>).init === 'function' &&
     typeof (value as RootStoreLike<S>).update === 'function' &&
