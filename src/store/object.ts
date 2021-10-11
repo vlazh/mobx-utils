@@ -193,3 +193,27 @@ export function createRootStore<S extends Stores>(stores: S): RootStoreLike<S> {
     },
   };
 }
+
+type WithSelectors<RS extends RootStoreLike<any>, S extends Readonly<AnyObject>> = RS & {
+  readonly selectors: Readonly<S>;
+};
+
+export function attachSelectors<RS extends RootStoreLike<any>, S extends Readonly<AnyObject>>(
+  rootStore: RS,
+  selectors: S,
+  overrides?: AnnotationsMap<S, never>,
+  options?: CreateObservableOptions
+): WithSelectors<RS, S> {
+  return Object.assign(rootStore, {
+    selectors: makeAutoObservable(selectors, overrides, options),
+  });
+}
+
+type WithStores<RS extends RootStoreLike<any>, S extends Stores> = RS & S;
+
+export function attachStores<RS extends RootStoreLike<any>, S extends Stores>(
+  rootStore: RS,
+  stores: S
+): WithStores<RS, S> {
+  return Object.assign(rootStore, stores);
+}
