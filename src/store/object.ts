@@ -4,6 +4,9 @@ import {
   makeAutoObservable,
   AnnotationsMap,
   CreateObservableOptions,
+  isObservableProp,
+  isComputedProp,
+  isAction,
 } from 'mobx';
 
 export type StateLike<S extends AnyObject> = ExcludeKeysOfType<S, AnyFunction>;
@@ -14,6 +17,7 @@ export interface StoreMethods<S extends AnyObject> {
     patch: Partial<StateLike<S>> | ((state: StateLike<S>) => Partial<StateLike<S>> | undefined)
   ): void;
   reset(): void;
+  getSnapshot(): StateLike<S>;
 }
 
 export type StoreLike<S extends AnyObject> = S & StoreMethods<S>;
@@ -34,16 +38,16 @@ export interface RootStoreMethods<S extends Stores> {
   init(initialStates: Partial<JSStates<S>>): void;
   update(patches: JSStatePatches<S>): void;
   resetAll(): void;
-  toJS(): JSStates<S>;
+  getSnapshots(): JSStates<S>;
   transaction<T>(action: () => T): T;
 }
 
 export type RootStoreLike<S extends Stores> = S & RootStoreMethods<S>;
 
-const storeSymbol = Symbol.for('__mobx_object_store__');
-const rootStoreSymbol = Symbol.for('__mobx_object_root_store__');
 const storeSymbolProp = '@@__mobx_object_store__';
 const rootStoreSymbolProp = '@@__mobx_object_root_store__';
+const storeSymbol = Symbol.for(storeSymbolProp);
+const rootStoreSymbol = Symbol.for(rootStoreSymbolProp);
 
 export function isStore<S extends AnyObject>(value: unknown): value is StoreLike<S> {
   return (
@@ -77,10 +81,15 @@ export function updateState<S extends AnyObject>(
       if (
         typeof patchObject[prop] !== 'function' &&
         prop in state &&
-        typeof state[prop] !== 'function'
+        typeof state[prop] !== 'function' &&
+        !isComputedProp(state, prop)
       ) {
-        // eslint-disable-next-line no-param-reassign
-        state[prop as keyof S] = patchObject[prop] as S[keyof S];
+        // Ignore getters and readonly fields
+        const desc = Object.getOwnPropertyDescriptor(state, prop);
+        if (desc?.set || desc?.writable) {
+          // eslint-disable-next-line no-param-reassign
+          state[prop as keyof S] = patchObject[prop] as S[keyof S];
+        }
       }
     });
   }
@@ -92,8 +101,8 @@ export function createStore<S extends AnyObject>(
   overrides?: AnnotationsMap<S, never>,
   options?: CreateObservableOptions
 ): StoreLike<S> {
-  const descriptors = Object.getOwnPropertyDescriptors(initialState);
-  const props = Object.getOwnPropertyNames(descriptors);
+  const initialDescriptors = Object.getOwnPropertyDescriptors(initialState);
+  const initialProps = Object.getOwnPropertyNames(initialDescriptors);
 
   // Define default state: exclude getters, setters, functions
   const filterState = (
@@ -101,7 +110,7 @@ export function createStore<S extends AnyObject>(
     stateProps = Object.getOwnPropertyNames(state)
   ): StateLike<S> => {
     return stateProps.reduce((result, prop) => {
-      const desc = descriptors[prop];
+      const desc = initialDescriptors[prop];
       if (desc && !desc.get && !desc.set && typeof desc.value !== 'function') {
         Object.defineProperty(result, prop, desc);
       }
@@ -109,7 +118,7 @@ export function createStore<S extends AnyObject>(
     }, {} as StateLike<S>);
   };
 
-  let initial: StateLike<S> = filterState(initialState, props);
+  let initial: StateLike<S> = filterState(initialState, initialProps);
 
   const store: StoreLike<S> = {
     ...initialState,
@@ -118,7 +127,7 @@ export function createStore<S extends AnyObject>(
 
     init(state) {
       initial = filterState(state);
-      this.reset();
+      this.update(initial);
     },
 
     update(patch) {
@@ -128,15 +137,41 @@ export function createStore<S extends AnyObject>(
     reset() {
       this.update(initial);
     },
+
+    getSnapshot() {
+      return Object.getOwnPropertyNames(this).reduce((acc, prop) => {
+        const value = (this as StoreLike<S>)[prop as keyof typeof acc];
+        if (
+          value !== storeSymbol &&
+          ((isObservableProp(this, prop) && !isAction(value)) || typeof value !== 'function')
+        ) {
+          acc[prop] = toJS(value);
+        }
+        return acc;
+      }, {} as StateLike<S>);
+    },
   };
 
   // Redefine getters/setters
-  props.forEach((prop) => {
-    const desc = descriptors[prop];
+  initialProps.forEach((prop) => {
+    const desc = initialDescriptors[prop];
     desc && (desc.get || desc.set) && Object.defineProperty(store, prop, desc);
   });
 
-  return makeAutoObservable(store, { ...overrides, [storeSymbolProp]: false }, options);
+  Object.defineProperty(store, 'GETTER', {
+    get: () => {
+      return Date.now();
+    },
+    set: undefined,
+    configurable: true,
+    enumerable: true,
+  });
+
+  return makeAutoObservable(
+    store,
+    { ...overrides, [storeSymbolProp]: false, toJS: false, GETTER: false },
+    options
+  );
 }
 
 export function createRootStore<S extends Stores>(stores: S): RootStoreLike<S> {
@@ -149,8 +184,9 @@ export function createRootStore<S extends Stores>(stores: S): RootStoreLike<S> {
       transaction(() => {
         Object.getOwnPropertyNames(states).forEach((prop) => {
           const store = this[prop];
-          if (states[prop] && typeof states[prop] !== 'function' && isStore(store)) {
-            store.init(states[prop]);
+          const state = states[prop as keyof typeof states];
+          if (state && typeof state !== 'function' && isStore(store)) {
+            store.init(state);
           }
         });
       });
@@ -160,8 +196,9 @@ export function createRootStore<S extends Stores>(stores: S): RootStoreLike<S> {
       transaction(() => {
         Object.getOwnPropertyNames(patches).forEach((prop) => {
           const store = this[prop];
-          if (patches[prop] && isStore(store)) {
-            store.update(patches[prop]);
+          const patch = patches[prop as keyof typeof patches];
+          if (patch && isStore(store)) {
+            store.update(patch);
           }
         });
       });
@@ -182,11 +219,11 @@ export function createRootStore<S extends Stores>(stores: S): RootStoreLike<S> {
       return transaction(action);
     },
 
-    toJS() {
+    getSnapshots() {
       return Object.getOwnPropertyNames(this).reduce((acc, prop) => {
         const store = this[prop];
         if (isStore(store)) {
-          acc[prop] = toJS(store);
+          acc[prop] = store.getSnapshot();
         }
         return acc;
       }, {} as JSStates<S>);
