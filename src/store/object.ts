@@ -158,18 +158,9 @@ export function createStore<S extends AnyObject>(
     desc && (desc.get || desc.set) && Object.defineProperty(store, prop, desc);
   });
 
-  Object.defineProperty(store, 'GETTER', {
-    get: () => {
-      return Date.now();
-    },
-    set: undefined,
-    configurable: true,
-    enumerable: true,
-  });
-
   return makeAutoObservable(
     store,
-    { ...overrides, [storeSymbolProp]: false, toJS: false, GETTER: false },
+    { ...overrides, [storeSymbolProp]: false, getSnapshot: false },
     options
   );
 }
