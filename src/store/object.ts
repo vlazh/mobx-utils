@@ -12,12 +12,13 @@ import {
 export type StateLike<S extends AnyObject> = ExcludeKeysOfType<S, AnyFunction>;
 
 export interface StoreMethods<S extends AnyObject> {
-  init(initialState: StateLike<S>): void;
+  init(this: this, initialState: StateLike<S>): void;
   update(
+    this: this,
     patch: Partial<StateLike<S>> | ((state: StateLike<S>) => Partial<StateLike<S>> | undefined)
   ): void;
-  reset(): void;
-  getSnapshot(): StateLike<S>;
+  reset(this: this): void;
+  getSnapshot(this: this): StateLike<S>;
 }
 
 export type StoreLike<S extends AnyObject> = S & StoreMethods<S>;
@@ -35,11 +36,11 @@ interface Stores {
 }
 
 export interface RootStoreMethods<S extends Stores> {
-  init(initialStates: Partial<JSStates<S>>): void;
-  update(patches: JSStatePatches<S>): void;
-  resetAll(): void;
-  getSnapshots(): JSStates<S>;
-  transaction<T>(action: () => T): T;
+  init(this: this, initialStates: Partial<JSStates<S>>): void;
+  update(this: this, patches: JSStatePatches<S>): void;
+  resetAll(this: this): void;
+  getSnapshots(this: this): JSStates<S>;
+  transaction<T>(this: this, action: () => T): T;
 }
 
 export type RootStoreLike<S extends Stores> = S & RootStoreMethods<S>;
@@ -96,8 +97,27 @@ export function updateState<S extends AnyObject>(
   return state;
 }
 
+export function getSnapshot<S extends AnyObject>(store: StoreLike<S>): StateLike<S> {
+  return Object.getOwnPropertyNames(store).reduce((acc, prop) => {
+    const value = store[prop as keyof typeof acc];
+    if (
+      value !== storeSymbol &&
+      ((isObservableProp(store, prop) && !isAction(value)) || typeof value !== 'function')
+    ) {
+      acc[prop] = toJS(value);
+    }
+    return acc;
+  }, {} as StateLike<S>);
+}
+
+type WithThis<T extends AnyObject> = {
+  [P in keyof T]: T[P] extends AnyFunction
+    ? (this: StoreLike<T>, ...args: Parameters<T[P]>) => ReturnType<T[P]>
+    : T[P];
+};
+
 export function createStore<S extends AnyObject>(
-  initialState: S,
+  initialState: WithThis<S>,
   overrides?: AnnotationsMap<S, never>,
   options?: CreateObservableOptions
 ): StoreLike<S> {
@@ -121,7 +141,7 @@ export function createStore<S extends AnyObject>(
   let initial: StateLike<S> = filterState(initialState, initialProps);
 
   const store: StoreLike<S> = {
-    ...initialState,
+    ...(initialState as S),
 
     [storeSymbolProp]: storeSymbol,
 
@@ -131,7 +151,7 @@ export function createStore<S extends AnyObject>(
     },
 
     update(patch) {
-      updateState(this as StoreLike<S>, patch);
+      updateState(this, patch);
     },
 
     reset() {
@@ -139,16 +159,7 @@ export function createStore<S extends AnyObject>(
     },
 
     getSnapshot() {
-      return Object.getOwnPropertyNames(this).reduce((acc, prop) => {
-        const value = (this as StoreLike<S>)[prop as keyof typeof acc];
-        if (
-          value !== storeSymbol &&
-          ((isObservableProp(this, prop) && !isAction(value)) || typeof value !== 'function')
-        ) {
-          acc[prop] = toJS(value);
-        }
-        return acc;
-      }, {} as StateLike<S>);
+      return getSnapshot(this);
     },
   };
 
