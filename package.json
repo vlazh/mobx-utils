@@ -34,10 +34,10 @@
   "devDependencies": {
     "@js-toolkit/configs": "^3.82.2",
     "@js-toolkit/node-utils": "^1.1.4",
-    "@js-toolkit/utils": "^1.39.1",
+    "@js-toolkit/utils": "^1.39.2",
     "@types/jwt-decode": "^3.1.0",
-    "@typescript-eslint/eslint-plugin": "^5.6.0",
-    "@typescript-eslint/parser": "^5.6.0",
+    "@typescript-eslint/eslint-plugin": "^5.7.0",
+    "@typescript-eslint/parser": "^5.7.0",
     "copyfiles": "^2.4.1",
     "eslint": "^8.4.1",
     "eslint-config-airbnb-base": "^15.0.0",
@@ -51,7 +51,7 @@
     "prettier": "^2.5.1",
     "rimraf": "^3.0.2",
     "terser": "^5.10.0",
-    "typescript": "^4.5.2",
+    "typescript": "^4.5.4",
     "valtors": "^2.3.2",
     "yargs": "^17.3.0"
   },
