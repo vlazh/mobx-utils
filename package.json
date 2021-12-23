@@ -1,6 +1,6 @@
 {
   "name": "@vlazh/mobx-utils",
-  "version": "2.9.1",
+  "version": "2.9.2",
   "description": "MobX utils",
   "main": "index.js",
   "types": "index.d.ts",
