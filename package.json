@@ -25,9 +25,9 @@
     "copy:configs": "copyfiles package.json README.md LICENSE .npmignore ./dist/",
     "minify": "node-utils-minify --replace ./dist",
     "build": "npm run clean && tsc --project ./tsconfig.json",
-    "build-to-tutoron": "tsc --project ./tsconfig.json --outDir '/home/vladimir/dev/sources/tutoron/node_modules/@vlazh/mobx-utils/' && copyfiles package.json '/home/vladimir/dev/sources/tutoron/node_modules/@vlazh/mobx-utils/'",
+    "build-to-tutoron": "tsc --project ./tsconfig.json --outDir '../../../tutoron/node_modules/@vlazh/mobx-utils/' && copyfiles package.json '../../../tutoron/node_modules/@vlazh/mobx-utils/'",
     "build-to-react-components": "tsc --project ./tsconfig.json --outDir '../react-components/node_modules/@vlazh/mobx-utils/' && copyfiles package.json '../react-components/node_modules/@vlazh/mobx-utils/'",
-    "build-to-player": "tsc --build ./tsconfig.json && npm run minify && copyfiles -e './dist/*(package.json|README.md|LICENSE)' -u 1 './dist/**/*' '/home/vladimir/dev/sources/player/modules/mobx-utils'",
+    "build-to-player": "tsc --build ./tsconfig.json && npm run minify && copyfiles -e './dist/*(package.json|README.md|LICENSE)' -u 1 './dist/**/*' '../../../player/modules/mobx-utils'",
     "patch-publish": "npm run build && npm run minify && npm version patch && npm run copy:configs && npm publish ./dist/ && git push --follow-tags",
     "minor-publish": "npm run build && npm run minify && npm version minor && npm run copy:configs && npm publish ./dist/ && git push --follow-tags"
   },
