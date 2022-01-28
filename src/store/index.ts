@@ -1,5 +1,3 @@
-export { default as getErrorMessage } from './getErrorMessage';
-export * from './getErrorMessage';
 export { default as CleanerDisposer } from './CleanerDisposer';
 export * from './CleanerDisposer';
 export { default as BaseStore } from './BaseStore';

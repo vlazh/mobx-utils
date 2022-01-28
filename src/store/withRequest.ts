@@ -8,7 +8,7 @@ import { IWhenOptions, when as whenFn, runInAction } from 'mobx';
 import { Try } from '@js-toolkit/utils/fp/Try';
 import type Validable from '../model/Validable';
 import RequestableStore, { AsyncAction, RequestOptions } from './RequestableStore';
-import WorkerStore from './WorkerStore';
+import type WorkerStore from './WorkerStore';
 
 function defineInstanceProp<S extends RequestableStore<any, any, any>>(
   request: (self: S, originalFn: AnyFunction) => AsyncAction<Try<any>>,

@@ -3,8 +3,9 @@ import jwtDecode from 'jwt-decode';
 import { Option, None } from '@js-toolkit/utils/fp/Option';
 import { Try } from '@js-toolkit/utils/fp/Try';
 import RequestableStore from './RequestableStore';
-import NotificationsStore, { Notification } from './NotificationsStore';
-import WorkerStore from './WorkerStore';
+import type NotificationsStore from './NotificationsStore';
+import type { Notification } from './NotificationsStore';
+import type WorkerStore from './WorkerStore';
 
 export interface BaseJwtDecoded {
   readonly exp: number;
@@ -28,7 +29,7 @@ export default class BaseAuthStore<
   JwtDecoded extends BaseJwtDecoded,
   RS extends AnyObject,
   NS extends NotificationsStore<RS, Notification<any, any>> = NotificationsStore<RS, Notification>,
-  WS extends WorkerStore<RS, never> = WorkerStore<RS, never>
+  WS extends WorkerStore<RS, any> = WorkerStore<RS, any>
 > extends RequestableStore<RS, NS, WS> {
   @observable
   protected decoded: Option<JwtDecoded> = None;

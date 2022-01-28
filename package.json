@@ -32,28 +32,28 @@
     "minor-publish": "npm run build && npm run minify && npm version minor && npm run copy:configs && npm publish ./dist/ && git push --follow-tags"
   },
   "devDependencies": {
-    "@js-toolkit/configs": "^3.82.2",
+    "@js-toolkit/configs": "^3.83.2",
     "@js-toolkit/node-utils": "^1.1.4",
-    "@js-toolkit/utils": "^1.39.2",
+    "@js-toolkit/utils": "^1.40.3",
     "@types/jwt-decode": "^3.1.0",
-    "@typescript-eslint/eslint-plugin": "^5.7.0",
-    "@typescript-eslint/parser": "^5.7.0",
+    "@typescript-eslint/eslint-plugin": "^5.10.1",
+    "@typescript-eslint/parser": "^5.10.1",
     "copyfiles": "^2.4.1",
-    "eslint": "^8.4.1",
+    "eslint": "^8.7.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-prettier": "^4.0.0",
     "jwt-decode": "^3.1.2",
     "localforage": "^1.10.0",
-    "mobx": "^6.3.8",
+    "mobx": "^6.3.13",
     "mobx-utils": "^6.0.4",
     "prettier": "^2.5.1",
     "rimraf": "^3.0.2",
     "terser": "^5.10.0",
-    "typescript": "^4.5.4",
-    "valtors": "^2.3.2",
-    "yargs": "^17.3.0"
+    "typescript": "^4.5.5",
+    "valtors": "^2.4.1",
+    "yargs": "^17.3.1"
   },
   "prettier": "@js-toolkit/configs/prettier"
 }

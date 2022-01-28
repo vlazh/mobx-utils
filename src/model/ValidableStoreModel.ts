@@ -1,7 +1,8 @@
 import { action, observable, computed } from 'mobx';
 import { Option, None } from '@js-toolkit/utils/fp/Option';
 import { validate } from 'valtors';
-import ValidableModel, { ValidationErrors, ValidableEntity, KeysAction } from './ValidableModel';
+import type ValidableModel from './ValidableModel';
+import type { ValidationErrors, ValidableEntity, KeysAction } from './ValidableModel';
 import StoreModel from './StoreModel';
 
 export type OnlyModelEntity<A extends AnyObject, ExcludeTypes = AnyFunction> = ExcludeKeysOfType<

@@ -1,8 +1,10 @@
-import { Throwable, Try } from '@js-toolkit/utils/fp/Try';
-import Validable from '../model/Validable';
-import getErrorMessage from './getErrorMessage';
-import NotificationsStore, { Notification } from './NotificationsStore';
-import WorkerStore, { PendingTasks } from './WorkerStore';
+import { Try } from '@js-toolkit/utils/fp/Try';
+import getErrorMessage from '@js-toolkit/utils/getErrorMessage';
+import type Validable from '../model/Validable';
+import type NotificationsStore from './NotificationsStore';
+import type { Notification } from './NotificationsStore';
+import type WorkerStore from './WorkerStore';
+import type { PendingTasks } from './WorkerStore';
 import BaseStore from './BaseStore';
 
 export interface ResponseLike {
@@ -20,9 +22,7 @@ export interface AsyncAction<T> {
   (...params: any[]): Promise<T>;
 }
 
-export function isErrorResponseLike(
-  error: ErrorResponseLike | Throwable
-): error is ErrorResponseLike {
+export function isErrorResponseLike(error: unknown): error is ErrorResponseLike {
   return (error as ErrorResponseLike).config !== undefined;
 }
 
@@ -37,7 +37,7 @@ export interface RequestOptions<TaskKeys extends string> {
 export default class RequestableStore<
   RS extends AnyObject,
   NS extends NotificationsStore<RS, Notification<any, any>> = NotificationsStore<RS, Notification>,
-  WS extends WorkerStore<RS, never> = WorkerStore<RS, never>
+  WS extends WorkerStore<RS, any> = WorkerStore<RS, any>
 > extends BaseStore<RS> {
   readonly worker: WS;
 
@@ -56,7 +56,7 @@ export default class RequestableStore<
   // If just use promise with error and not use catch in client code then warning in console.
   protected async request<R>(
     doWork: AsyncAction<R>,
-    doWorkParams?: any[],
+    doWorkParams?: unknown[],
     options: RequestOptions<WS extends WorkerStore<any, infer TaskKeys> ? TaskKeys : never> = {}
   ): Promise<Try<R>> {
     const { deleteErrors, deleteNotifications, pending } = options;
@@ -66,19 +66,19 @@ export default class RequestableStore<
       this.notifications.deleteAll('error');
     }
     if (pending == null || pending) {
-      this.worker.push(pending === true ? undefined : (pending as any) || undefined);
+      this.worker.push(pending === true ? undefined : pending || undefined);
     }
 
     try {
       const result = await doWork(...(doWorkParams || []));
       this.onRequestSuccess(result, options);
       return Try.success(result);
-    } catch (ex: any) {
+    } catch (ex: unknown) {
       this.onRequestError(ex, options);
       return Try.failure(ex);
     } finally {
       if (pending == null || pending) {
-        this.worker.pop(pending === true ? undefined : (pending as any) || undefined);
+        this.worker.pop(pending === true ? undefined : pending || undefined);
       }
     }
   }
@@ -105,22 +105,22 @@ export default class RequestableStore<
 
   // eslint-disable-next-line class-methods-use-this
   protected getResponseErrorMessage(response: ResponseLike): string {
-    return (response.data && String(response.data)) || response.statusText;
+    return ((response.data != null && String(response.data)) || response.statusText) ?? '';
   }
 
   // eslint-disable-next-line class-methods-use-this
-  protected getThrowableMessage(error: Throwable): string {
+  protected getThrowableMessage(error: unknown): string {
     return getErrorMessage(error);
   }
 
-  protected getErrorMessage(error: ErrorResponseLike | Throwable): string {
+  protected getErrorMessage(error: unknown): string {
     return isErrorResponseLike(error) && error.response
       ? this.getResponseErrorMessage(error.response)
       : this.getThrowableMessage(error);
   }
 
   protected onRequestError(
-    error: ErrorResponseLike | Throwable,
+    error: unknown,
     {
       disableNotifications,
       notificationTimeout,
