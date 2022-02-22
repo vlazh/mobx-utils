@@ -9,6 +9,15 @@ import {
   isAction,
 } from 'mobx';
 
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  export namespace NodeJS {
+    interface ProcessEnv {
+      readonly NODE_ENV?: string;
+    }
+  }
+}
+
 export type StateLike<S extends AnyObject> = ExcludeKeysOfType<S, AnyFunction>;
 
 export interface StoreMethods<S extends AnyObject> {
@@ -72,32 +81,41 @@ export function isRootStore<S extends Stores>(value: unknown): value is RootStor
   );
 }
 
+const storeMethods: Record<keyof StoreMethods<AnyObject>, true> = {
+  init: true,
+  reset: true,
+  update: true,
+  getSnapshot: true,
+};
+
 export function updateState<S extends AnyObject>(
   state: S,
   patch: Parameters<StoreMethods<S>['update']>[0]
 ): S {
   const patchObject = typeof patch === 'function' ? patch(state) : patch;
-  if (patchObject) {
-    Object.getOwnPropertyNames(patchObject).forEach((prop) => {
-      if (
-        typeof patchObject[prop] !== 'function' &&
-        prop in state &&
-        typeof state[prop] !== 'function' &&
-        !isComputedProp(state, prop)
-      ) {
-        // Ignore getters and readonly fields
-        const desc = Object.getOwnPropertyDescriptor(state, prop);
-        if (desc?.set || desc?.writable) {
-          // eslint-disable-next-line no-param-reassign
-          state[prop as keyof S] = patchObject[prop] as S[keyof S];
-        } else {
-          console.warn(`Skip the value applied for readonly prop '${prop}'.`);
-        }
-      } else {
-        console.warn(`Skip the value applied for '${prop}' prop.`);
+  if (!patchObject) return state;
+
+  Object.getOwnPropertyNames(patchObject).forEach((prop) => {
+    if (
+      typeof patchObject[prop] !== 'function' &&
+      typeof state[prop] !== 'function' &&
+      prop in state &&
+      !isComputedProp(state, prop)
+    ) {
+      // Ignore getters and readonly fields
+      const desc = Object.getOwnPropertyDescriptor(state, prop);
+      if (desc?.set || desc?.writable) {
+        // eslint-disable-next-line no-param-reassign
+        state[prop as keyof S] = patchObject[prop] as S[keyof S];
+      } else if (globalThis.process?.env.NODE_ENV !== 'production') {
+        console.warn(`Skip the value applied for readonly prop '${prop}'.`);
       }
-    });
-  }
+    } else if (globalThis.process?.env.NODE_ENV !== 'production') {
+      if (!storeMethods[prop]) {
+        console.warn(`Skip the value applied for prop '${prop}'.`);
+      }
+    }
+  });
   return state;
 }
 
