@@ -116,6 +116,20 @@ type WithThis<T extends AnyObject> = {
     : T[P];
 };
 
+function filterState<S extends AnyObject>(
+  state: AnyObject,
+  statePropDescriptors = Object.getOwnPropertyDescriptors(state),
+  stateProps = Object.getOwnPropertyNames(statePropDescriptors)
+): StateLike<S> {
+  return stateProps.reduce((result, prop) => {
+    const desc = statePropDescriptors[prop];
+    if (desc && !desc.get && !desc.set && typeof desc.value !== 'function') {
+      Object.defineProperty(result, prop, desc);
+    }
+    return result;
+  }, {} as StateLike<S>);
+}
+
 export function createStore<S extends AnyObject>(
   initialState: WithThis<S>,
   overrides?: AnnotationsMap<S, never>,
@@ -125,28 +139,17 @@ export function createStore<S extends AnyObject>(
   const initialProps = Object.getOwnPropertyNames(initialDescriptors);
 
   // Define default state: exclude getters, setters, functions
-  const filterState = (
-    state: AnyObject,
-    stateProps = Object.getOwnPropertyNames(state)
-  ): StateLike<S> => {
-    return stateProps.reduce((result, prop) => {
-      const desc = initialDescriptors[prop];
-      if (desc && !desc.get && !desc.set && typeof desc.value !== 'function') {
-        Object.defineProperty(result, prop, desc);
-      }
-      return result;
-    }, {} as StateLike<S>);
-  };
-
-  let initial: StateLike<S> = filterState(initialState, initialProps);
+  let initial: StateLike<S> = filterState(initialState, initialDescriptors, initialProps);
 
   const store: StoreLike<S> = {
+    // Copy props and methods
+    // Getters/Setters will be copied as regular props so we have to redefine them below
     ...(initialState as S),
 
     [storeSymbolProp]: storeSymbol,
 
     init(state) {
-      initial = filterState(state);
+      initial = filterState(state, initialDescriptors, initialProps);
       this.update(initial);
     },
 
@@ -169,10 +172,23 @@ export function createStore<S extends AnyObject>(
     desc && (desc.get || desc.set) && Object.defineProperty(store, prop, desc);
   });
 
+  // Bind methods
+  // Object.entries(store).forEach(([key, value]) => {
+  //   if (typeof value === 'function') {
+  //     const fn = value as AnyFunction;
+  //     const desc = Object.getOwnPropertyDescriptors(fn);
+  //     // Only methods have prototype and caller, arrow functions do not.
+  //     if (desc.caller && desc.prototype) {
+  //       const prop = key as keyof typeof store;
+  //       store[prop] = fn.bind(store) as typeof store[typeof prop];
+  //     }
+  //   }
+  // });
+
   return makeAutoObservable(
     store,
-    { ...overrides, [storeSymbolProp]: false, getSnapshot: false },
-    options
+    { ...overrides, [storeSymbolProp]: false, getSnapshot: false, reset: false, init: false },
+    { autoBind: true, ...options }
   );
 }
 
