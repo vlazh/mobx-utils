@@ -90,7 +90,11 @@ export function updateState<S extends AnyObject>(
         if (desc?.set || desc?.writable) {
           // eslint-disable-next-line no-param-reassign
           state[prop as keyof S] = patchObject[prop] as S[keyof S];
+        } else {
+          console.warn(`Skip the value applied for readonly prop '${prop}'.`);
         }
+      } else {
+        console.warn(`Skip the value applied for '${prop}' prop.`);
       }
     });
   }
