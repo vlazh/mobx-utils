@@ -6,7 +6,8 @@ import {
   CreateObservableOptions,
   isObservableProp,
   isComputedProp,
-  isAction,
+  isAction as isMobxAction,
+  action as mobxAction,
 } from 'mobx';
 
 declare global {
@@ -124,7 +125,7 @@ export function getSnapshot<S extends AnyObject>(store: StoreLike<S>): StateLike
     const value = store[prop as keyof typeof acc];
     if (
       value !== storeSymbol &&
-      ((isObservableProp(store, prop) && !isAction(value)) || typeof value !== 'function')
+      ((isObservableProp(store, prop) && !isMobxAction(value)) || typeof value !== 'function')
     ) {
       acc[prop] = toJS(value);
     }
@@ -155,8 +156,10 @@ function filterState<S extends AnyObject>(
 export function createStore<S extends AnyObject>(
   initialState: WithThis<S>,
   overrides?: AnnotationsMap<S, never>,
-  options?: CreateObservableOptions
+  options0?: CreateObservableOptions
 ): StoreLike<S> {
+  const options = { autoBind: true, ...options0 };
+
   const initialDescriptors = Object.getOwnPropertyDescriptors(initialState);
   const initialProps = Object.getOwnPropertyNames(initialDescriptors);
 
@@ -198,19 +201,33 @@ export function createStore<S extends AnyObject>(
   // Object.entries(store).forEach(([key, value]) => {
   //   if (typeof value === 'function') {
   //     const fn = value as AnyFunction;
-  //     const desc = Object.getOwnPropertyDescriptors(fn);
-  //     // Only methods have prototype and caller, arrow functions do not.
-  //     if (desc.caller && desc.prototype) {
-  //       const prop = key as keyof typeof store;
-  //       store[prop] = fn.bind(store) as typeof store[typeof prop];
-  //     }
+  //     const prop = key as keyof typeof store;
+  //     store[prop] = fn.bind(store) as typeof store[typeof prop];
   //   }
   // });
 
+  // Make auto bound annotations for passed methods to avoid auto make its as observable values.
+  const methodAnnotations =
+    options.autoBind &&
+    Object.entries(store).reduce((acc, [key, value]) => {
+      if (!storeMethods[key] && typeof value === 'function') {
+        acc[key] = mobxAction.bound;
+      }
+      return acc;
+    }, {} as AnnotationsMap<EmptyObject, string>);
+
   return makeAutoObservable(
     store,
-    { ...overrides, [storeSymbolProp]: false, getSnapshot: false, reset: false, init: false },
-    { autoBind: true, ...options }
+    {
+      ...methodAnnotations,
+      ...overrides,
+      [storeSymbolProp]: false,
+      init: false,
+      reset: false,
+      getSnapshot: false,
+      update: mobxAction.bound,
+    },
+    options
   );
 }
 
