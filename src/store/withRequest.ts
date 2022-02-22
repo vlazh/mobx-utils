@@ -1,9 +1,6 @@
-/* eslint-disable dot-notation */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-empty-function */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-this-alias */
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable no-shadow */
+/* eslint-disable dot-notation */
 import { IWhenOptions, when as whenFn, runInAction } from 'mobx';
 import { Try } from '@js-toolkit/utils/fp/Try';
 import type Validable from '../model/Validable';
@@ -51,13 +48,14 @@ function withDecorator<S extends RequestableStore<any, any, any>>(
 
         Object.defineProperty(this, propertyKey, {
           ...rest,
-          value(...params: any[]): Promise<Try<any>> {
+          value(...params: unknown[]): Promise<Try<any>> {
             return request(self, fn)(...params);
           },
         });
 
-        return this[propertyKey];
+        return this[propertyKey] as unknown;
       },
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
       set: () => {},
     };
   }
@@ -68,7 +66,7 @@ function withDecorator<S extends RequestableStore<any, any, any>>(
 
     return {
       ...rest,
-      async value(this: typeof target, ...params: any[]) {
+      async value(this: typeof target, ...params: unknown[]) {
         await request(this, fn)(...params);
       },
     };
@@ -79,9 +77,9 @@ function withDecorator<S extends RequestableStore<any, any, any>>(
     const { initializer, ...rest } = descriptor;
     return {
       ...rest,
-      initializer() {
+      initializer(this: S) {
         // N.B: we can't immediately invoke initializer; this would be wrong
-        const fn = initializer.call(this);
+        const fn = initializer.call(this) as AnyFunction;
         return request(this, fn);
       },
     };
@@ -93,8 +91,8 @@ function withDecorator<S extends RequestableStore<any, any, any>>(
     enumerable: true,
     get(this: typeof target) {
       // When first get invoked we are redefine property on concreate class instance
-      defineInstanceProp(request, this, propertyKey, this[propertyKey]);
-      return this[propertyKey];
+      defineInstanceProp(request, this, propertyKey, this[propertyKey] as AnyFunction);
+      return this[propertyKey] as unknown;
     },
     set(this: typeof target, nextFn: AnyFunction) {
       // When first set invoked we are redefine property on concreate class instance
@@ -135,7 +133,7 @@ export interface WithRequestOptions<S extends RequestableStore<any, any, any>>
 async function callRequestWithOptions<S extends RequestableStore<any, any, any>>(
   self: S,
   originalFn: AnyFunction,
-  originalFnParams: any[],
+  originalFnParams: unknown[],
   {
     validate,
     before,
@@ -145,7 +143,9 @@ async function callRequestWithOptions<S extends RequestableStore<any, any, any>>
   }: OmitStrict<WithRequestOptions<S>, 'memo' | 'bound'>
 ): Promise<Try<any>> {
   const isValid = await (validate
-    ? new Promise((resolve) => resolve(validate.call(self, self)))
+    ? new Promise((resolve) => {
+        resolve(validate.call(self, self));
+      })
     : Promise.resolve(true));
   if (!isValid) {
     return Try.failure(new Error('Something is not valid.'));
@@ -163,7 +163,7 @@ async function callRequestWithOptions<S extends RequestableStore<any, any, any>>
   before && runInAction(before.bind(self, self));
 
   const result = await self['request'](
-    () => originalFn.call(self, ...originalFnParams),
+    () => originalFn.call(self, ...originalFnParams) as Promise<unknown>,
     undefined,
     requestOptions
   );
@@ -192,12 +192,12 @@ interface MemoCacheEntry {
   lastInputs: any[] | boolean;
   lastParams: any[] | undefined;
   lastResult: Try<any>;
-  cacheTimeoutHandler: number | undefined;
+  cacheTimeoutHandler: any | undefined;
 }
 
 const memoCache: WeakMap<AnyFunction, MemoCacheEntry> = new WeakMap();
 
-function createRemoveEntryTimer(lifetime: number, key: AnyFunction): number | undefined {
+function createRemoveEntryTimer(lifetime: number, key: AnyFunction): unknown | undefined {
   return lifetime > 0 ? setTimeout(() => memoCache.delete(key), lifetime * 1000) : undefined;
 }
 
@@ -240,7 +240,7 @@ function getLastResult(
 async function withMemo<S extends RequestableStore<any, any, any>>(
   self: S,
   originalFn: AnyFunction,
-  originalFnParams: any[],
+  originalFnParams: unknown[],
   request: typeof callRequestWithOptions,
   options: OmitStrict<WithRequestOptions<S>, 'memo'>,
   { inputs: inputsGetter, checkOriginalParams = true, lifetime = 0 }: MemoOptions<S>
@@ -256,6 +256,7 @@ async function withMemo<S extends RequestableStore<any, any, any>>(
     (await request(self, originalFn, originalFnParams, options));
 
   // Recreate timer on every call
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   entry && entry.cacheTimeoutHandler && clearTimeout(entry.cacheTimeoutHandler);
 
   memoCache.set(originalFn, {
@@ -301,12 +302,12 @@ function withRequest<S extends RequestableStore<any, any, any>>(
   if (isRequestableStore(targetOrOptions)) {
     return withDecorator(
       (self, originalFn) =>
-        (...params: any[]) => {
-          return self['request'](() => originalFn.call(self, ...params));
+        (...params: unknown[]) => {
+          return self['request'](() => originalFn.call(self, ...params) as Promise<unknown>);
         },
       false,
       targetOrOptions,
-      propertyKeyOrNothing!,
+      propertyKeyOrNothing as string,
       descriptorOrNothing
     );
   }
@@ -316,7 +317,7 @@ function withRequest<S extends RequestableStore<any, any, any>>(
     propertyKey: string | symbol,
     descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
   ): any {
-    const { bound, memo, ...restOptions } = targetOrOptions as WithRequestOptions<S>;
+    const { bound, memo, ...restOptions } = targetOrOptions;
 
     return withDecorator(
       (self, originalFn) =>
@@ -361,9 +362,14 @@ export function withSubmit<S extends RequestableStore<any, any, any>>(
   return function withSubmitRequest(target, propertyKey, descriptor): any {
     return withDecorator(
       (self, originalFn) =>
-        (...params: any[]) => {
+        (...params: unknown[]) => {
           const model = modelGetter(self);
-          return self['submit'](model, () => originalFn.call(self, ...params), undefined, options);
+          return self['submit'](
+            model,
+            () => originalFn.call(self, ...params) as Promise<unknown>,
+            undefined,
+            options
+          );
         },
       false,
       target,
