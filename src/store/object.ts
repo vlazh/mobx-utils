@@ -223,7 +223,7 @@ export function createStore<S extends AnyObject>(
       ...overrides,
       [storeSymbolProp]: false,
       init: false,
-      reset: false,
+      reset: mobxAction.bound,
       getSnapshot: false,
       update: mobxAction.bound,
     },
