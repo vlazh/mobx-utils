@@ -1,4 +1,4 @@
-import type { Option } from '@js-toolkit/utils/fp/Option';
+import type { Option } from '@jstoolkit/utils/fp/Option';
 import type Validable from './Validable';
 import type { ModelLike } from './Model';
 

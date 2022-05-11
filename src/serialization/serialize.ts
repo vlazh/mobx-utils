@@ -1,5 +1,5 @@
-import { Option } from '@js-toolkit/utils/fp/Option';
-import type { ValueContainer } from '@js-toolkit/utils/types/json';
+import { Option } from '@jstoolkit/utils/fp/Option';
+import type { ValueContainer } from '@jstoolkit/utils/types/json';
 import type { JSONSerializable, JsonOf } from './json';
 
 export type SerializerResult = { value: any; next: boolean };

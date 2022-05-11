@@ -2,7 +2,7 @@
 /* eslint-disable no-shadow */
 /* eslint-disable dot-notation */
 import { IWhenOptions, when as whenFn, runInAction } from 'mobx';
-import { Try } from '@js-toolkit/utils/fp/Try';
+import { Try } from '@jstoolkit/utils/fp/Try';
 import type Validable from '../model/Validable';
 import RequestableStore, { AsyncAction, RequestOptions } from './RequestableStore';
 import type WorkerStore from './WorkerStore';
