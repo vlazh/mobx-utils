@@ -1,6 +1,6 @@
 # MobX Utils
 
-![GitHub package.json version](https://img.shields.io/github/package-json/v/vlazh/mobx-utils)
+[![npm package](https://img.shields.io/npm/v/@jstoolkit/mobx-utils.svg?style=flat-square)](https://www.npmjs.org/package/@jstoolkit/mobx-utils)
 
 Base classes and utilities of mobx stores and validable mobx models.
 
