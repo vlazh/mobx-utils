@@ -133,11 +133,10 @@ export function getSnapshot<S extends AnyObject>(store: StoreLike<S>): StateLike
   }, {} as StateLike<S>);
 }
 
-type WithThis<T extends AnyObject> = {
-  [P in keyof T]: T[P] extends AnyFunction
-    ? (this: StoreLike<T>, ...args: Parameters<T[P]>) => ReturnType<T[P]>
-    : T[P];
-};
+type WithThis<T extends AnyObject> = ThisType<StoreLike<T>> & T;
+// type WithThis<T extends AnyObject> = {
+//   [P in keyof T]: T[P] extends AnyFunction ? (...args: Parameters<T[P]>) => ReturnType<T[P]> : T[P];
+// };
 
 function filterState<S extends AnyObject>(
   state: AnyObject,
