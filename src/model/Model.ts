@@ -61,7 +61,7 @@ export default class Model<Entity extends AnyObject> implements ModelLike<Entity
   protected readonly target: Entity;
 
   constructor(target?: Entity) {
-    this.target = target || (this as Entity);
+    this.target = target || (this as unknown as Entity);
     // to avoid circular dependencies on self
     const desc = Object.getOwnPropertyDescriptor(this, 'target');
     Object.defineProperty(this, 'target', { ...desc, enumerable: false });
