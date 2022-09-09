@@ -19,6 +19,10 @@ declare global {
   }
 }
 
+export interface GetSnapshotOptions {
+  readonly excludeReadonly?: boolean;
+}
+
 export type StateLike<S extends AnyObject> = ExcludeKeysOfType<S, AnyFunction>;
 
 export interface StoreMethods<S extends AnyObject> {
@@ -28,7 +32,7 @@ export interface StoreMethods<S extends AnyObject> {
     patch: Partial<StateLike<S>> | ((state: StateLike<S>) => Partial<StateLike<S>> | undefined)
   ): void;
   reset(this: this): void;
-  getSnapshot(this: this): StateLike<S>;
+  getSnapshot(this: this, options?: GetSnapshotOptions): StateLike<S>;
 }
 
 export type StoreLike<S extends AnyObject> = S & StoreMethods<S>;
@@ -120,14 +124,26 @@ export function updateState<S extends AnyObject>(
   return state;
 }
 
-export function getSnapshot<S extends AnyObject>(store: StoreLike<S>): StateLike<S> {
+export function getSnapshot<S extends AnyObject>(
+  store: StoreLike<S>,
+  { excludeReadonly }: GetSnapshotOptions = {}
+): StateLike<S> {
   return Object.getOwnPropertyNames(store).reduce((acc, prop) => {
     const value = store[prop as keyof typeof acc];
     if (
       value !== storeSymbol &&
       ((isObservableProp(store, prop) && !isMobxAction(value)) || typeof value !== 'function')
     ) {
-      acc[prop] = toJS(value);
+      if (excludeReadonly) {
+        if (!isComputedProp(store, prop)) {
+          const desc = Object.getOwnPropertyDescriptor(store, prop);
+          if (!desc || desc.writable || desc.set) {
+            acc[prop] = toJS(value);
+          }
+        }
+      } else {
+        acc[prop] = toJS(value);
+      }
     }
     return acc;
   }, {} as StateLike<S>);
@@ -185,8 +201,8 @@ export function createStore<S extends AnyObject>(
       this.update(initial);
     },
 
-    getSnapshot() {
-      return getSnapshot(this);
+    getSnapshot(opts) {
+      return getSnapshot(this, opts);
     },
   };
 
