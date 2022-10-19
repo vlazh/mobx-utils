@@ -8,6 +8,7 @@ import {
   isComputedProp,
   isAction as isMobxAction,
   action as mobxAction,
+  runInAction,
 } from 'mobx';
 
 declare global {
@@ -55,6 +56,7 @@ export interface RootStoreMethods<S extends Stores> {
   resetAll(this: this): void;
   getSnapshots(this: this): JSStates<S>;
   transaction<T>(this: this, action: () => T): T;
+  action<T>(this: this, action: () => T): T;
 }
 
 export type RootStoreLike<S extends Stores> = S & RootStoreMethods<S>;
@@ -289,6 +291,10 @@ export function createRootStore<S extends Stores>(stores: S): RootStoreLike<S> {
 
     transaction(action) {
       return transaction(action);
+    },
+
+    action(action) {
+      return runInAction(action);
     },
 
     getSnapshots() {
