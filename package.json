@@ -25,35 +25,35 @@
     "build-to-tutoron": "tsc --project ./tsconfig.json --outDir '../../../tutoron/node_modules/@jstoolkit/mobx-utils/' && copyfiles package.json '../../../tutoron/node_modules/@jstoolkit/mobx-utils/'",
     "build-to-react-components": "tsc --project ./tsconfig.json --outDir '../react-components/node_modules/@jstoolkit/mobx-utils/' && copyfiles package.json '../react-components/node_modules/@jstoolkit/mobx-utils/'",
     "build-to-player": "tsc --build ./tsconfig.json && npm run minify && copyfiles -e './dist/*(package.json|README.md|LICENSE)' -u 1 './dist/**/*' '../../../player/modules/mobx-utils'",
-    "patch-publish": "npm run build && npm run minify && npm version patch && npm run copy:configs && npm publish ./dist/ --access public && git push --follow-tags",
-    "minor-publish": "npm run build && npm run minify && npm version minor && npm run copy:configs && npm publish ./dist/ --access public && git push --follow-tags"
+    "patch-publish": "npm run build && npm run minify && npm version patch --no-workspaces-update -m 'v%s' && npm run copy:configs && cd ./dist && npm publish --access public && git push --follow-tags",
+    "minor-publish": "npm run build && npm run minify && npm version minor --no-workspaces-update -m 'v%s' && npm run copy:configs && cd ./dist && npm publish --access public && git push --follow-tags"
   },
   "optionalDependencies": {
     "@js-toolkit/node-utils": "^1.1.4"
   },
   "devDependencies": {
     "@jstoolkit/configs": "^3.84.7",
-    "@jstoolkit/utils": "^1.44.4",
+    "@jstoolkit/utils": "^1.45.6",
     "@types/jwt-decode": "^3.1.0",
-    "@types/node": "^18.7.13",
-    "@typescript-eslint/eslint-plugin": "^5.35.1",
-    "@typescript-eslint/parser": "^5.35.1",
+    "@types/node": "^18.11.0",
+    "@typescript-eslint/eslint-plugin": "^5.40.1",
+    "@typescript-eslint/parser": "^5.40.1",
     "copyfiles": "^2.4.1",
-    "eslint": "^8.22.0",
+    "eslint": "^8.25.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-prettier": "^4.2.1",
     "jwt-decode": "^3.1.2",
     "localforage": "^1.10.0",
-    "mobx": "^6.6.1",
+    "mobx": "^6.6.2",
     "mobx-utils": "^6.0.5",
     "prettier": "^2.7.1",
     "rimraf": "^3.0.2",
-    "terser": "^5.15.0",
-    "typescript": "^4.8.2",
+    "terser": "^5.15.1",
+    "typescript": "^4.8.4",
     "valtors": "^2.4.1",
-    "yargs": "^17.5.1"
+    "yargs": "^17.6.0"
   },
   "prettier": "@jstoolkit/configs/prettier"
 }

@@ -13,3 +13,12 @@ node_modules/
 *.iml
 .vscode/
 .history/
+
+# Yarn
+pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
