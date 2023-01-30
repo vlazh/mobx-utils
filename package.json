@@ -1,6 +1,6 @@
 {
   "name": "@jstoolkit/mobx-utils",
-  "version": "2.10.3",
+  "version": "2.10.4",
   "description": "MobX utils",
   "main": "index.js",
   "types": "index.d.ts",
