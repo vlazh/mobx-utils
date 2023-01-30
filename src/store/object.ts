@@ -15,13 +15,13 @@ declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   export namespace NodeJS {
     interface ProcessEnv {
-      readonly NODE_ENV?: string;
+      readonly NODE_ENV?: string | undefined;
     }
   }
 }
 
 export interface GetSnapshotOptions {
-  readonly excludeReadonly?: boolean;
+  readonly excludeReadonly?: boolean | undefined;
 }
 
 export type StateLike<S extends AnyObject> = ExcludeKeysOfType<S, AnyFunction>;
@@ -33,7 +33,7 @@ export interface StoreMethods<S extends AnyObject> {
     patch: Partial<StateLike<S>> | ((state: StateLike<S>) => Partial<StateLike<S>> | undefined)
   ): void;
   reset(this: this): void;
-  getSnapshot(this: this, options?: GetSnapshotOptions): StateLike<S>;
+  getSnapshot(this: this, options?: GetSnapshotOptions | undefined): StateLike<S>;
 }
 
 export type StoreLike<S extends AnyObject> = S & StoreMethods<S>;
@@ -43,7 +43,7 @@ type States = { [P: string]: StateLike<AnyObject> };
 export type JSStates<S extends States> = { readonly [P in keyof StateLike<S>]: StateLike<S[P]> };
 
 type JSStatePatches<S extends States> = {
-  readonly [P in keyof StateLike<S>]?: Parameters<StoreMethods<S[P]>['update']>[0];
+  readonly [P in keyof StateLike<S>]?: Parameters<StoreMethods<S[P]>['update']>[0] | undefined;
 };
 
 interface Stores {
@@ -172,8 +172,8 @@ function filterState<S extends AnyObject>(
 
 export function createStore<S extends AnyObject>(
   initialState: WithThis<S>,
-  overrides?: AnnotationsMap<S, never>,
-  options0?: CreateObservableOptions
+  overrides?: AnnotationsMap<S, never> | undefined,
+  options0?: CreateObservableOptions | undefined
 ): StoreLike<S> {
   const options = { autoBind: true, ...options0 };
 
@@ -316,8 +316,8 @@ type WithSelectors<RS extends RootStoreLike<any>, S extends Readonly<AnyObject>>
 export function attachSelectors<RS extends RootStoreLike<any>, S extends Readonly<AnyObject>>(
   rootStore: RS,
   selectors: S,
-  overrides?: AnnotationsMap<S, never>,
-  options?: CreateObservableOptions
+  overrides?: AnnotationsMap<S, never> | undefined,
+  options?: CreateObservableOptions | undefined
 ): WithSelectors<RS, S> {
   return Object.assign(rootStore as AnyObject, {
     selectors: makeAutoObservable(selectors, overrides, options),

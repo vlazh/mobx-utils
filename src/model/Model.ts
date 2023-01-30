@@ -17,11 +17,11 @@ export interface NameValue<EntityOrValue, K extends keyof EntityOrValue = any> {
 }
 
 export interface InputElementLike<V = any> extends NameValue<V, any> {
-  type?: string;
+  type?: string | undefined;
 }
 
 export interface InputEventLike<V = any> {
-  preventDefault?: () => void;
+  preventDefault?: VoidFunction | undefined;
   target: InputElementLike<V>;
 }
 
@@ -49,8 +49,8 @@ export function isInputEventLike<Entity extends AnyObject, K extends keyof Entit
 
 export interface ModelSetOptions {
   /** If true then don't fire onFieldChanged */
-  silent?: boolean;
-  errorIfUnknownField?: boolean;
+  silent?: boolean | undefined;
+  errorIfUnknownField?: boolean | undefined;
 }
 
 export default class Model<Entity extends AnyObject> implements ModelLike<Entity> {
@@ -60,7 +60,7 @@ export default class Model<Entity extends AnyObject> implements ModelLike<Entity
    */
   protected readonly target: Entity;
 
-  constructor(target?: Entity) {
+  constructor(target?: Entity | undefined) {
     this.target = target || (this as unknown as Entity);
     // to avoid circular dependencies on self
     const desc = Object.getOwnPropertyDescriptor(this, 'target');

@@ -7,7 +7,7 @@ export interface Notification<TType extends 'error' = 'error', TContent = string
   id: NotificationID;
   type: TType;
   content: TContent;
-  timeout?: number;
+  timeout?: number | undefined;
 }
 
 export default class NotificationsStore<
@@ -72,7 +72,7 @@ export default class NotificationsStore<
   }
 
   @action
-  deleteAll(type?: N['type']): void {
+  deleteAll(type?: N['type'] | undefined): void {
     this.notifications = type ? this.notifications.filter((_) => _.type !== type) : [];
   }
 

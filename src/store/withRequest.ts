@@ -26,14 +26,16 @@ function defineInstanceProp<S extends RequestableStore<any, any, any>>(
   });
 }
 
-type BabelDescriptor = TypedPropertyDescriptor<AsyncAction<void>> & { initializer?: () => any };
+type BabelDescriptor = TypedPropertyDescriptor<AsyncAction<void>> & {
+  initializer?: (() => any) | undefined;
+};
 
 function withDecorator<S extends RequestableStore<any, any, any>>(
   request: (self: S, originalFn: AnyFunction) => AsyncAction<Try<any>>,
   bound: boolean,
   target: S,
   propertyKey: string | symbol,
-  descriptor?: BabelDescriptor
+  descriptor?: BabelDescriptor | undefined
 ): any {
   // Method bound:
   if (bound && descriptor?.value) {
@@ -103,11 +105,11 @@ function withDecorator<S extends RequestableStore<any, any, any>>(
 
 export interface MemoOptions<S extends RequestableStore<any, any, any>> {
   /** Invoke decorated method if this function returns `true` or if returned inputs are changed (shallow compare) */
-  inputs?: (self: S, ...originalParams: any[]) => any[] | boolean;
+  inputs?: ((self: S, ...originalParams: any[]) => any[] | boolean) | undefined;
   /** Merge */
-  checkOriginalParams?: boolean;
+  checkOriginalParams?: boolean | undefined;
   /** In seconds */
-  lifetime?: number;
+  lifetime?: number | undefined;
 }
 
 export interface WithRequestOptions<S extends RequestableStore<any, any, any>>
@@ -118,16 +120,18 @@ export interface WithRequestOptions<S extends RequestableStore<any, any, any>>
         : never
       : never
   > {
-  validate?: (this: S, self: S) => boolean | ((self: S) => boolean);
-  before?: (this: S, self: S) => void | ((self: S) => void);
-  after?: (this: S, self: S) => void | ((self: S) => void);
+  validate?: ((this: S, self: S) => boolean | ((self: S) => boolean)) | undefined;
+  before?: ((this: S, self: S) => void | ((self: S) => void)) | undefined;
+  after?: ((this: S, self: S) => void | ((self: S) => void)) | undefined;
   /** Suspense until when predicate resolves to true */
-  when?: {
-    predicate: ((this: S, self: S) => boolean) | ((self: S) => boolean);
-    options?: IWhenOptions;
-  };
-  memo?: boolean | MemoOptions<S>;
-  bound?: boolean;
+  when?:
+    | {
+        predicate: ((this: S, self: S) => boolean) | ((self: S) => boolean);
+        options?: IWhenOptions;
+      }
+    | undefined;
+  memo?: boolean | MemoOptions<S> | undefined;
+  bound?: boolean | undefined;
 }
 
 async function callRequestWithOptions<S extends RequestableStore<any, any, any>>(
@@ -209,7 +213,7 @@ function createRemoveEntryTimer(lifetime: number, key: AnyFunction): unknown | u
 function getLastResult(
   entry: MemoCacheEntry | undefined,
   inputs: MemoCacheEntry['lastInputs'],
-  originalParams?: any[]
+  originalParams?: any[] | undefined
 ): MemoCacheEntry['lastResult'] | undefined {
   if (!entry) {
     return undefined;
@@ -275,7 +279,7 @@ async function withMemo<S extends RequestableStore<any, any, any>>(
 type PropertyOrMethodDecorator<S extends RequestableStore<any, any, any>> = (
   target: S,
   propertyKey: string | symbol,
-  descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
+  descriptor?: TypedPropertyDescriptor<AsyncAction<void>> | undefined
 ) => any;
 
 function isRequestableStore<S extends RequestableStore<any, any, any>>(
@@ -287,7 +291,7 @@ function isRequestableStore<S extends RequestableStore<any, any, any>>(
 function withRequest<S extends RequestableStore<any, any, any>>(
   target: S,
   propertyKey: string | symbol,
-  descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
+  descriptor?: TypedPropertyDescriptor<AsyncAction<void>> | undefined
 ): any;
 
 function withRequest<S extends RequestableStore<any, any, any>>(
@@ -296,8 +300,8 @@ function withRequest<S extends RequestableStore<any, any, any>>(
 
 function withRequest<S extends RequestableStore<any, any, any>>(
   targetOrOptions: S | WithRequestOptions<S>,
-  propertyKeyOrNothing?: string | symbol,
-  descriptorOrNothing?: TypedPropertyDescriptor<AsyncAction<void>>
+  propertyKeyOrNothing?: string | symbol | undefined,
+  descriptorOrNothing?: TypedPropertyDescriptor<AsyncAction<void>> | undefined
 ): typeof targetOrOptions extends WithRequestOptions<S> ? PropertyOrMethodDecorator<S> : any {
   if (isRequestableStore(targetOrOptions)) {
     return withDecorator(
@@ -315,7 +319,7 @@ function withRequest<S extends RequestableStore<any, any, any>>(
   return function withRequestOptions(
     target: S,
     propertyKey: string | symbol,
-    descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
+    descriptor?: TypedPropertyDescriptor<AsyncAction<void>> | undefined
   ): any {
     const { bound, memo, ...restOptions } = targetOrOptions;
 
@@ -347,17 +351,19 @@ export default withRequest;
 
 export function withSubmit<S extends RequestableStore<any, any, any>>(
   modelGetter: (self: S) => Validable,
-  options?: RequestOptions<
-    S extends RequestableStore<any, any, infer WS>
-      ? WS extends WorkerStore<any, infer TaskKeys>
-        ? TaskKeys
-        : never
-      : never
-  >
+  options?:
+    | RequestOptions<
+        S extends RequestableStore<any, any, infer WS>
+          ? WS extends WorkerStore<any, infer TaskKeys>
+            ? TaskKeys
+            : never
+          : never
+      >
+    | undefined
 ): (
   target: S,
   propertyKey: string | symbol,
-  descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
+  descriptor?: TypedPropertyDescriptor<AsyncAction<void>> | undefined
 ) => any {
   return function withSubmitRequest(target, propertyKey, descriptor): any {
     return withDecorator(

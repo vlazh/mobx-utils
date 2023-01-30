@@ -5,9 +5,9 @@ import type { JSONSerializable, JsonOf } from './json';
 export type SerializerResult = { value: any; next: boolean };
 
 export interface SerializeOptions {
-  serializer?: (value: any) => SerializerResult;
-  excludeValidableModelFields?: boolean;
-  excludeJSONSerializableFields?: boolean;
+  serializer?: ((value: any) => SerializerResult) | undefined;
+  excludeValidableModelFields?: boolean | undefined;
+  excludeJSONSerializableFields?: boolean | undefined;
 }
 
 export function serialize<V>(valueOrObject: V, options: SerializeOptions = {}): JsonOf<V> {

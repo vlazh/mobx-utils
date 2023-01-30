@@ -3,7 +3,7 @@ import { computedFn } from 'mobx-utils';
 import BaseStore from './BaseStore';
 
 export type PendingTasks<TaskKeys extends string> = { default: number } & {
-  [P in TaskKeys]?: number;
+  [P in TaskKeys]?: number | undefined;
 };
 
 export default class WorkerStore<

@@ -8,9 +8,9 @@ import type { PendingTasks } from './WorkerStore';
 import BaseStore from './BaseStore';
 
 export interface ResponseLike {
-  data?: any;
-  status?: number;
-  statusText?: string;
+  data?: any | undefined;
+  status?: number | undefined;
+  statusText?: string | undefined;
 }
 
 export interface ErrorResponseLike {
@@ -27,11 +27,11 @@ export function isErrorResponseLike(error: unknown): error is ErrorResponseLike 
 }
 
 export interface RequestOptions<TaskKeys extends string> {
-  notificationTimeout?: Notification['timeout'];
-  pending?: boolean | keyof PendingTasks<TaskKeys>;
-  disableNotifications?: boolean;
-  deleteErrors?: boolean;
-  deleteNotifications?: boolean;
+  notificationTimeout?: Notification['timeout'] | undefined;
+  pending?: boolean | keyof PendingTasks<TaskKeys> | undefined;
+  disableNotifications?: boolean | undefined;
+  deleteErrors?: boolean | undefined;
+  deleteNotifications?: boolean | undefined;
 }
 
 export default class RequestableStore<
@@ -56,7 +56,7 @@ export default class RequestableStore<
   // If just use promise with error and not use catch in client code then warning in console.
   protected async request<R>(
     doWork: AsyncAction<R>,
-    doWorkParams?: unknown[],
+    doWorkParams?: unknown[] | undefined,
     options: RequestOptions<WS extends WorkerStore<any, infer TaskKeys> ? TaskKeys : never> = {}
   ): Promise<Try<R>> {
     const { deleteErrors, deleteNotifications, pending } = options;
@@ -86,7 +86,7 @@ export default class RequestableStore<
   protected submit<R>(
     model: Validable,
     doWork: AsyncAction<R>,
-    doWorkParams?: any[],
+    doWorkParams?: any[] | undefined,
     options: RequestOptions<WS extends WorkerStore<any, infer TaskKeys> ? TaskKeys : never> = {}
   ): Promise<Try<R>> {
     if (!model.validate()) {
