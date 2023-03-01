@@ -47,7 +47,7 @@ type JSStatePatches<S extends States> = {
 };
 
 interface Stores {
-  readonly [P: string]: StoreLike<AnyObject>;
+  readonly [P: string]: StoreLike<AnyObject> | AnyFunction;
 }
 
 export interface RootStoreMethods<S extends Stores> {
@@ -248,7 +248,7 @@ export function createStore<S extends AnyObject>(
   );
 }
 
-export function createRootStore<S extends Stores>(stores: S): RootStoreLike<S> {
+export function createRootStore<S extends Stores>(stores: WithThis<S>): RootStoreLike<S> {
   return {
     ...stores,
 
@@ -259,7 +259,7 @@ export function createRootStore<S extends Stores>(stores: S): RootStoreLike<S> {
         Object.getOwnPropertyNames(states).forEach((prop) => {
           const store = this[prop];
           const state = states[prop as keyof typeof states];
-          if (state && typeof state !== 'function' && isStore(store)) {
+          if (state && isStore(store)) {
             store.init(state);
           }
         });
