@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
 /* eslint-disable no-shadow */
 /* eslint-disable dot-notation */
-import { IWhenOptions, when as whenFn, runInAction } from 'mobx';
+import { type IWhenOptions, when as whenFn, runInAction } from 'mobx';
 import { Try } from '@jstoolkit/utils/fp/Try';
 import type Validable from '../model/Validable';
-import RequestableStore, { AsyncAction, RequestOptions } from './RequestableStore';
+import RequestableStore, { type AsyncAction, type RequestOptions } from './RequestableStore';
 import type WorkerStore from './WorkerStore';
 
 function defineInstanceProp<S extends RequestableStore<any, any, any>>(
@@ -55,7 +55,7 @@ function withDecorator<S extends RequestableStore<any, any, any>>(
           },
         });
 
-        return this[propertyKey] as unknown;
+        return this[propertyKey as keyof typeof target] as unknown;
       },
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       set: () => {},
@@ -93,8 +93,13 @@ function withDecorator<S extends RequestableStore<any, any, any>>(
     enumerable: true,
     get(this: typeof target) {
       // When first get invoked we are redefine property on concreate class instance
-      defineInstanceProp(request, this, propertyKey, this[propertyKey] as AnyFunction);
-      return this[propertyKey] as unknown;
+      defineInstanceProp(
+        request,
+        this,
+        propertyKey,
+        this[propertyKey as keyof typeof target] as AnyFunction
+      );
+      return this[propertyKey as keyof typeof target] as unknown;
     },
     set(this: typeof target, nextFn: AnyFunction) {
       // When first set invoked we are redefine property on concreate class instance

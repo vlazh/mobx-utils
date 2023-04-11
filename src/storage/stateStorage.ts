@@ -35,7 +35,7 @@ export async function saveRootState<RootState extends AnyObject>(
         saveStoreState<RootState, keyof JSONStoreState<RootState>>(
           storage,
           store as keyof JSONStoreState<RootState>,
-          state[store],
+          state[store as keyof JSONStoreState<RootState>],
           throwError
         )
       )

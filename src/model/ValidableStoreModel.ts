@@ -43,7 +43,9 @@ export default class ValidableStoreModel<
 
   @computed
   get isValid(): boolean {
-    return Object.keys(this.errors).every((key) => this.errors[key].error.isEmpty());
+    return Object.keys(this.errors).every((key) =>
+      this.errors[key as keyof typeof this.errors].error.isEmpty()
+    );
   }
 
   @action
@@ -56,9 +58,10 @@ export default class ValidableStoreModel<
     );
 
     const safeResult = Object.keys(result).reduce((acc, key) => {
-      acc[key] = { error: Option.of(result[key].error) };
+      const prop = key as keyof typeof this.errors;
+      acc[prop] = { error: Option.of(result[prop]?.message) };
       return acc;
-    }, {});
+    }, {} as typeof this.errors);
 
     Object.assign(this.errors, safeResult);
 
@@ -67,7 +70,8 @@ export default class ValidableStoreModel<
 
   @action
   cleanErrors(): void {
-    Object.getOwnPropertyNames(this.errors).forEach((prop) => {
+    Object.getOwnPropertyNames(this.errors).forEach((key) => {
+      const prop = key as keyof typeof this.errors;
       this.errors[prop] = { ...this.errors[prop], error: None };
     });
   }

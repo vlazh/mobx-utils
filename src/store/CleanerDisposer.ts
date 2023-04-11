@@ -1,11 +1,15 @@
-import { Reaction, IReactionDisposer, $mobx } from 'mobx';
+import { Reaction, type IReactionDisposer, $mobx } from 'mobx';
 
-export function isReaction(value: any): value is Reaction {
-  return value && typeof value === 'object' && value.isMobXReaction === true;
+export function isReaction(value: unknown): value is Reaction {
+  return !!value && typeof value === 'object' && (value as AnyObject).isMobXReaction === true;
 }
 
-export function isReactionDisposer(value: any): value is IReactionDisposer {
-  return value && typeof value === 'function' && isReaction((value as IReactionDisposer)[$mobx]);
+export function isReactionDisposer(value: unknown): value is IReactionDisposer {
+  return (
+    !!value &&
+    typeof value === 'function' &&
+    isReaction((value as AnyFunction & Record<typeof $mobx, unknown>)[$mobx])
+  );
 }
 
 export function disposeMobxReactions(value: any): void {

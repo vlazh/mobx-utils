@@ -53,7 +53,7 @@ export default class WorkerStore<
   override clean(): void {
     super.clean();
     Object.getOwnPropertyNames(this.pendingTasks).forEach((key) => {
-      delete this.pendingTasks[key];
+      delete this.pendingTasks[key as keyof typeof this.pendingTasks];
     });
     this.pendingTasks.default = 0;
   }

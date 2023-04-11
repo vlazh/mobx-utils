@@ -1,9 +1,9 @@
 import {
+  type AnnotationsMap,
+  type CreateObservableOptions,
   transaction,
   toJS,
   makeAutoObservable,
-  AnnotationsMap,
-  CreateObservableOptions,
   isObservableProp,
   isComputedProp,
   isAction as isMobxAction,
@@ -70,7 +70,7 @@ export function isStore<S extends AnyObject>(value: unknown): value is StoreLike
   return (
     typeof value === 'object' &&
     value != null &&
-    value[storeSymbolProp] === storeSymbol &&
+    (value as AnyObject)[storeSymbolProp] === storeSymbol &&
     typeof (value as StoreLike<S>).init === 'function' &&
     typeof (value as StoreLike<S>).update === 'function' &&
     typeof (value as StoreLike<S>).reset === 'function'
@@ -81,7 +81,7 @@ export function isRootStore<S extends Stores>(value: unknown): value is RootStor
   return (
     typeof value === 'object' &&
     value != null &&
-    value[rootStoreSymbolProp] === rootStoreSymbol &&
+    (value as AnyObject)[rootStoreSymbolProp] === rootStoreSymbol &&
     typeof (value as RootStoreLike<S>).init === 'function' &&
     typeof (value as RootStoreLike<S>).update === 'function' &&
     typeof (value as RootStoreLike<S>).resetAll === 'function'
@@ -102,7 +102,8 @@ export function updateState<S extends AnyObject>(
   const patchObject = typeof patch === 'function' ? patch(state) : patch;
   if (!patchObject) return state;
 
-  Object.getOwnPropertyNames(patchObject).forEach((prop) => {
+  Object.getOwnPropertyNames(patchObject).forEach((key) => {
+    const prop = key as keyof typeof patchObject;
     if (
       typeof patchObject[prop] !== 'function' &&
       typeof state[prop] !== 'function' &&
@@ -115,11 +116,11 @@ export function updateState<S extends AnyObject>(
         // eslint-disable-next-line no-param-reassign
         state[prop as keyof S] = patchObject[prop] as S[keyof S];
       } else if (globalThis.process?.env.NODE_ENV !== 'production') {
-        console.warn(`Skip the value applied for readonly prop '${prop}'.`);
+        console.warn(`Skip the value applied for readonly prop '${String(prop)}'.`);
       }
     } else if (globalThis.process?.env.NODE_ENV !== 'production') {
-      if (!storeMethods[prop]) {
-        console.warn(`Skip the value applied for prop '${prop}'.`);
+      if (!storeMethods[prop as keyof StoreMethods<AnyObject>]) {
+        console.warn(`Skip the value applied for prop '${String(prop)}'.`);
       }
     }
   });
@@ -130,8 +131,9 @@ export function getSnapshot<S extends AnyObject>(
   store: StoreLike<S>,
   { excludeReadonly }: GetSnapshotOptions = {}
 ): StateLike<S> {
-  return Object.getOwnPropertyNames(store).reduce((acc, prop) => {
-    const value = store[prop as keyof typeof acc];
+  return Object.getOwnPropertyNames(store).reduce((acc, key) => {
+    const prop = key as keyof typeof acc;
+    const value = store[prop];
     if (
       value !== storeSymbol &&
       ((isObservableProp(store, prop) && !isMobxAction(value)) || typeof value !== 'function')
@@ -151,11 +153,6 @@ export function getSnapshot<S extends AnyObject>(
   }, {} as StateLike<S>);
 }
 
-type WithThis<T extends AnyObject> = ThisType<StoreLike<T>> & T;
-// type WithThis<T extends AnyObject> = {
-//   [P in keyof T]: T[P] extends AnyFunction ? (...args: Parameters<T[P]>) => ReturnType<T[P]> : T[P];
-// };
-
 function filterState<S extends AnyObject>(
   state: AnyObject,
   statePropDescriptors = Object.getOwnPropertyDescriptors(state),
@@ -171,7 +168,7 @@ function filterState<S extends AnyObject>(
 }
 
 export function createStore<S extends AnyObject>(
-  initialState: WithThis<S>,
+  initialState: S & ThisType<StoreLike<S>>,
   overrides?: AnnotationsMap<S, never> | undefined,
   options0?: CreateObservableOptions | undefined
 ): StoreLike<S> {
@@ -227,7 +224,7 @@ export function createStore<S extends AnyObject>(
   const methodAnnotations =
     options.autoBind &&
     Object.entries(store).reduce((acc, [key, value]) => {
-      if (!storeMethods[key] && typeof value === 'function') {
+      if (!storeMethods[key as keyof StoreMethods<AnyObject>] && typeof value === 'function') {
         acc[key] = mobxAction.bound;
       }
       return acc;
@@ -248,7 +245,9 @@ export function createStore<S extends AnyObject>(
   );
 }
 
-export function createRootStore<S extends Stores>(stores: WithThis<S>): RootStoreLike<S> {
+export function createRootStore<S extends Stores>(
+  stores: S & ThisType<RootStoreLike<S>>
+): RootStoreLike<S> {
   return {
     ...stores,
 
@@ -298,13 +297,13 @@ export function createRootStore<S extends Stores>(stores: WithThis<S>): RootStor
     },
 
     getSnapshots() {
-      return Object.getOwnPropertyNames(this).reduce((acc, prop) => {
-        const store = this[prop];
+      return Object.getOwnPropertyNames(this).reduce((acc, key) => {
+        const store = this[key];
         if (isStore(store)) {
-          acc[prop] = store.getSnapshot();
+          acc[key as keyof typeof acc] = store.getSnapshot() as (typeof acc)[keyof typeof acc];
         }
         return acc;
-      }, {} as JSStates<S>);
+      }, {} as Writeable<JSStates<S>>);
     },
   };
 }
