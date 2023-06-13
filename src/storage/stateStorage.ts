@@ -58,8 +58,13 @@ export async function getStoreState<
   try {
     const state = await storage.getItem<JSONStoreState<RootState>[K]>(store as string);
     if (!state && !defaultState) return None;
-    return Option.of(
-      defaultState ? ({ ...defaultState, ...state } as JSONStoreState<RootState>[K]) : state
+    return Option.of<JSONStoreState<RootState>[K]>(
+      defaultState
+        ? {
+            ...defaultState,
+            ...(state as JSONStoreState<RootState>[K]),
+          }
+        : state
     );
   } catch (ex) {
     if (throwError) throw ex;
