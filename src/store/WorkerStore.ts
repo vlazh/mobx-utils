@@ -8,7 +8,7 @@ export type PendingTasks<TaskKeys extends string> = { default: number } & {
 
 export default class WorkerStore<
   RS extends AnyObject,
-  TaskKeys extends string = never
+  TaskKeys extends string = never,
 > extends BaseStore<RS> {
   @observable
   protected readonly pendingTasks: PendingTasks<TaskKeys> = { default: 0 };

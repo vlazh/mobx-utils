@@ -223,12 +223,15 @@ export function createStore<S extends AnyObject>(
   // Make auto bound annotations for passed methods to avoid auto make its as observable values.
   const methodAnnotations =
     options.autoBind &&
-    Object.entries(store).reduce((acc, [key, value]) => {
-      if (!storeMethods[key as keyof StoreMethods<AnyObject>] && typeof value === 'function') {
-        acc[key] = mobxAction.bound;
-      }
-      return acc;
-    }, {} as AnnotationsMap<EmptyObject, string>);
+    Object.entries(store).reduce(
+      (acc, [key, value]) => {
+        if (!storeMethods[key as keyof StoreMethods<AnyObject>] && typeof value === 'function') {
+          acc[key] = mobxAction.bound;
+        }
+        return acc;
+      },
+      {} as AnnotationsMap<EmptyObject, string>
+    );
 
   return makeAutoObservable(
     store,
@@ -297,13 +300,16 @@ export function createRootStore<S extends Stores>(
     },
 
     getSnapshots() {
-      return Object.getOwnPropertyNames(this).reduce((acc, key) => {
-        const store = this[key];
-        if (isStore(store)) {
-          acc[key as keyof typeof acc] = store.getSnapshot() as (typeof acc)[keyof typeof acc];
-        }
-        return acc;
-      }, {} as Writeable<JSStates<S>>);
+      return Object.getOwnPropertyNames(this).reduce(
+        (acc, key) => {
+          const store = this[key];
+          if (isStore(store)) {
+            acc[key as keyof typeof acc] = store.getSnapshot() as (typeof acc)[keyof typeof acc];
+          }
+          return acc;
+        },
+        {} as Writeable<JSStates<S>>
+      );
     },
   };
 }

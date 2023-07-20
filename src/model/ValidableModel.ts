@@ -13,7 +13,7 @@ export type KeysAction = 'pick' | 'omit';
 export type ValidableEntity<
   Entity extends AnyObject,
   PickOrOmit extends KeysAction = 'pick',
-  Keys extends keyof Entity = PickOrOmit extends 'pick' ? keyof Entity : never
+  Keys extends keyof Entity = PickOrOmit extends 'pick' ? keyof Entity : never,
 > = Keys extends never
   ? Entity
   : PickOrOmit extends 'pick'
@@ -23,7 +23,7 @@ export type ValidableEntity<
 export default interface ValidableModel<
   Entity extends AnyObject,
   PickOrOmit extends KeysAction = 'pick',
-  Keys extends keyof Entity = PickOrOmit extends 'pick' ? keyof Entity : never
+  Keys extends keyof Entity = PickOrOmit extends 'pick' ? keyof Entity : never,
 > extends ModelLike<Entity>,
     Validable {
   errors: ValidationErrors<ValidableEntity<Entity, PickOrOmit, Keys>>;

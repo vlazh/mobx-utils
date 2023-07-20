@@ -7,7 +7,7 @@ export type JSONStoreState<RootState extends AnyObject> = Required<JsonOf<RootSt
 
 export async function saveStoreState<
   RootState extends AnyObject,
-  K extends keyof JSONStoreState<RootState>
+  K extends keyof JSONStoreState<RootState>,
 >(
   storage: LocalForageDbMethodsCore,
   store: K,
@@ -48,7 +48,7 @@ export async function saveRootState<RootState extends AnyObject>(
 
 export async function getStoreState<
   RootState extends AnyObject,
-  K extends keyof JSONStoreState<RootState>
+  K extends keyof JSONStoreState<RootState>,
 >(
   storage: LocalForageDbMethodsCore,
   store: K,

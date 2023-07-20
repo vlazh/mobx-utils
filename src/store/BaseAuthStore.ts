@@ -29,7 +29,7 @@ export default class BaseAuthStore<
   JwtDecoded extends BaseJwtDecoded,
   RS extends AnyObject,
   NS extends NotificationsStore<RS, Notification<any, any>> = NotificationsStore<RS, Notification>,
-  WS extends WorkerStore<RS, any> = WorkerStore<RS, any>
+  WS extends WorkerStore<RS, any> = WorkerStore<RS, any>,
 > extends RequestableStore<RS, NS, WS> {
   @observable
   protected decoded: Option<JwtDecoded> = None;

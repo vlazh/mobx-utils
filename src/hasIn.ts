@@ -10,7 +10,7 @@ export function hasIn<
       : T extends IObservableArray<any>
       ? number
       : keyof T
-    : never
+    : never,
 >(
   obj: T,
   prop: K

@@ -83,7 +83,8 @@ export default class AppStore
     NotificationsStore<RootStore, AppNotification>,
     WorkerStore<RootStore>
   >
-  implements JSONSerializable<AppStore> {
+  implements JSONSerializable<AppStore>
+{
   readonly _serializable = this;
 
   // ...

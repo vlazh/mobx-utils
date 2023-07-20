@@ -12,7 +12,7 @@ export interface Notification<TType extends 'error' = 'error', TContent = string
 
 export default class NotificationsStore<
   RS extends AnyObject,
-  N extends Notification<any, any> = Notification
+  N extends Notification<any, any> = Notification,
 > extends BaseStore<RS> {
   @observable
   protected notifications: readonly N[] = [];

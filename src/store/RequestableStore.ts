@@ -37,7 +37,7 @@ export interface RequestOptions<TaskKeys extends string> {
 export default class RequestableStore<
   RS extends AnyObject,
   NS extends NotificationsStore<RS, Notification<any, any>> = NotificationsStore<RS, Notification>,
-  WS extends WorkerStore<RS, any> = WorkerStore<RS, any>
+  WS extends WorkerStore<RS, any> = WorkerStore<RS, any>,
 > extends BaseStore<RS> {
   readonly worker: WS;
 

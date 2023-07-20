@@ -13,7 +13,7 @@ export type OnlyModelEntity<A extends AnyObject, ExcludeTypes = AnyFunction> = E
 export default class ValidableStoreModel<
     Entity extends AnyObject,
     PickOrOmit extends KeysAction = 'pick',
-    Keys extends keyof OnlyModelEntity<Entity> = keyof OnlyModelEntity<Entity>
+    Keys extends keyof OnlyModelEntity<Entity> = keyof OnlyModelEntity<Entity>,
   >
   extends StoreModel<OnlyModelEntity<Entity>>
   implements ValidableModel<OnlyModelEntity<Entity>, PickOrOmit, Keys>
@@ -57,11 +57,14 @@ export default class ValidableStoreModel<
       name
     );
 
-    const safeResult = Object.keys(result).reduce((acc, key) => {
-      const prop = key as keyof typeof this.errors;
-      acc[prop] = { error: Option.of(result[prop]?.message) };
-      return acc;
-    }, {} as typeof this.errors);
+    const safeResult = Object.keys(result).reduce(
+      (acc, key) => {
+        const prop = key as keyof typeof this.errors;
+        acc[prop] = { error: Option.of(result[prop]?.message) };
+        return acc;
+      },
+      {} as typeof this.errors
+    );
 
     Object.assign(this.errors, safeResult);
 
