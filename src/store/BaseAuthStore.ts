@@ -1,7 +1,7 @@
 import { observable, computed, action, runInAction } from 'mobx';
 import jwtDecode from 'jwt-decode';
-import { Option, None } from '@jstoolkit/utils/fp/Option';
-import { Try } from '@jstoolkit/utils/fp/Try';
+import { Option, None } from '@js-toolkit/utils/fp/Option';
+import { Try } from '@js-toolkit/utils/fp/Try';
 import RequestableStore from './RequestableStore';
 import type NotificationsStore from './NotificationsStore';
 import type { Notification } from './NotificationsStore';
