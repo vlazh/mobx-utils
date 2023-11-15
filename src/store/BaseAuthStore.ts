@@ -1,5 +1,5 @@
 import { observable, computed, action, runInAction } from 'mobx';
-import jwtDecode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 import { Option, None } from '@js-toolkit/utils/fp/Option';
 import { Try } from '@js-toolkit/utils/fp/Try';
 import RequestableStore from './RequestableStore';
