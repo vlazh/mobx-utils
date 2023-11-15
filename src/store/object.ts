@@ -176,6 +176,7 @@ export function createStore<S extends AnyObject>(
 
   const initialDescriptors = Object.getOwnPropertyDescriptors(initialState);
   const initialProps = Object.getOwnPropertyNames(initialDescriptors);
+  const initialSymbols = Object.getOwnPropertySymbols(initialDescriptors);
 
   // Define default state: exclude getters, setters, functions
   let initial: StateLike<S> = filterState(initialState, initialDescriptors, initialProps);
@@ -183,6 +184,7 @@ export function createStore<S extends AnyObject>(
   const store: StoreLike<S> = {
     // Copy props and methods
     // Getters/Setters will be copied as regular props so we have to redefine them below
+    // Not enumerable props will not be copied so we have to redefine them below
     ...(initialState as S),
 
     [storeSymbolProp]: storeSymbol,
@@ -205,11 +207,24 @@ export function createStore<S extends AnyObject>(
     },
   };
 
+  // To exclude non-writeable props from observable
+  const ignored: PropertyKey[] = [];
+
   // Redefine getters/setters
-  initialProps.forEach((prop) => {
-    const desc = initialDescriptors[prop];
-    desc && (desc.get || desc.set) && Object.defineProperty(store, prop, desc);
-  });
+  const redefine = (prop: string | symbol): void => {
+    const desc = (initialDescriptors as Record<PropertyKey, TypedPropertyDescriptor<unknown>>)[
+      prop
+    ];
+    desc &&
+      (desc.get || desc.set || desc.enumerable === false) &&
+      Object.defineProperty(store, prop, desc);
+
+    if (desc.writable === false && !desc.get && !desc.set) {
+      ignored.push(prop);
+    }
+  };
+  initialProps.forEach(redefine);
+  initialSymbols.forEach(redefine);
 
   // Bind methods
   // Object.entries(store).forEach(([key, value]) => {
@@ -236,6 +251,13 @@ export function createStore<S extends AnyObject>(
   return makeAutoObservable(
     store,
     {
+      ...ignored.reduce(
+        (acc, prop) => {
+          acc[prop] = false;
+          return acc;
+        },
+        {} as Record<PropertyKey, false>
+      ),
       ...methodAnnotations,
       ...overrides,
       [storeSymbolProp]: false,
