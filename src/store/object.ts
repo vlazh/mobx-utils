@@ -20,7 +20,8 @@ declare global {
   }
 }
 
-export interface GetSnapshotOptions {
+export interface GetSnapshotOptions<F = string> {
+  readonly field?: F | undefined;
   readonly excludeReadonly?: boolean | undefined;
 }
 
@@ -33,7 +34,10 @@ export interface StoreMethods<S extends AnyObject> {
     patch: Partial<StateLike<S>> | ((state: StateLike<S>) => Partial<StateLike<S>> | undefined)
   ): void;
   reset(this: this): void;
-  getSnapshot(this: this, options?: GetSnapshotOptions | undefined): StateLike<S>;
+  getSnapshot<F extends keyof S = keyof S>(
+    this: this,
+    options?: GetSnapshotOptions<F> | undefined
+  ): StateLike<keyof S extends F ? S : Pick<S, F>>;
 }
 
 export type StoreLike<S extends AnyObject> = S & StoreMethods<S>;
@@ -127,11 +131,12 @@ export function updateState<S extends AnyObject>(
   return state;
 }
 
-export function getSnapshot<S extends AnyObject>(
+export function getSnapshot<S extends AnyObject, F extends keyof S = keyof S>(
   store: StoreLike<S>,
-  { excludeReadonly }: GetSnapshotOptions = {}
-): StateLike<S> {
-  return Object.getOwnPropertyNames(store).reduce((acc, key) => {
+  { field, excludeReadonly }: GetSnapshotOptions<F> = {}
+): StateLike<keyof S extends F ? S : Pick<S, F>> {
+  const props = field ? [field] : Object.getOwnPropertyNames(store);
+  return props.reduce((acc, key) => {
     const prop = key as keyof typeof acc;
     const value = store[prop];
     if (
@@ -150,7 +155,7 @@ export function getSnapshot<S extends AnyObject>(
       }
     }
     return acc;
-  }, {} as StateLike<S>);
+  }, {} as StateLike<S>) as StateLike<keyof S extends F ? S : Pick<S, F>>;
 }
 
 function filterState<S extends AnyObject>(
