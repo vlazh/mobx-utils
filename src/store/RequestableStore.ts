@@ -1,5 +1,5 @@
 import { Try } from '@js-toolkit/utils/fp/Try';
-import getErrorMessage from '@js-toolkit/utils/getErrorMessage';
+import { getErrorMessage } from '@js-toolkit/utils/getErrorMessage';
 import type Validable from '../model/Validable';
 import type NotificationsStore from './NotificationsStore';
 import type { Notification } from './NotificationsStore';

@@ -1,6 +1,6 @@
 import 'localforage';
 import { Option, None } from '@js-toolkit/utils/fp/Option';
-import getErrorMessage from '@js-toolkit/utils/getErrorMessage';
+import { getErrorMessage } from '@js-toolkit/utils/getErrorMessage';
 import type { JsonOf } from '../serialization/json';
 
 export type JSONStoreState<RootState extends AnyObject> = Required<JsonOf<RootState>>;

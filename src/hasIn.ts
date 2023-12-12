@@ -6,10 +6,10 @@ export function hasIn<
     ? T extends ObservableMap<infer P, any>
       ? P
       : T extends ObservableSet<infer P>
-      ? P
-      : T extends IObservableArray<any>
-      ? number
-      : keyof T
+        ? P
+        : T extends IObservableArray<any>
+          ? number
+          : keyof T
     : never,
 >(
   obj: T,
@@ -18,12 +18,12 @@ export function hasIn<
   ? T extends ObservableMap<any, any>
     ? T
     : T extends ObservableSet<any>
-    ? T
-    : T extends IObservableArray<any>
-    ? T
-    : K extends keyof T
-    ? T
-    : never
+      ? T
+      : T extends IObservableArray<any>
+        ? T
+        : K extends keyof T
+          ? T
+          : never
   : never {
-  return has(obj, prop);
+  return has(obj, prop as any);
 }
