@@ -8,7 +8,7 @@ import type { PendingTasks } from './WorkerStore';
 import BaseStore from './BaseStore';
 
 export interface ResponseLike {
-  data?: any | undefined;
+  data?: any;
   status?: number | undefined;
   statusText?: string | undefined;
 }
@@ -100,7 +100,6 @@ export default class RequestableStore<
     _result: R,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _options: RequestOptions<WS extends WorkerStore<any, infer TaskKeys> ? TaskKeys : never> = {}
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
   ): void {}
 
   // eslint-disable-next-line class-methods-use-this

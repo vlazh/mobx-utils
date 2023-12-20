@@ -201,12 +201,12 @@ interface MemoCacheEntry {
   lastInputs: any[] | boolean;
   lastParams: any[] | undefined;
   lastResult: Try<any>;
-  cacheTimeoutHandler: any | undefined;
+  cacheTimeoutHandler: any;
 }
 
 const memoCache: WeakMap<AnyFunction, MemoCacheEntry> = new WeakMap();
 
-function createRemoveEntryTimer(lifetime: number, key: AnyFunction): unknown | undefined {
+function createRemoveEntryTimer(lifetime: number, key: AnyFunction): unknown {
   return lifetime > 0 ? setTimeout(() => memoCache.delete(key), lifetime * 1000) : undefined;
 }
 
