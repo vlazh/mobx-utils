@@ -25,33 +25,33 @@ export interface GetSnapshotOptions<F = string> {
   readonly excludeReadonly?: boolean | undefined;
 }
 
-export type StateLike<S extends AnyObject> = ExcludeKeysOfType<S, AnyFunction>;
+export type State<S extends AnyObject> = ExcludeKeysOfType<S, AnyFunction>;
 
 export interface StoreMethods<S extends AnyObject> {
-  init(this: this, initialState: StateLike<S>): void;
+  init(this: this, initialState: State<S>): void;
   update(
     this: this,
-    patch: Partial<StateLike<S>> | ((state: StateLike<S>) => Partial<StateLike<S>> | undefined)
+    patch: Partial<State<S>> | ((state: State<S>) => Partial<State<S>> | undefined)
   ): void;
   reset(this: this): void;
   getSnapshot<F extends keyof S = keyof S>(
     this: this,
     options?: GetSnapshotOptions<F> | undefined
-  ): StateLike<keyof S extends F ? S : Pick<S, F>>;
+  ): State<keyof S extends F ? S : Pick<S, F>>;
 }
 
-export type StoreLike<S extends AnyObject> = S & StoreMethods<S>;
+export type Store<S extends AnyObject> = S & StoreMethods<S>;
 
-type States = { [P: string]: StateLike<AnyObject> };
+type States = { [P: string]: State<AnyObject> };
 
-export type JSStates<S extends States> = { readonly [P in keyof StateLike<S>]: StateLike<S[P]> };
+export type JSStates<S extends States> = { readonly [P in keyof State<S>]: State<S[P]> };
 
 type JSStatePatches<S extends States> = {
-  readonly [P in keyof StateLike<S>]?: Parameters<StoreMethods<S[P]>['update']>[0] | undefined;
+  readonly [P in keyof State<S>]?: Parameters<StoreMethods<S[P]>['update']>[0] | undefined;
 };
 
 interface Stores {
-  readonly [P: string]: StoreLike<AnyObject> | AnyFunction;
+  readonly [P: string]: Store<AnyObject> | AnyFunction;
 }
 
 export interface RootStoreMethods<S extends Stores> {
@@ -63,32 +63,32 @@ export interface RootStoreMethods<S extends Stores> {
   action<T>(this: this, action: () => T): T;
 }
 
-export type RootStoreLike<S extends Stores> = S & RootStoreMethods<S>;
+export type RootStore<S extends Stores> = S & RootStoreMethods<S>;
 
 const storeSymbolProp = '@@__mobx_object_store__';
 const rootStoreSymbolProp = '@@__mobx_object_root_store__';
 const storeSymbol = Symbol.for(storeSymbolProp);
 const rootStoreSymbol = Symbol.for(rootStoreSymbolProp);
 
-export function isStore<S extends AnyObject>(value: unknown): value is StoreLike<S> {
+export function isStore<S extends AnyObject>(value: unknown): value is Store<S> {
   return (
     typeof value === 'object' &&
     value != null &&
     (value as AnyObject)[storeSymbolProp] === storeSymbol &&
-    typeof (value as StoreLike<S>).init === 'function' &&
-    typeof (value as StoreLike<S>).update === 'function' &&
-    typeof (value as StoreLike<S>).reset === 'function'
+    typeof (value as Store<S>).init === 'function' &&
+    typeof (value as Store<S>).update === 'function' &&
+    typeof (value as Store<S>).reset === 'function'
   );
 }
 
-export function isRootStore<S extends Stores>(value: unknown): value is RootStoreLike<S> {
+export function isRootStore<S extends Stores>(value: unknown): value is RootStore<S> {
   return (
     typeof value === 'object' &&
     value != null &&
     (value as AnyObject)[rootStoreSymbolProp] === rootStoreSymbol &&
-    typeof (value as RootStoreLike<S>).init === 'function' &&
-    typeof (value as RootStoreLike<S>).update === 'function' &&
-    typeof (value as RootStoreLike<S>).resetAll === 'function'
+    typeof (value as RootStore<S>).init === 'function' &&
+    typeof (value as RootStore<S>).update === 'function' &&
+    typeof (value as RootStore<S>).resetAll === 'function'
   );
 }
 
@@ -132,9 +132,9 @@ export function updateState<S extends AnyObject>(
 }
 
 export function getSnapshot<S extends AnyObject, F extends keyof S = keyof S>(
-  store: StoreLike<S>,
+  store: Store<S>,
   { field, excludeReadonly }: GetSnapshotOptions<F> = {}
-): StateLike<keyof S extends F ? S : Pick<S, F>> {
+): State<keyof S extends F ? S : Pick<S, F>> {
   const props = field ? [field] : Object.getOwnPropertyNames(store);
   return props.reduce((acc, key) => {
     const prop = key as keyof typeof acc;
@@ -155,28 +155,36 @@ export function getSnapshot<S extends AnyObject, F extends keyof S = keyof S>(
       }
     }
     return acc;
-  }, {} as StateLike<S>) as StateLike<keyof S extends F ? S : Pick<S, F>>;
+  }, {} as State<S>) as State<keyof S extends F ? S : Pick<S, F>>;
 }
 
 function filterState<S extends AnyObject>(
   state: AnyObject,
   statePropDescriptors = Object.getOwnPropertyDescriptors(state),
   stateProps = Object.getOwnPropertyNames(statePropDescriptors)
-): StateLike<S> {
+): State<S> {
   return stateProps.reduce((result, prop) => {
     const desc = statePropDescriptors[prop];
     if (desc && !desc.get && !desc.set && typeof desc.value !== 'function') {
       Object.defineProperty(result, prop, desc);
     }
     return result;
-  }, {} as StateLike<S>);
+  }, {} as State<S>);
+}
+
+export interface createStore<S extends AnyObject> {
+  (
+    initialState: S & ThisType<Store<S>>,
+    overrides?: AnnotationsMap<S, never> | undefined,
+    options0?: CreateObservableOptions | undefined
+  ): Store<S>;
 }
 
 export function createStore<S extends AnyObject>(
-  initialState: S & ThisType<StoreLike<S>>,
+  initialState: S & ThisType<Store<S>>,
   overrides?: AnnotationsMap<S, never> | undefined,
   options0?: CreateObservableOptions | undefined
-): StoreLike<S> {
+): Store<S> {
   const options = { autoBind: true, ...options0 };
 
   const initialDescriptors = Object.getOwnPropertyDescriptors(initialState);
@@ -184,9 +192,9 @@ export function createStore<S extends AnyObject>(
   const initialSymbols = Object.getOwnPropertySymbols(initialDescriptors);
 
   // Define default state: exclude getters, setters, functions
-  let initial: StateLike<S> = filterState(initialState, initialDescriptors, initialProps);
+  let initial: State<S> = filterState(initialState, initialDescriptors, initialProps);
 
-  const store: StoreLike<S> = {
+  const store: Store<S> = {
     // Copy props and methods
     // Getters/Setters will be copied as regular props so we have to redefine them below
     // Not enumerable props will not be copied so we have to redefine them below
@@ -276,8 +284,8 @@ export function createStore<S extends AnyObject>(
 }
 
 export function createRootStore<S extends Stores>(
-  stores: S & ThisType<RootStoreLike<S>>
-): RootStoreLike<S> {
+  stores: S & ThisType<RootStore<S>>
+): RootStore<S> {
   return {
     ...stores,
 
@@ -341,11 +349,11 @@ export function createRootStore<S extends Stores>(
   };
 }
 
-type WithSelectors<RS extends RootStoreLike<any>, S extends Readonly<AnyObject>> = RS & {
+type WithSelectors<RS extends RootStore<any>, S extends Readonly<AnyObject>> = RS & {
   readonly selectors: Readonly<S>;
 };
 
-export function attachSelectors<RS extends RootStoreLike<any>, S extends Readonly<AnyObject>>(
+export function attachSelectors<RS extends RootStore<any>, S extends Readonly<AnyObject>>(
   rootStore: RS,
   selectors: S,
   overrides?: AnnotationsMap<S, never> | undefined,
@@ -356,9 +364,9 @@ export function attachSelectors<RS extends RootStoreLike<any>, S extends Readonl
   }) as WithSelectors<RS, S>;
 }
 
-type WithStores<RS extends RootStoreLike<any>, S extends Stores> = RS & S;
+type WithStores<RS extends RootStore<any>, S extends Stores> = RS & S;
 
-export function attachStores<RS extends RootStoreLike<any>, S extends Stores>(
+export function attachStores<RS extends RootStore<any>, S extends Stores>(
   rootStore: RS,
   stores: S
 ): WithStores<RS, S> {
