@@ -23,7 +23,7 @@ export default abstract class CleanerDisposer {
    * Dispose reactions recursively.
    * @param callback If callback returns true then do nothing for that name
    */
-  dispose(callback?: ((name: string, value: any) => boolean) | undefined): void {
+  dispose(callback?: (name: string, value: any) => boolean): void {
     Object.entries(this).forEach(([name, value]) => {
       if (value === this) return; // Skip self referencies. For example, `jsonModel` in `SerializableModel`.
       if (callback && callback(name, value)) return;
@@ -36,7 +36,7 @@ export default abstract class CleanerDisposer {
    * Clean recursively.
    * @param callback If callback returns true then do nothing for that name
    */
-  clean(callback?: ((name: string, value: any) => boolean) | undefined): void {
+  clean(callback?: (name: string, value: any) => boolean): void {
     Object.entries(this).forEach(([name, value]) => {
       if (value === this) return; // Skip self referencies. For example, `jsonModel` in `SerializableModel`.
       if (callback && callback(name, value)) return;

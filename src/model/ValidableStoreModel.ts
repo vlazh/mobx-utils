@@ -49,9 +49,7 @@ export default class ValidableStoreModel<
   }
 
   @action
-  validate(
-    name?: keyof ValidableEntity<OnlyModelEntity<Entity>, PickOrOmit, Keys> | undefined
-  ): boolean {
+  validate(name?: keyof ValidableEntity<OnlyModelEntity<Entity>, PickOrOmit, Keys>): boolean {
     const result = validate(
       this.target as unknown as ValidableEntity<OnlyModelEntity<Entity>, PickOrOmit, Keys>,
       name

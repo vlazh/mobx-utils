@@ -11,8 +11,8 @@ export interface NameValue<EntityOrValue, K extends keyof EntityOrValue = any> {
   value: undefined extends K
     ? EntityOrValue
     : Exclude<K, never> extends never
-    ? any
-    : EntityOrValue[K];
+      ? any
+      : EntityOrValue[K];
   // value: EntityOrValue extends AnyObject ? (K extends keyof EntityOrValue ? EntityOrValue[K] : any) : any;
 }
 
@@ -60,7 +60,7 @@ export default class Model<Entity extends AnyObject> implements ModelLike<Entity
    */
   protected readonly target: Entity;
 
-  constructor(target?: Entity | undefined) {
+  constructor(target?: Entity) {
     this.target = target || (this as unknown as Entity);
     // to avoid circular dependencies on self
     const desc = Object.getOwnPropertyDescriptor(this, 'target');
