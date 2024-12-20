@@ -9,6 +9,7 @@ export type JsonOf<A> =
 
 // export type JSONModel<A extends AnyObject> = JsonOf<A>;
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface JSONSerializable<A extends AnyObject>
   extends JSONSerializableOrigin<Omit<A, keyof ValidableModel<any>>> {}
 

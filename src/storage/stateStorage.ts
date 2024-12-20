@@ -11,7 +11,7 @@ export async function saveStoreState<
 >(
   storage: LocalForageDbMethodsCore,
   store: K,
-  state?: JSONStoreState<RootState>[K] | undefined,
+  state?: JSONStoreState<RootState>[K],
   throwError = false
 ): Promise<void> {
   try {
@@ -52,7 +52,7 @@ export async function getStoreState<
 >(
   storage: LocalForageDbMethodsCore,
   store: K,
-  defaultState?: Partial<JSONStoreState<RootState>[K]> | undefined,
+  defaultState?: Partial<JSONStoreState<RootState>[K]>,
   throwError = false
 ): Promise<Option<JSONStoreState<RootState>[K]>> {
   try {

@@ -36,7 +36,7 @@ export interface StoreMethods<S extends AnyObject> {
   reset(this: this): void;
   getSnapshot<F extends keyof S = keyof S>(
     this: this,
-    options?: GetSnapshotOptions<F> | undefined
+    options?: GetSnapshotOptions<F>
   ): State<keyof S extends F ? S : Pick<S, F>>;
 }
 
@@ -117,7 +117,6 @@ export function updateState<S extends AnyObject>(
       // Ignore getters and readonly fields
       const desc = Object.getOwnPropertyDescriptor(state, prop);
       if (desc?.set || desc?.writable) {
-        // eslint-disable-next-line no-param-reassign
         state[prop as keyof S] = patchObject[prop] as S[keyof S];
       } else if (globalThis.process?.env.NODE_ENV !== 'production') {
         console.warn(`Skip the value applied for readonly prop '${String(prop)}'.`);
@@ -175,15 +174,15 @@ function filterState<S extends AnyObject>(
 export interface createStore<S extends AnyObject> {
   (
     initialState: S & ThisType<Store<S>>,
-    overrides?: AnnotationsMap<S, never> | undefined,
-    options0?: CreateObservableOptions | undefined
+    overrides?: AnnotationsMap<S, never>,
+    options0?: CreateObservableOptions
   ): Store<S>;
 }
 
 export function createStore<S extends AnyObject>(
   initialState: S & ThisType<Store<S>>,
-  overrides?: AnnotationsMap<S, never> | undefined,
-  options0?: CreateObservableOptions | undefined
+  overrides?: AnnotationsMap<S, never>,
+  options0?: CreateObservableOptions
 ): Store<S> {
   const options = { autoBind: true, ...options0 };
 
@@ -356,8 +355,8 @@ type WithSelectors<RS extends RootStore<any>, S extends Readonly<AnyObject>> = R
 export function attachSelectors<RS extends RootStore<any>, S extends Readonly<AnyObject>>(
   rootStore: RS,
   selectors: S,
-  overrides?: AnnotationsMap<S, never> | undefined,
-  options?: CreateObservableOptions | undefined
+  overrides?: AnnotationsMap<S, never>,
+  options?: CreateObservableOptions
 ): WithSelectors<RS, S> {
   return Object.assign(rootStore as AnyObject, {
     selectors: makeAutoObservable(selectors, overrides, options),

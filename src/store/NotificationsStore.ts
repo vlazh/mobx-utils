@@ -72,7 +72,7 @@ export default class NotificationsStore<
   }
 
   @action
-  deleteAll(type?: N['type'] | undefined): void {
+  deleteAll(type?: N['type']): void {
     this.notifications = type ? this.notifications.filter((_) => _.type !== type) : [];
   }
 

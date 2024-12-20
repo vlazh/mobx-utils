@@ -56,7 +56,7 @@ export default class RequestableStore<
   // If just use promise with error and not use catch in client code then warning in console.
   protected async request<R>(
     doWork: AsyncAction<R>,
-    doWorkParams?: unknown[] | undefined,
+    doWorkParams?: unknown[],
     options: RequestOptions<WS extends WorkerStore<any, infer TaskKeys> ? TaskKeys : never> = {}
   ): Promise<Try<R>> {
     const { deleteErrors, deleteNotifications, pending } = options;
@@ -86,7 +86,7 @@ export default class RequestableStore<
   protected submit<R>(
     model: Validable,
     doWork: AsyncAction<R>,
-    doWorkParams?: any[] | undefined,
+    doWorkParams?: any[],
     options: RequestOptions<WS extends WorkerStore<any, infer TaskKeys> ? TaskKeys : never> = {}
   ): Promise<Try<R>> {
     if (!model.validate()) {
@@ -100,6 +100,7 @@ export default class RequestableStore<
     _result: R,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _options: RequestOptions<WS extends WorkerStore<any, infer TaskKeys> ? TaskKeys : never> = {}
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
   ): void {}
 
   // eslint-disable-next-line class-methods-use-this

@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
-/* eslint-disable no-shadow */
 /* eslint-disable dot-notation */
 import { type IWhenOptions, when as whenFn, runInAction } from 'mobx';
 import { Try } from '@js-toolkit/utils/fp/Try';
@@ -35,7 +34,7 @@ function withDecorator<S extends RequestableStore<any, any, any>>(
   bound: boolean,
   target: S,
   propertyKey: string | symbol,
-  descriptor?: BabelDescriptor | undefined
+  descriptor?: BabelDescriptor
 ): any {
   // Method bound:
   if (bound && descriptor?.value) {
@@ -44,6 +43,7 @@ function withDecorator<S extends RequestableStore<any, any, any>>(
       enumerable: false,
 
       get(this: typeof target) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { value, get, set, ...rest } = descriptor;
         const fn = value!;
         const self = this;
@@ -64,6 +64,7 @@ function withDecorator<S extends RequestableStore<any, any, any>>(
 
   // Method decorator:
   if (descriptor?.value) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { value: fn, get, set, ...rest } = descriptor;
 
     return {
@@ -165,7 +166,7 @@ async function callRequestWithOptions<S extends RequestableStore<any, any, any>>
         // call whenFn on next tick
         setTimeout(() => {
           resolve(whenFn(() => when.predicate.call(self, self), when.options || {}));
-        });
+        }, 0);
       })
     : Promise.resolve());
 
@@ -218,7 +219,7 @@ function createRemoveEntryTimer(lifetime: number, key: AnyFunction): unknown {
 function getLastResult(
   entry: MemoCacheEntry | undefined,
   inputs: MemoCacheEntry['lastInputs'],
-  originalParams?: any[] | undefined
+  originalParams?: any[]
 ): MemoCacheEntry['lastResult'] | undefined {
   if (!entry) {
     return undefined;
@@ -284,7 +285,7 @@ async function withMemo<S extends RequestableStore<any, any, any>>(
 type PropertyOrMethodDecorator<S extends RequestableStore<any, any, any>> = (
   target: S,
   propertyKey: string | symbol,
-  descriptor?: TypedPropertyDescriptor<AsyncAction<void>> | undefined
+  descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
 ) => any;
 
 function isRequestableStore<S extends RequestableStore<any, any, any>>(
@@ -296,7 +297,7 @@ function isRequestableStore<S extends RequestableStore<any, any, any>>(
 function withRequest<S extends RequestableStore<any, any, any>>(
   target: S,
   propertyKey: string | symbol,
-  descriptor?: TypedPropertyDescriptor<AsyncAction<void>> | undefined
+  descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
 ): any;
 
 function withRequest<S extends RequestableStore<any, any, any>>(
@@ -305,8 +306,8 @@ function withRequest<S extends RequestableStore<any, any, any>>(
 
 function withRequest<S extends RequestableStore<any, any, any>>(
   targetOrOptions: S | WithRequestOptions<S>,
-  propertyKeyOrNothing?: string | symbol | undefined,
-  descriptorOrNothing?: TypedPropertyDescriptor<AsyncAction<void>> | undefined
+  propertyKeyOrNothing?: string | symbol,
+  descriptorOrNothing?: TypedPropertyDescriptor<AsyncAction<void>>
 ): typeof targetOrOptions extends WithRequestOptions<S> ? PropertyOrMethodDecorator<S> : any {
   if (isRequestableStore(targetOrOptions)) {
     return withDecorator(
@@ -324,7 +325,7 @@ function withRequest<S extends RequestableStore<any, any, any>>(
   return function withRequestOptions(
     target: S,
     propertyKey: string | symbol,
-    descriptor?: TypedPropertyDescriptor<AsyncAction<void>> | undefined
+    descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
   ): any {
     const { bound, memo, ...restOptions } = targetOrOptions;
 
@@ -356,19 +357,17 @@ export default withRequest;
 
 export function withSubmit<S extends RequestableStore<any, any, any>>(
   modelGetter: (self: S) => Validable,
-  options?:
-    | RequestOptions<
-        S extends RequestableStore<any, any, infer WS>
-          ? WS extends WorkerStore<any, infer TaskKeys>
-            ? TaskKeys
-            : never
-          : never
-      >
-    | undefined
+  options?: RequestOptions<
+    S extends RequestableStore<any, any, infer WS>
+      ? WS extends WorkerStore<any, infer TaskKeys>
+        ? TaskKeys
+        : never
+      : never
+  >
 ): (
   target: S,
   propertyKey: string | symbol,
-  descriptor?: TypedPropertyDescriptor<AsyncAction<void>> | undefined
+  descriptor?: TypedPropertyDescriptor<AsyncAction<void>>
 ) => any {
   return function withSubmitRequest(target, propertyKey, descriptor): any {
     return withDecorator(

@@ -91,5 +91,5 @@ export function serialize<V>(valueOrObject: V, options: SerializeOptions = {}): 
     return value as Result;
   }
 
-  return String(value) as Result;
+  return String(value as unknown) as Result;
 }

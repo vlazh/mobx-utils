@@ -131,7 +131,7 @@ export default class AppStore
 import React, { useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 
-function AppView({ rootStore }: AppViewProps): JSX.Element {
+function AppView({ rootStore }: AppViewProps): React.JSX.Element {
   const {
     authStore,
     appStore,
@@ -143,10 +143,10 @@ function AppView({ rootStore }: AppViewProps): JSX.Element {
   }, [appStore, authStore.isLoggedIn]);
 
   return (
-    <RootStoreContext.Provider value={rootStore}>
+    <RootStoreContext value={rootStore}>
       <AppLoader loading={worker.isPending()} />
       <AppNotifications notifications={notifications} position="window-top" />
-    </RootStoreContext.Provider>
+    </RootStoreContext>
   );
 }
 
