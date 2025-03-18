@@ -1,9 +1,9 @@
 import 'localforage';
-import { Option, None } from '@js-toolkit/utils/fp/Option';
+import type { Jsonify } from '@js-toolkit/utils/types/json';
 import { getErrorMessage } from '@js-toolkit/utils/getErrorMessage';
-import type { JsonOf } from '../serialization/json';
+import { Option, None } from '@js-toolkit/utils/fp/Option';
 
-export type JSONStoreState<RootState extends AnyObject> = Required<JsonOf<RootState>>;
+export type JSONStoreState<RootState extends AnyObject> = Required<Jsonify<RootState>>;
 
 export async function saveStoreState<
   RootState extends AnyObject,

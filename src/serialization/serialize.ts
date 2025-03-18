@@ -1,17 +1,16 @@
+import type { Jsonify, JSONSerializable, ValueContainer } from '@js-toolkit/utils/types/json';
 import { Option } from '@js-toolkit/utils/fp/Option';
-import type { ValueContainer } from '@js-toolkit/utils/types/json';
-import type { JSONSerializable, JsonOf } from './json';
 
 export type SerializerResult = { value: any; next: boolean };
 
 export interface SerializeOptions {
-  serializer?: ((value: any) => SerializerResult) | undefined;
-  excludeValidableModelFields?: boolean | undefined;
-  excludeJSONSerializableFields?: boolean | undefined;
+  readonly serializer?: ((value: any) => SerializerResult) | undefined;
+  readonly excludeValidableModelFields?: boolean | undefined;
+  readonly excludeJSONSerializableFields?: boolean | undefined;
 }
 
-export function serialize<V>(valueOrObject: V, options: SerializeOptions = {}): JsonOf<V> {
-  type Result = JsonOf<V>;
+export function serialize<V>(valueOrObject: V, options: SerializeOptions = {}): Jsonify<V> {
+  type Result = Jsonify<V>;
 
   const {
     serializer,
