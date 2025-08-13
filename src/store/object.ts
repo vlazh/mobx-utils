@@ -54,6 +54,12 @@ interface Stores {
   readonly [P: string]: Store<AnyObject> | AnyFunction;
 }
 
+type WithStores<RS extends RootStore<any>, S extends Stores> = RS & S;
+
+type WithSelectors<RS extends RootStore<any>, S extends Readonly<AnyObject>> = RS & {
+  readonly selectors: Readonly<S>;
+};
+
 export interface RootStoreMethods<S extends Stores> {
   init(this: this, initialStates: Partial<JSStates<S>>): void;
   update(this: this, patches: JSStatePatches<S>): void;
@@ -61,6 +67,12 @@ export interface RootStoreMethods<S extends Stores> {
   getSnapshots(this: this): JSStates<S>;
   transaction<T>(this: this, action: () => T): T;
   action<T>(this: this, action: () => T): T;
+  attach<SS extends Stores>(this: this, stores: SS): WithStores<this, SS>;
+  attachSelectors<SS extends Readonly<AnyObject>>(
+    selectors: SS,
+    overrides?: AnnotationsMap<SS, never>,
+    options?: CreateObservableOptions
+  ): WithSelectors<this, SS>;
 }
 
 export type RootStore<S extends Stores> = S & RootStoreMethods<S>;
@@ -345,29 +357,13 @@ export function createRootStore<S extends Stores>(
         {} as Writeable<JSStates<S>>
       );
     },
+
+    attach(newStores) {
+      return Object.assign(this, newStores);
+    },
+
+    attachSelectors(selectors, overrides?, options?) {
+      return Object.assign(this, { selectors: makeAutoObservable(selectors, overrides, options) });
+    },
   };
-}
-
-type WithSelectors<RS extends RootStore<any>, S extends Readonly<AnyObject>> = RS & {
-  readonly selectors: Readonly<S>;
-};
-
-export function attachSelectors<RS extends RootStore<any>, S extends Readonly<AnyObject>>(
-  rootStore: RS,
-  selectors: S,
-  overrides?: AnnotationsMap<S, never>,
-  options?: CreateObservableOptions
-): WithSelectors<RS, S> {
-  return Object.assign(rootStore as AnyObject, {
-    selectors: makeAutoObservable(selectors, overrides, options),
-  }) as WithSelectors<RS, S>;
-}
-
-type WithStores<RS extends RootStore<any>, S extends Stores> = RS & S;
-
-export function attachStores<RS extends RootStore<any>, S extends Stores>(
-  rootStore: RS,
-  stores: S
-): WithStores<RS, S> {
-  return Object.assign(rootStore as AnyObject, stores) as WithStores<RS, S>;
 }
