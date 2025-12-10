@@ -42,7 +42,7 @@ export interface StoreMethods<S extends AnyObject> {
 
 export type Store<S extends AnyObject> = S & StoreMethods<S>;
 
-type States = { [P: string]: State<AnyObject> };
+type States = Record<string, State<AnyObject>>;
 
 export type JSStates<S extends States> = { readonly [P in keyof State<S>]: State<S[P]> };
 
@@ -50,15 +50,15 @@ type JSStatePatches<S extends States> = {
   readonly [P in keyof State<S>]?: Parameters<StoreMethods<S[P]>['update']>[0] | undefined;
 };
 
-interface Stores {
-  readonly [P: string]: Store<AnyObject> | AnyFunction;
-}
+type Stores = Readonly<Record<string, Store<AnyObject> | AnyFunction>>;
 
 type WithStores<RS extends RootStore<any>, S extends Stores> = RS & S;
 
-type WithSelectors<RS extends RootStore<any>, S extends Readonly<AnyObject>> = RS & {
-  readonly selectors: Readonly<S>;
-};
+type WithSelectors<
+  RS extends RootStore<any>,
+  S extends Readonly<AnyObject>,
+  P extends string = 'selectors',
+> = RS & Readonly<Record<P, Readonly<S>>>;
 
 export interface RootStoreMethods<S extends Stores> {
   init(this: this, initialStates: Partial<JSStates<S>>): void;
@@ -68,11 +68,12 @@ export interface RootStoreMethods<S extends Stores> {
   transaction<T>(this: this, action: () => T): T;
   action<T>(this: this, action: () => T): T;
   attach<SS extends Stores>(this: this, stores: SS): WithStores<this, SS>;
-  attachSelectors<SS extends Readonly<AnyObject>>(
+  attachSelectors<SS extends Readonly<AnyObject>, P extends string | undefined = 'selectors'>(
     selectors: SS,
+    propertyName?: P,
     overrides?: AnnotationsMap<SS, never>,
     options?: CreateObservableOptions
-  ): WithSelectors<this, SS>;
+  ): WithSelectors<this, SS, undefined extends P ? 'selectors' : Exclude<P, undefined>>;
 }
 
 export type RootStore<S extends Stores> = S & RootStoreMethods<S>;
@@ -183,13 +184,11 @@ function filterState<S extends AnyObject>(
   }, {} as State<S>);
 }
 
-export interface createStore<S extends AnyObject> {
-  (
-    initialState: S & ThisType<Store<S>>,
-    overrides?: AnnotationsMap<S, never>,
-    options0?: CreateObservableOptions
-  ): Store<S>;
-}
+export type createStore<S extends AnyObject> = (
+  initialState: S & ThisType<Store<S>>,
+  overrides?: AnnotationsMap<S, never>,
+  options0?: CreateObservableOptions
+) => Store<S>;
 
 export function createStore<S extends AnyObject>(
   initialState: S & ThisType<Store<S>>,
@@ -362,8 +361,12 @@ export function createRootStore<S extends Stores>(
       return Object.assign(this, newStores);
     },
 
-    attachSelectors(selectors, overrides?, options?) {
-      return Object.assign(this, { selectors: makeAutoObservable(selectors, overrides, options) });
+    attachSelectors(selectors, propertyName?, overrides?, options?) {
+      const selectorsProp = propertyName ?? 'selectors';
+      const obj = Object.assign(this, {
+        [selectorsProp]: makeAutoObservable(selectors, overrides, options),
+      });
+      return obj as WithSelectors<typeof obj, typeof selectors, typeof selectorsProp>;
     },
   };
 }
