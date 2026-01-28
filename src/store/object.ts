@@ -249,15 +249,6 @@ export function createStore<S extends AnyObject>(
   initialProps.forEach(redefine);
   initialSymbols.forEach(redefine);
 
-  // Bind methods
-  // Object.entries(store).forEach(([key, value]) => {
-  //   if (typeof value === 'function') {
-  //     const fn = value as AnyFunction;
-  //     const prop = key as keyof typeof store;
-  //     store[prop] = fn.bind(store) as typeof store[typeof prop];
-  //   }
-  // });
-
   // Make auto bound annotations for passed methods to avoid auto make its as observable values.
   const methodAnnotations =
     options.autoBind &&
