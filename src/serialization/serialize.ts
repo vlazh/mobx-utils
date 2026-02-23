@@ -1,7 +1,10 @@
 import type { Jsonify, JSONSerializable, ValueContainer } from '@js-toolkit/utils/types/json';
 import { Option } from '@js-toolkit/utils/fp/Option';
 
-export type SerializerResult = { value: any; next: boolean };
+export interface SerializerResult {
+  value: any;
+  next: boolean;
+}
 
 export interface SerializeOptions {
   readonly serializer?: ((value: any) => SerializerResult) | undefined;
@@ -51,7 +54,7 @@ export function serialize<V>(valueOrObject: V, options: SerializeOptions = {}): 
     return value.map((v: unknown) => serialize(v, options)).orUndefined() as Result;
   }
 
-  if (value && typeof value === 'object') {
+  if (typeof value === 'object') {
     const obj = Object.entries(value).reduce((acc, [prop, propValue]) => {
       // Skip functions and symbols
       if (typeof propValue === 'function' || typeof propValue === 'symbol') return acc;
